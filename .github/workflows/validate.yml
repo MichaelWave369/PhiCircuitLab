@@ -18,5 +18,9 @@ jobs:
           node --check circuits.mjs
           node --check advanced-circuits.mjs
           node --check advanced-workbench.mjs
+          node --check wiring-solver.mjs
+          node --check wiring-lab.mjs
       - name: Run dependency-free model tests
         run: npm test
+      - name: Exercise interactive wiring lab in headless Chrome
+        run: npm run test:browser
