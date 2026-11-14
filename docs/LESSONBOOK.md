@@ -72,7 +72,9 @@ An **open circuit** breaks a path. A **short circuit** provides a low-resistance
 
 ### Virtual exercise
 
-Set 6 V and 300 Ω in the Ohm's Law Bench to represent the first example. Now model two 200 Ω parallel resistors using their equivalent resistance of 100 Ω. Why is the total current higher at equal supply voltage?
+Open the **Series & Parallel Bench**. Set 6 V, R1 = 500 Ω, and R2 = 500 Ω. Record equivalent resistance, source current, and individual resistor voltage in both modes. In series the equivalent is 1,000 Ω and each resistor gets 3 V; in parallel the equivalent is 250 Ω and each resistor gets 6 V.
+
+Then open the **Voltage Divider Bench**, set 9 V with R1 = 2,000 Ω and R2 = 1,000 Ω. Verify the unloaded output is 3 V. Attach a 1,000 Ω load across R2 and observe that the output drops to 1.8 V. Loading matters because the lower effective resistance decreases.
 
 ### Check yourself
 
@@ -132,11 +134,15 @@ If a microcontroller drives a low-power LED, the GPIO output is not an infinite 
 
 ### Virtual exercise
 
-In the LED Bench, hold supply voltage and resistance fixed and switch between red, green, and blue. Write down how the model changes LED current. Then list at least three properties you would need to look up before selecting a real part.
+Open **RC Timing**. The time constant is τ = R × C. For R = 1,000 Ω and C = 100 µF, τ = 0.1 seconds. Set the source to 5 V, select charging, and compare the capacitor voltage at 0τ, 1τ, and 5τ. At 1τ, the ideal capacitor is roughly 63.2% charged; at 5τ it is roughly 99.3% charged.
+
+Switch to **Discharging**. The graph now falls exponentially. At 1τ, approximately 36.8% of the initial voltage remains. Doubling R doubles τ, so every equivalent stage of the curve takes twice as long.
+
+The model assumes an ideal capacitor, a fixed resistor, and no parasitic losses. For real parts, consult working-voltage, polarity, tolerance and current ratings.
 
 ### Check yourself
 
-Typical answers include forward voltage range, recommended current, maximum current, polarity, and temperature behavior.
+For the RC experiment: τ = 1,000 × 100 × 10⁻⁶ = 0.1 s. The approximate ideal voltages are 0 V at 0τ, 3.16 V at 1τ charging, 4.97 V at 5τ charging, and 1.84 V at 1τ discharging. In real builds, capacitor voltage ratings and polarity are critical.
 
 ---
 
