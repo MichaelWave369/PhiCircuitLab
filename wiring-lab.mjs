@@ -1,6 +1,7 @@
 import {
-  MAX_RESISTORS, MAX_SWITCHES, MAX_WIRES, presetCircuit, solveCircuit, validateCircuit
+  MAX_RESISTORS, MAX_SWITCHES, MAX_LEDS, MAX_WIRES, presetCircuit, solveCircuit, validateCircuit
 } from './wiring-solver.mjs';
+import { LED_FORWARD_V } from './wiring-diode-solver.mjs';
 
 const STORAGE_KEY='phi-circuit-lab-wiring-v1';
 const SVG_NS='http://www.w3.org/2000/svg';
@@ -11,7 +12,7 @@ const SOURCE_TERMINALS={
 function endpointPosition(doc,name) {
   if (SOURCE_TERMINALS[name]) return SOURCE_TERMINALS[name];
   const [id,side]=name.split(':');
-  const p=[...doc.parts,...doc.switches].find(p=>p.id===id);
+  const p=[...doc.parts,...doc.switches,...doc.leds].find(p=>p.id===id);
   if (!p) throw new Error('Unknown component terminal');
   return {x:p.x+(side==='a'?-54:54),y:p.y};
 }
@@ -79,6 +80,30 @@ function svgMarkup(doc,selected,pending,result){
       terminalSVG(sw.id+':a',{x:sw.x-54,y:sw.y},pending)+
       terminalSVG(sw.id+':b',{x:sw.x+54,y:sw.y},pending)+'</g>';
   }).join('');
+  const ledParts=doc.leds.map(d=>{
+    const reading=result.leds.find(r=>r.id===d.id);
+    const selectedLed=selected?.kind==='part'&&selected.id===d.id;
+    const color={red:'#ff6363',green:'#7be1a7',blue:'#79b0ff'}[d.color];
+    const on=reading?.state==='on';
+    const glow=on?'drop-shadow(0 0 11px '+color+')':'none';
+    const fill=on?color:'#182a3c';
+    return '<g data-part-id="'+d.id+'" class="placed-led" role="button" tabindex="0" '+
+      'aria-label="'+d.id+' '+d.color+' LED, '+(reading?.state||'unresolved')+'; select to edit">' +
+      '<path d="M '+(d.x-54)+' '+d.y+' H '+(d.x-26)+' M '+(d.x+26)+' '+d.y+' H '+(d.x+54)+
+      '" stroke="#ffc578" stroke-width="4" fill="none"/>' +
+      '<circle cx="'+d.x+'" cy="'+d.y+'" r="27" fill="'+fill+'" stroke="'+(selectedLed?'#ffc578':color)+
+      '" stroke-width="'+(selectedLed?4:2)+'" style="filter:'+glow+'"/>' +
+      '<path d="M '+(d.x-13)+' '+(d.y-14)+' L '+(d.x+13)+' '+d.y+' L '+(d.x-13)+' '+(d.y+14)+
+      ' Z" fill="#102339" stroke="#edf4ff" stroke-width="2"/>' +
+      '<path d="M '+(d.x+15)+' '+(d.y-17)+' V '+(d.y+17)+'" stroke="#edf4ff" stroke-width="3"/>' +
+      '<path d="M '+(d.x+25)+' '+(d.y-28)+' l 11 -10 m -3 0 h 3 v 3 M '+
+      (d.x+29)+' '+(d.y-20)+' l 11 -10 m -3 0 h 3 v 3" stroke="'+color+
+      '" stroke-width="2" fill="none"/>' +
+      '<text x="'+d.x+'" y="'+(d.y+48)+'" font-size="16" text-anchor="middle" fill="#edf4ff">'+
+      d.id+' '+d.color.toUpperCase()+'</text>' +
+      terminalSVG(d.id+':a',{x:d.x-54,y:d.y},pending)+
+      terminalSVG(d.id+':b',{x:d.x+54,y:d.y},pending)+'</g>';
+  }).join('');
   return '<defs><pattern id="wiring-grid" width="24" height="24" patternUnits="userSpaceOnUse">'+
     '<circle cx="1" cy="1" r="1" fill="#294156"/></pattern></defs>' +
     '<rect x="0" y="0" width="900" height="500" fill="#0a1727" rx="12"/>' +
@@ -91,26 +116,30 @@ function svgMarkup(doc,selected,pending,result){
     '<text x="110" y="295" fill="#edf4ff" font-size="24" text-anchor="middle">−</text>' +
     '<text x="46" y="92" fill="#55e2df" font-size="16">V+</text>' +
     '<text x="42" y="445" fill="#55e2df" font-size="16">GND</text>' +
-    wires+parts+switches+
+    wires+parts+switches+ledParts+
     terminalSVG('V+',SOURCE_TERMINALS['V+'],pending)+
     terminalSVG('GND',SOURCE_TERMINALS.GND,pending)+
     '<text x="470" y="478" text-anchor="middle" fill="#59738c" font-size="13">Educational model only. No currents are assumed for an ideal source short.</text>';
 }
 
 function wiringPanelHTML() {
-  return '<span class="eyebrow">VIRTUAL HARDWARE WORKSHOP • V0.4</span>' +
+  return '<span class="eyebrow">VIRTUAL HARDWARE WORKSHOP • V0.5</span>' +
     '<h1>Wiring Sandbox</h1>' +
-    '<p>Arrange resistors and switches, connect their terminals, and calculate currents from your circuit topology. ' +
-    'Open and close switches to see a real change in the conductive path. No physical kit required.</p>' +
+    '<p>Place resistors, switches and polarized LEDs, connect terminals, and simulate an idealized DC circuit. ' +
+    'LEDs light only when the model predicts forward current. No hardware required.</p>' +
     '<div class="panel wiring-toolbar">' +
     '<label>Start from a circuit<select id="wiring-preset" class="lab-select" aria-label="Start circuit example">' +
     '<option value="" disabled>Current design (saved locally)</option><option value="series">Two resistors in series</option>' +
     '<option value="parallel">Two parallel branches</option>' +
     '<option value="divider">Loaded voltage divider</option>' +
     '<option value="switch">Series switch challenge</option>' +
+    '<option value="led">Red LED + 330 Ω</option>' +
+    '<option value="reverse-led">Reversed LED + 330 Ω</option>' +
+    '<option value="led-unlimited">LED without resistor (caution)</option>' +
     '<option value="open">Blank wiring challenge</option></select></label>' +
     '<button type="button" id="wiring-add" class="button primary">+ Add resistor</button>' +
     '<button type="button" id="wiring-add-switch" class="button">+ Add switch</button>' +
+    '<button type="button" id="wiring-add-led" class="button">+ Add LED</button>' +
     '<button type="button" id="wiring-delete" class="button">Delete selected</button>' +
     '<button type="button" id="wiring-clear" class="button">Disconnect all</button>' +
     '<button type="button" id="wiring-undo" class="button">Undo</button></div>' +
@@ -135,9 +164,9 @@ function wiringPanelHTML() {
     'R1’s right terminal to R2’s left, and R2’s right terminal to GND. Your goal is a complete series loop with a measurable current.</p>' +
     '<p class="micro">This solver supports up to '+MAX_RESISTORS+' ideal resistors and '+MAX_WIRES+
     ' ideal wires. It does not model semiconductors, capacitance, transient behavior, physical voltage limits or source impedance. ' +
-    'A direct V+ to GND path through wires and closed switches is treated as a fault. ' +
-    'Switches are ideal open/closed contacts, not physical current-rated components. ' +
-    'For LEDs, use the dedicated LED + Resistor bench; nonlinear LED simulation in this wiring graph is a later milestone.</p>' +
+    'A direct V+ to GND path through wires and closed switches is an ideal short. ' +
+    'LEDs use a fixed forward-voltage threshold plus a teaching-only 20 Ω model slope, not measured device physics. ' +
+    'For simpler current-limiting arithmetic, compare the dedicated LED + Resistor bench.</p>' +
     '<button class="button" data-open-lab="led">Open LED + Resistor Bench</button></section>';
 }
 
@@ -178,24 +207,39 @@ export function mountWiringLab(root) {
     root.querySelector('#wiring-undo').disabled=history.length===0;
     root.querySelector('#wiring-add').disabled=doc.parts.length>=MAX_RESISTORS;
     root.querySelector('#wiring-add-switch').disabled=doc.switches.length>=MAX_SWITCHES;
+    root.querySelector('#wiring-add-led').disabled=doc.leds.length>=MAX_LEDS;
     root.querySelector('#wiring-delete').disabled=!selected;
     stateBanner.className='wiring-state wiring-'+result.status;
-    const summaries={ok:'Connected circuit',open:'Open circuit',short:'Ideal source short detected'};
+    const summaries={ok:'Connected circuit',open:'Open circuit',short:'Ideal source short detected',unsolved:'Model could not resolve this LED circuit'};
     stateBanner.textContent=summaries[result.status];
     root.querySelector('#wiring-current').textContent=formatMa(result.sourceCurrentA);
     root.querySelector('#wiring-equivalent').textContent=result.equivalentOhms===null?'—':result.equivalentOhms.toFixed(2)+' Ω';
+    root.querySelector('#wiring-equivalent').previousElementSibling.textContent=
+      doc.leds.length?'Operating-point V / I':'Equivalent resistance';
     root.querySelector('#wiring-readings-body').innerHTML=result.parts.map(p=>
       '<tr><td>'+p.id+'</td><td>'+formatV(p.voltageV)+'</td><td>'+formatMa(p.currentA)+'</td>' +
       '<td>'+formatW(p.powerW)+'</td><td>'+p.state+'</td></tr>').join('') +
+      result.leds.map(led=>'<tr><td>'+led.id+'</td><td>'+formatV(led.voltageV)+'</td><td>'+
+      formatMa(led.currentA)+'</td><td>'+formatW(led.powerW)+'</td><td>'+
+      textSafe(led.state)+'</td></tr>').join('') +
       result.switches.map(sw=>
       '<tr><td>'+sw.id+'</td><td>—</td><td>—</td><td>—</td><td>'+sw.state+'</td></tr>').join('');
     root.querySelector('#wiring-notices').innerHTML=result.notices.map(n=>'<li>'+textSafe(n)+'</li>').join('');
     if(!result.notices.length)root.querySelector('#wiring-notices').innerHTML=
       '<li>Ideal DC readings only. Confirm all real component ratings before building.</li>';
     if(selected?.kind==='part'){
-      const p=doc.parts.find(x=>x.id===selected.id)||doc.switches.find(x=>x.id===selected.id);
+      const p=doc.parts.find(x=>x.id===selected.id)||doc.switches.find(x=>x.id===selected.id)||
+        doc.leds.find(x=>x.id===selected.id);
       if(!p){selected=null;inspector.innerHTML='';}
-      else if(p.id.startsWith('S')){
+      else if(p.id.startsWith('D')){
+        inspector.innerHTML='<div class="wiring-inspector"><strong>Selected: '+p.id+' (polarized LED)</strong>' +
+          '<p class="micro">Terminal a (left) is the anode (+). Terminal b (right) is the cathode (bar). '+
+          'Reverse wiring blocks modeled current and may exceed real reverse-voltage limits.</p>'+
+          '<label>LED color / forward threshold<select id="wiring-led-color" class="lab-select">'+
+          Object.entries(LED_FORWARD_V).map(([name,v])=>'<option value="'+name+'"'+
+          (name===p.color?' selected':'')+'>'+name+' (≈'+v+' V)</option>').join('')+'</select></label>'+
+          '<p class="micro">The model uses a fixed 20 Ω series slope, not a real diode datasheet.</p></div>';
+      } else if(p.id.startsWith('S')){
         inspector.innerHTML='<div class="wiring-inspector"><strong>Selected: '+p.id+' (ideal switch)</strong>' +
           '<p>State: <strong>'+ (p.closed?'Closed':'Open')+'</strong></p>' +
           '<button type="button" class="button primary" id="wiring-toggle-switch" ' +
@@ -210,7 +254,7 @@ export function mountWiringLab(root) {
       const w=doc.wires[selected.index];
       inspector.innerHTML=w?'<p><strong>Selected wire:</strong> '+textSafe(w.a)+' ↔ '+textSafe(w.b)+
         '</p><p class="micro">Use Delete selected to disconnect it.</p>':'';
-    } else inspector.innerHTML='<p class="micro">Select a resistor to edit its value, or a switch to toggle it. Drag either component to move it.</p>';
+    } else inspector.innerHTML='<p class="micro">Select a resistor, LED or switch to edit it. Drag components to move them.</p>';
     hint.textContent=(pending?'Connecting from '+pending+'. Click another terminal, or press Escape. ': '')+notice;
     persist();
   }
@@ -251,7 +295,9 @@ export function mountWiringLab(root) {
     if(hit.kind==='terminal'){terminalClick(hit.id);return;}
     if(hit.kind==='wire'){selected={kind:'wire',index:hit.index};pending=null;message('Wire selected.');render();return;}
     if(hit.kind==='part'){selected={kind:'part',id:hit.id};pending=null;
-      message(hit.id.startsWith('S')?'Switch selected; toggle it in the parts panel.':'Resistor selected; adjust its value below.');
+      message(hit.id.startsWith('S')?'Switch selected; toggle it below.':
+        hit.id.startsWith('D')?'LED selected; choose its color below.':
+        'Resistor selected; adjust its value below.');
       render();}
   }
   canvas.addEventListener('click',e=>{if(!drag)choose(e.target);});
@@ -267,7 +313,7 @@ export function mountWiringLab(root) {
     if(e.button!==0||e.target.closest('[data-terminal]'))return;
     const hit=inspectTarget(e.target);
     if(hit?.kind!=='part')return;
-    const p=[...doc.parts,...doc.switches].find(x=>x.id===hit.id),xy=toPoint(e);
+    const p=[...doc.parts,...doc.switches,...doc.leds].find(x=>x.id===hit.id),xy=toPoint(e);
     if(!p||!xy)return;
     drag={pointerId:e.pointerId,id:p.id,startX:xy.x,startY:xy.y,offsetX:p.x-xy.x,offsetY:p.y-xy.y,moved:false};
     selected={kind:'part',id:p.id};pending=null;
@@ -279,7 +325,7 @@ export function mountWiringLab(root) {
     const xy=toPoint(e);if(!xy)return;
     if(!drag.moved && Math.hypot(xy.x-drag.startX,xy.y-drag.startY)<6)return;
     if(!drag.moved){snapshot();drag.moved=true;canvas.setPointerCapture(e.pointerId);}
-    const p=[...doc.parts,...doc.switches].find(p=>p.id===drag.id);
+    const p=[...doc.parts,...doc.switches,...doc.leds].find(p=>p.id===drag.id);
     if(!p)return;
     p.x=clamp(Math.round(xy.x+drag.offsetX),150,810);
     p.y=clamp(Math.round(xy.y+drag.offsetY),75,425);
@@ -322,6 +368,15 @@ export function mountWiringLab(root) {
     selected={kind:'part',id};pending=null;
     message('Added '+id+'. Wire it into a circuit, then toggle it.');render();
   });
+  root.querySelector('#wiring-add-led').addEventListener('click',()=>{
+    if(doc.leds.length>=MAX_LEDS)return;
+    let n=1;while(doc.leds.some(d=>d.id==='D'+n))n++;
+    snapshot();
+    const id='D'+n,x=285+((doc.leds.length*137)%470),y=140+((doc.leds.length*83)%235);
+    doc.leds.push({id,color:'red',x,y});
+    selected={kind:'part',id};pending=null;
+    message('Added '+id+' (red). Wire anode a to positive through a suitable resistor, cathode b to ground.');render();
+  });
   root.querySelector('#wiring-inspector').addEventListener('click',e=>{
     if(!e.target.closest('#wiring-toggle-switch')||selected?.kind!=='part')return;
     const sw=doc.switches.find(sw=>sw.id===selected.id);
@@ -338,6 +393,7 @@ export function mountWiringLab(root) {
       const id=selected.id;
       doc.parts=doc.parts.filter(p=>p.id!==id);
       doc.switches=doc.switches.filter(sw=>sw.id!==id);
+      doc.leds=doc.leds.filter(d=>d.id!==id);
       doc.wires=doc.wires.filter(w=>!w.a.startsWith(id+':')&&!w.b.startsWith(id+':'));
       message(id+' removed along with its connected wires.');
     }
@@ -359,7 +415,15 @@ export function mountWiringLab(root) {
     message('Changed the ideal supply voltage.');render();
   });
   root.querySelector('#wiring-inspector').addEventListener('change',e=>{
-    if(e.target.id!=='wiring-resistance'||selected?.kind!=='part')return;
+    if(selected?.kind!=='part')return;
+    if(e.target.id==='wiring-led-color'){
+      const d=doc.leds.find(d=>d.id===selected.id);
+      if(!d||!Object.hasOwn(LED_FORWARD_V,e.target.value)||d.color===e.target.value)return;
+      snapshot();d.color=e.target.value;
+      message('Changed '+d.id+' to '+d.color+' LED; the assumed forward voltage has changed.');
+      render();return;
+    }
+    if(e.target.id!=='wiring-resistance')return;
     const value=Number(e.target.value);
     if(!Number.isFinite(value)||value<1||value>1e7){
       message('Resistor values must be from 1 to 10,000,000 Ω.');render();return;

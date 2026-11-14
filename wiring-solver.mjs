@@ -7,14 +7,19 @@
  * A source-to-ground wire is flagged as an ideal short, never simulated as
  * an infinite current value.
  *
- * Endpoints: "V+", "GND", "R1:a"/"R1:b", and "S1:a"/"S1:b".
+ * Endpoints: "V+", "GND", resistor/switch terminals and "D1:a"/"D1:b".
+ * The LED model uses a fixed forward threshold plus a slope resistance.
  * Input data is validated before use, including imported JSON.
  */
+import { LED_FORWARD_V, solveLedNetwork } from './wiring-diode-solver.mjs';
+
 export const MAX_RESISTORS = 8;
+export const MAX_LEDS = 3;
 export const MAX_SWITCHES = 4;
 export const MAX_WIRES = 40;
 const ID_PATTERN = /^R[1-9][0-9]?$/;
 const SWITCH_ID_PATTERN = /^S[1-9][0-9]?$/;
+const LED_ID_PATTERN = /^D[1-9][0-9]?$/;
 
 function assertFinite(value, name, min, max) {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < min || value > max) {
@@ -25,8 +30,8 @@ const connection = (a,b) => ({a,b});
 const part = (id,ohms,x,y) => ({id,ohms,x,y});
 
 export function presetCircuit(kind = 'series') {
-  const supplyV = 9;
-  let parts, wires;
+  const supplyV = ['led','reverse-led','led-unlimited'].includes(kind)?5:9;
+  let parts, wires, leds=[];
   if (kind === 'series') {
     parts = [part('R1',1000,330,165),part('R2',1000,600,165)];
     wires = [connection('V+','R1:a'),connection('R1:b','R2:a'),connection('R2:b','GND')];
@@ -44,10 +49,22 @@ export function presetCircuit(kind = 'series') {
   } else if (kind === 'switch') {
     parts = [part('R1',1000,635,170)];
     wires = [connection('V+','S1:a'),connection('S1:b','R1:a'),connection('R1:b','GND')];
+  } else if (kind === 'led') {
+    parts=[part('R1',330,365,170)];
+    leds=[{id:'D1',color:'red',x:635,y:170}];
+    wires=[connection('V+','R1:a'),connection('R1:b','D1:a'),connection('D1:b','GND')];
+  } else if (kind === 'reverse-led') {
+    parts=[part('R1',330,635,170)];
+    leds=[{id:'D1',color:'red',x:365,y:170}];
+    wires=[connection('V+','D1:b'),connection('D1:a','R1:a'),connection('R1:b','GND')];
+  } else if (kind === 'led-unlimited') {
+    parts=[];
+    leds=[{id:'D1',color:'red',x:450,y:170}];
+    wires=[connection('V+','D1:a'),connection('D1:b','GND')];
   } else {
     throw new RangeError('Unknown circuit example');
   }
-  return {version:1,supplyV,parts,wires,
+  return {version:1,supplyV,parts,wires,leds,
     switches:kind==='switch'?[{id:'S1',closed:false,x:345,y:170}]:[]};
 }
 export function validateCircuit(input) {
@@ -64,6 +81,11 @@ export function validateCircuit(input) {
   const inputSwitches=input.switches===undefined?[]:input.switches;
   if(!Array.isArray(inputSwitches)||inputSwitches.length>MAX_SWITCHES){
     throw new RangeError('Circuit must have at most '+MAX_SWITCHES+' switches');
+  }
+  // Older v0.3/v0.4 designs do not contain LEDs.
+  const inputLeds=input.leds===undefined?[]:input.leds;
+  if(!Array.isArray(inputLeds)||inputLeds.length>MAX_LEDS){
+    throw new RangeError('Circuit must contain at most '+MAX_LEDS+' LEDs');
   }
   const ids = new Set();
   const parts = input.parts.map((p) => {
@@ -86,8 +108,18 @@ export function validateCircuit(input) {
     assertFinite(sw.y,sw.id+' y position',75,425);
     return {id:sw.id,closed:sw.closed,x:sw.x,y:sw.y};
   });
+  const leds=inputLeds.map(d=>{
+    if(!d||typeof d!=='object'||!LED_ID_PATTERN.test(d.id)||ids.has(d.id)){
+      throw new RangeError('Each LED needs a unique D1–D99 identifier');
+    }
+    if(!Object.hasOwn(LED_FORWARD_V,d.color))throw new RangeError('Unsupported LED color');
+    ids.add(d.id);
+    assertFinite(d.x,d.id+' x position',120,830);
+    assertFinite(d.y,d.id+' y position',75,425);
+    return {id:d.id,color:d.color,x:d.x,y:d.y};
+  });
   const valid = new Set(['V+','GND']);
-  for (const p of [...parts,...switches]) {
+  for (const p of [...parts,...switches,...leds]) {
     valid.add(p.id + ':a');
     valid.add(p.id + ':b');
   }
@@ -101,7 +133,7 @@ export function validateCircuit(input) {
     seen.add(key);
     return {a:w.a,b:w.b};
   });
-  return {version:1,supplyV:input.supplyV,parts,switches,wires};
+  return {version:1,supplyV:input.supplyV,parts,switches,leds,wires};
 }
 
 function gaussianSolve(matrix, rhs) {
@@ -133,6 +165,7 @@ function gaussianSolve(matrix, rhs) {
  */
 export function solveCircuit(document) {
   const doc=validateCircuit(document);
+  if(doc.leds.length)return solveLedNetwork(doc);
   const terminals = ['V+','GND',...[...doc.parts,...doc.switches].flatMap(p=>[p.id+':a',p.id+':b'])];
   const parent=new Map(terminals.map(t=>[t,t]));
   const find=x=>{
@@ -153,7 +186,7 @@ export function solveCircuit(document) {
   }));
   if(source===ground){
     return {status:'short',sourceCurrentA:null,equivalentOhms:null,parts:blank,
-      switches:switchResults(),nodeVoltages:{},
+      leds:[],switches:switchResults(),nodeVoltages:{},
       notices:['Ideal short: wires and/or closed switches join V+ directly to GND. Break that path before calculating current.']};
   }
   const edgeList=doc.parts.map((p,i)=>({partIndex:i,a:find(p.id+':a'),b:find(p.id+':b'),conductance:1/p.ohms}));
@@ -233,5 +266,5 @@ export function solveCircuit(document) {
   const nodeVoltages=Object.fromEntries([...voltages.entries()]);
   return {status:powered?'ok':'open',sourceCurrentA,equivalentOhms:
     powered&&sourceCurrentA>1e-12&&doc.supplyV>0?doc.supplyV/sourceCurrentA:null,
-    parts,switches:switchResults(),nodeVoltages,notices};
+    parts,leds:[],switches:switchResults(),nodeVoltages,notices};
 }
