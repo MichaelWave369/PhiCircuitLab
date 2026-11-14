@@ -56,7 +56,7 @@ try {
       let packet;
       try{packet=JSON.parse(item);}catch(_){continue;}
       if(packet.method==='Runtime.exceptionThrown'){
-        exceptions.push(packet.params?.exceptionDetails?.text||'Browser JavaScript exception');
+        exceptions.push(packet.params?.exceptionDetails?.exception?.description||JSON.stringify(packet.params?.exceptionDetails)||'Browser JavaScript exception');
       }
       if(!packet.id)continue;
       const callback=pending.get(packet.id);
