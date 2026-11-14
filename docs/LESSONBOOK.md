@@ -112,11 +112,11 @@ Check power in the resistor: I²R ≈ **0.027 W**. A real design must verify the
 
 ### Virtual exercise
 
-Open the LED Bench. Choose red, 5 V, and 330 Ω. Try blue without changing anything else. Observe the approximate effect of a higher forward voltage. Then decrease the resistor and notice the warning threshold.
+Open the **LED + Resistor Bench**. Choose red, 5 V, and 330 Ω. Try blue while keeping supply and resistance fixed. Then open **Wiring Lab → Red LED + 330 Ω**. That piecewise-linear model includes a separate 20 Ω teaching slope and predicts about 8.571 mA rather than the fixed-drop estimate of 9.09 mA. Reverse the LED using the reverse preset and confirm that modeled current becomes zero. Finally, inspect the no-resistor caution preset without physically building it. See [LED Wiring Studio](LEDS.md) for details and limitations.
 
 ### Check yourself
 
-Current limiting protects the LED; resistor power rating protects the resistor. Both need attention.
+Current limiting protects an LED; resistor power ratings protect the resistor. Reverse voltage ratings matter too. Different simplified diode models can predict different currents, and neither substitutes for a datasheet.
 
 ---
 
