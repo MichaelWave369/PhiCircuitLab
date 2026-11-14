@@ -295,7 +295,9 @@ export function mountWiringLab(root) {
     if(hit.kind==='terminal'){terminalClick(hit.id);return;}
     if(hit.kind==='wire'){selected={kind:'wire',index:hit.index};pending=null;message('Wire selected.');render();return;}
     if(hit.kind==='part'){selected={kind:'part',id:hit.id};pending=null;
-      message(hit.id.startsWith('S')?'Switch selected; toggle it in the parts panel.':'Resistor selected; adjust its value below.');
+      message(hit.id.startsWith('S')?'Switch selected; toggle it below.':
+        hit.id.startsWith('D')?'LED selected; choose its color below.':
+        'Resistor selected; adjust its value below.');
       render();}
   }
   canvas.addEventListener('click',e=>{if(!drag)choose(e.target);});
@@ -311,7 +313,7 @@ export function mountWiringLab(root) {
     if(e.button!==0||e.target.closest('[data-terminal]'))return;
     const hit=inspectTarget(e.target);
     if(hit?.kind!=='part')return;
-    const p=[...doc.parts,...doc.switches].find(x=>x.id===hit.id),xy=toPoint(e);
+    const p=[...doc.parts,...doc.switches,...doc.leds].find(x=>x.id===hit.id),xy=toPoint(e);
     if(!p||!xy)return;
     drag={pointerId:e.pointerId,id:p.id,startX:xy.x,startY:xy.y,offsetX:p.x-xy.x,offsetY:p.y-xy.y,moved:false};
     selected={kind:'part',id:p.id};pending=null;
@@ -323,7 +325,7 @@ export function mountWiringLab(root) {
     const xy=toPoint(e);if(!xy)return;
     if(!drag.moved && Math.hypot(xy.x-drag.startX,xy.y-drag.startY)<6)return;
     if(!drag.moved){snapshot();drag.moved=true;canvas.setPointerCapture(e.pointerId);}
-    const p=[...doc.parts,...doc.switches].find(p=>p.id===drag.id);
+    const p=[...doc.parts,...doc.switches,...doc.leds].find(p=>p.id===drag.id);
     if(!p)return;
     p.x=clamp(Math.round(xy.x+drag.offsetX),150,810);
     p.y=clamp(Math.round(xy.y+drag.offsetY),75,425);
@@ -366,6 +368,15 @@ export function mountWiringLab(root) {
     selected={kind:'part',id};pending=null;
     message('Added '+id+'. Wire it into a circuit, then toggle it.');render();
   });
+  root.querySelector('#wiring-add-led').addEventListener('click',()=>{
+    if(doc.leds.length>=MAX_LEDS)return;
+    let n=1;while(doc.leds.some(d=>d.id==='D'+n))n++;
+    snapshot();
+    const id='D'+n,x=285+((doc.leds.length*137)%470),y=140+((doc.leds.length*83)%235);
+    doc.leds.push({id,color:'red',x,y});
+    selected={kind:'part',id};pending=null;
+    message('Added '+id+' (red). Wire anode a to positive through a suitable resistor, cathode b to ground.');render();
+  });
   root.querySelector('#wiring-inspector').addEventListener('click',e=>{
     if(!e.target.closest('#wiring-toggle-switch')||selected?.kind!=='part')return;
     const sw=doc.switches.find(sw=>sw.id===selected.id);
@@ -382,6 +393,7 @@ export function mountWiringLab(root) {
       const id=selected.id;
       doc.parts=doc.parts.filter(p=>p.id!==id);
       doc.switches=doc.switches.filter(sw=>sw.id!==id);
+      doc.leds=doc.leds.filter(d=>d.id!==id);
       doc.wires=doc.wires.filter(w=>!w.a.startsWith(id+':')&&!w.b.startsWith(id+':'));
       message(id+' removed along with its connected wires.');
     }
@@ -403,7 +415,15 @@ export function mountWiringLab(root) {
     message('Changed the ideal supply voltage.');render();
   });
   root.querySelector('#wiring-inspector').addEventListener('change',e=>{
-    if(e.target.id!=='wiring-resistance'||selected?.kind!=='part')return;
+    if(selected?.kind!=='part')return;
+    if(e.target.id==='wiring-led-color'){
+      const d=doc.leds.find(d=>d.id===selected.id);
+      if(!d||!Object.hasOwn(LED_FORWARD_V,e.target.value)||d.color===e.target.value)return;
+      snapshot();d.color=e.target.value;
+      message('Changed '+d.id+' to '+d.color+' LED; the assumed forward voltage has changed.');
+      render();return;
+    }
+    if(e.target.id!=='wiring-resistance')return;
     const value=Number(e.target.value);
     if(!Number.isFinite(value)||value<1||value>1e7){
       message('Resistor values must be from 1 to 10,000,000 Ω.');render();return;
