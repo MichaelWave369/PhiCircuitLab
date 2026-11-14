@@ -33,13 +33,13 @@ function panel(title, description, diagram, controls, metrics, notes) {
 function networkBench() {
   const diagram = '<svg viewBox="0 0 490 260" role="img" aria-label="Two resistors in a series loop or two parallel branches">' +
     '<g id="network-series"><g fill="none" stroke="#55e2df" stroke-width="4" stroke-linecap="round">' +
-    '<path d="M68 45 H155 M242 45 H275 M362 45 H425 V210 H68 V148 M68 93 V45"/></g>' +
+    '<path d="M68 45 H155 M242 45 H275 M362 45 H425 V210 H68 V114 M68 94 V45"/></g>' +
     '<rect x="155" y="25" width="87" height="40" rx="6" stroke="#ffc578" stroke-width="3" fill="#3e3529"/>' +
     '<rect x="275" y="25" width="87" height="40" rx="6" stroke="#ffc578" stroke-width="3" fill="#3e3529"/>' +
     '<text x="170" y="50" fill="#edf4ff" font-size="17">R1</text><text x="290" y="50" fill="#edf4ff" font-size="17">R2</text>' +
     '<text x="185" y="138" fill="#55e2df" font-size="16">One current path</text></g>' +
     '<g id="network-parallel" class="hidden"><g fill="none" stroke="#55e2df" stroke-width="4" stroke-linecap="round">' +
-    '<path d="M68 45 H150 V85 H205 M285 85 H425 V210 H68 V148 M68 93 V45 M150 85 V155 H205 M285 155 H425"/></g>' +
+    '<path d="M68 45 H150 V85 H205 M285 85 H425 V210 H68 V114 M68 94 V45 M150 85 V155 H205 M285 155 H425"/></g>' +
     '<rect x="205" y="65" width="80" height="40" rx="6" stroke="#ffc578" stroke-width="3" fill="#3e3529"/>' +
     '<rect x="205" y="135" width="80" height="40" rx="6" stroke="#ffc578" stroke-width="3" fill="#3e3529"/>' +
     '<text x="227" y="90" fill="#edf4ff" font-size="17">R1</text><text x="227" y="160" fill="#edf4ff" font-size="17">R2</text>' +
@@ -62,7 +62,7 @@ function networkBench() {
 }
 function dividerBench() {
   const diagram = '<svg viewBox="0 0 480 250" role="img" aria-label="Two-resistor voltage divider with the output across the bottom resistor; optional load in parallel with R2">' +
-    '<g stroke="#55e2df" stroke-width="4" fill="none"><path d="M85 35 H220 V60 M220 107 V143 M220 188 V219 H85 V159 M85 94 V35 M220 137 H354"/></g>' +
+    '<g stroke="#55e2df" stroke-width="4" fill="none"><path d="M85 35 H220 V60 M220 107 V143 M220 188 V219 H85 V114 M85 97 V35 M220 137 H354"/></g>' +
     '<g fill="none" stroke="#edf4ff" stroke-width="3"><line x1="68" y1="97" x2="102" y2="97"/><line x1="74" y1="114" x2="96" y2="114"/></g>' +
     '<rect x="198" y="60" width="44" height="47" rx="5" fill="#403629" stroke="#ffc578" stroke-width="3"/>' +
     '<rect x="198" y="143" width="44" height="45" rx="5" fill="#403629" stroke="#ffc578" stroke-width="3"/>' +
