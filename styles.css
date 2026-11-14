@@ -49,3 +49,8 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-
 .wiring-upload input{display:none}
 @media(max-width:900px){.wiring-bottom{grid-template-columns:1fr}}
 @media(max-width:630px){.wiring-toolbar{padding:1rem}.wiring-toolbar .button{flex:1}.wiring-workspace{margin:0 -.3rem}.wiring-bottom .panel{padding:1rem}}
+
+/* v0.4 switch symbols reuse the wiring canvas focus and drag states. */
+#wiring-canvas .placed-switch{cursor:grab}
+#wiring-canvas .placed-switch:active{cursor:grabbing}
+#wiring-canvas .placed-switch:focus-visible rect{stroke:#fff;stroke-width:4}

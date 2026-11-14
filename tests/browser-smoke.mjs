@@ -56,7 +56,7 @@ try {
       let packet;
       try{packet=JSON.parse(item);}catch(_){continue;}
       if(packet.method==='Runtime.exceptionThrown'){
-        exceptions.push(packet.params?.exceptionDetails?.text||'Browser JavaScript exception');
+        exceptions.push(packet.params?.exceptionDetails?.exception?.description||JSON.stringify(packet.params?.exceptionDetails)||'Browser JavaScript exception');
       }
       if(!packet.id)continue;
       const callback=pending.get(packet.id);
@@ -78,14 +78,20 @@ try {
     protocolOut.write(JSON.stringify(command)+'\0');
   });
   let target;
-  for(let attempt=0;attempt<100;attempt++){
-    if(chrome.exitCode!==null)throw new Error('Chromium exited before CDP was available');
-    const tabs=await cdp('Target.getTargets');
-    target=tabs.targetInfos?.find(t=>t.type==='page');
-    if(target)break;
-    await new Promise(resolve=>setTimeout(resolve,100));
+  // Shared runners sometimes take longer than 8 seconds to start Chrome.
+  // Retry the protocol handshake instead of failing on the first request.
+  let startupError=null;
+  const startupDeadline=Date.now()+45000;
+  while(Date.now()<startupDeadline){
+    if(chrome.exitCode!==null)throw new Error('Chromium exited during startup');
+    try{
+      const tabs=await cdp('Target.getTargets');
+      target=tabs.targetInfos?.find(t=>t.type==='page');
+      if(target)break;
+    }catch(err){startupError=err;}
+    await new Promise(resolve=>setTimeout(resolve,350));
   }
-  if(!target)throw new Error('Chromium did not create a page target');
+  if(!target)throw new Error('Chromium did not create a page target: '+(startupError?.message||'startup timed out'));
   const attached=await cdp('Target.attachToTarget',{targetId:target.targetId,flatten:true});
   const sessionId=attached.sessionId;
   await cdp('Runtime.enable',{},sessionId);
@@ -128,6 +134,25 @@ try {
   assert.equal(short.status,'Ideal source short detected');
   assert.equal(short.current,'—');
   console.log('PASS: ideal short is diagnosed without inventing a current');
+  // A switch should interrupt and restore a real user-built circuit.
+  const switchOpen=await evaluate("(()=>{const p=document.querySelector('#wiring-preset');p.value='switch';let exception=null;try{p.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){exception=e.message;}return {status:document.querySelector('#wiring-state').textContent,visible:!!document.querySelector('[data-part-id=S1]'),preset:p.value,optionCount:p.options.length,exception}})()");
+  console.log('Switch preset transition:',JSON.stringify(switchOpen),'browser exceptions:',JSON.stringify(exceptions));
+  assert.equal(switchOpen.status,'Open circuit');
+  assert.equal(switchOpen.visible,true);
+  const switchClosed=await evaluate("(()=>{document.querySelector('[data-part-id=S1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));const toggle=document.querySelector('#wiring-toggle-switch');if(!toggle)return {error:'No switch toggle'};toggle.click();return {status:document.querySelector('#wiring-state').textContent,current:document.querySelector('#wiring-current').textContent,openText:document.querySelector('#wiring-toggle-switch')?.textContent}})()");
+  assert.equal(switchClosed.status,'Connected circuit');
+  assert.equal(switchClosed.current,'9.000 mA');
+  assert.ok(!switchClosed.error);
+  const toggledOff=await evaluate("(()=>{document.querySelector('#wiring-toggle-switch').click();return {status:document.querySelector('#wiring-state').textContent,current:document.querySelector('#wiring-current').textContent}})()");
+  assert.equal(toggledOff.status,'Open circuit');
+  assert.equal(toggledOff.current,'0.000 mA');
+  console.log('PASS: switch toggling opens and closes the circuit in the browser');
+  const switchUndo=await evaluate("(()=>{document.querySelector('#wiring-undo').click();return document.querySelector('#wiring-state').textContent})()");
+  assert.equal(switchUndo,'Connected circuit');
+  console.log('PASS: undo restores the previous switch position');
+  const switchAdded=await evaluate("(()=>{document.querySelector('#wiring-add-switch').click();return !!document.querySelector('[data-part-id=S2]')})()");
+  assert.equal(switchAdded,true);
+  console.log('PASS: palette creates a second switch');
   assert.deepEqual(exceptions,[]);
   console.log('PASS: no uncaught browser JavaScript exceptions');
 } finally {

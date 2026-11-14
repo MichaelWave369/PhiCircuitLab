@@ -1,8 +1,8 @@
 # Φ Circuit Lab • Wiring Sandbox Field Manual
 
-**Release:** v0.3 • **Price:** free • **Hardware:** none required
+**Release:** v0.4 • **Price:** free • **Hardware:** none required
 
-This lab lets you experiment with *arbitrary connections among a small set of resistors* and a single ideal DC supply. It solves the resistor network numerically based on the wires you draw. It does not simulate all electronics, and it is not a circuit-board CAD editor.
+This lab lets you experiment with *arbitrary connections among a small set of resistors and ideal open/closed switches* and a single ideal DC supply. It solves the resistor network numerically based on the wires you draw. It does not simulate all electronics, and it is not a circuit-board CAD editor.
 
 ## Your first run
 
@@ -14,7 +14,8 @@ This lab lets you experiment with *arbitrary connections among a small set of re
 6. Click a wire to select it, then press **Delete selected** to disconnect.
 7. Use **Undo** to return to the previous connection, part edit, or movement.
 8. Adjust the supply voltage and observe the calculated source current and individual resistor voltage/current/power.
-9. Export a JSON copy of your design; import it later, subject to size and schema limits.
+9. Add a switch to the circuit or open the **Series switch challenge** preset. Select S1 and press **Toggle switch** to open and close the path.
+10. Export a JSON copy of your design; import it later, subject to size and schema limits.
 
 The app saves your wiring document in this browser's localStorage; changing devices or browsers does not sync it. Use JSON export for portable backups.
 
@@ -95,7 +96,7 @@ For real hardware, verify datasheets, low-voltage limits, wiring, resistor power
 
 ## Document format
 
-A circuit is a JSON object with `version: 1`, a supply voltage, resistor parts, and wires.
+A circuit is a JSON object with `version: 1`, a supply voltage, resistor parts, optional switches, and wires. Older designs that omit switches still load.
 
 ```json
 {
@@ -117,4 +118,8 @@ Import validation rejects unknown terminals, duplicate wires, nonfinite electric
 
 ## What comes next
 
-A true schematic editor would add a richer component palette (switches, diodes, sensors), multi-step simulation, connection validation, symbol libraries, and eventually KiCad-friendly exports. The v0.3 sandbox is the resistor-network foundation for that work.
+A true schematic editor would add a richer component palette (diodes, sensors), multi-step simulation, connection validation, symbol libraries, and eventually KiCad-friendly exports. The v0.4 sandbox includes ideal switches; LEDs are still taught in the standalone LED bench.
+
+## Experiment E: a switched series circuit
+
+See the [switch lesson](SWITCHES.md). Open the switch preset, select S1, and toggle it. The open state should yield zero source current; the closed state should yield 9 mA through the 1 kΩ resistor at 9 V.

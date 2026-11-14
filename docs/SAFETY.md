@@ -26,3 +26,7 @@ If you later try a physical build:
 - The logic bench evaluates abstract Boolean truth tables, not propagation delays, signal edges, metastability, or electrical thresholds.
 
 **Learning begins with models. Engineering requires identifying what the model leaves out.**
+
+## Ideal-switch warning
+
+The Wiring Sandbox now supports ideal open/closed switches. A closed switch is mathematically identical to a zero-resistance connection. Real switches have voltage/current ratings and imperfect contacts. The solver flags a direct V+ to GND path through wires and closed switches as a short but cannot predict safe fault current or heating. Never build or test an intentional short on a real power source.

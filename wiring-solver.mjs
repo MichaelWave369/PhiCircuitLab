@@ -2,17 +2,19 @@
  * Φ Circuit Lab: ideal resistive-DC topology solver.
  *
  * Wires are ideal (zero resistance), resistors obey Ohm's law, and the only
- * independent source fixes V+ relative to GND. This is NOT SPICE.
+ * independent source fixes V+ relative to GND. Ideal switches are either
+ * open (nonconducting) or closed (zero resistance). This is NOT SPICE.
  * A source-to-ground wire is flagged as an ideal short, never simulated as
  * an infinite current value.
  *
- * Endpoints: "V+", "GND", and "R1:a" / "R1:b" for each resistor.
+ * Endpoints: "V+", "GND", "R1:a"/"R1:b", and "S1:a"/"S1:b".
  * Input data is validated before use, including imported JSON.
  */
 export const MAX_RESISTORS = 8;
+export const MAX_SWITCHES = 4;
 export const MAX_WIRES = 40;
 const ID_PATTERN = /^R[1-9][0-9]?$/;
-const VALID_ENDPOINT = /^(R[1-9][0-9]?):([ab])$/;
+const SWITCH_ID_PATTERN = /^S[1-9][0-9]?$/;
 
 function assertFinite(value, name, min, max) {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < min || value > max) {
@@ -39,10 +41,14 @@ export function presetCircuit(kind = 'series') {
   } else if (kind === 'open') {
     parts = [part('R1',1000,365,190),part('R2',1000,625,320)];
     wires = [];
+  } else if (kind === 'switch') {
+    parts = [part('R1',1000,635,170)];
+    wires = [connection('V+','S1:a'),connection('S1:b','R1:a'),connection('R1:b','GND')];
   } else {
     throw new RangeError('Unknown circuit example');
   }
-  return {version:1,supplyV,parts,wires};
+  return {version:1,supplyV,parts,wires,
+    switches:kind==='switch'?[{id:'S1',closed:false,x:345,y:170}]:[]};
 }
 export function validateCircuit(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new TypeError('Circuit document must be an object');
@@ -53,6 +59,11 @@ export function validateCircuit(input) {
   }
   if (!Array.isArray(input.wires) || input.wires.length > MAX_WIRES) {
     throw new RangeError('A circuit must have at most ' + MAX_WIRES + ' wires');
+  }
+  // Pre-v0.4 documents omit switches. Preserve import compatibility.
+  const inputSwitches=input.switches===undefined?[]:input.switches;
+  if(!Array.isArray(inputSwitches)||inputSwitches.length>MAX_SWITCHES){
+    throw new RangeError('Circuit must have at most '+MAX_SWITCHES+' switches');
   }
   const ids = new Set();
   const parts = input.parts.map((p) => {
@@ -65,8 +76,18 @@ export function validateCircuit(input) {
     assertFinite(p.y,p.id + ' y position',75,425);
     return {id:p.id,ohms:p.ohms,x:p.x,y:p.y};
   });
+  const switches=inputSwitches.map(sw=>{
+    if(!sw||typeof sw!=='object'||!SWITCH_ID_PATTERN.test(sw.id)||ids.has(sw.id)){
+      throw new RangeError('Each switch needs a unique S1–S99 identifier');
+    }
+    if(typeof sw.closed!=='boolean')throw new TypeError('Switch state must be a boolean');
+    ids.add(sw.id);
+    assertFinite(sw.x,sw.id+' x position',120,830);
+    assertFinite(sw.y,sw.id+' y position',75,425);
+    return {id:sw.id,closed:sw.closed,x:sw.x,y:sw.y};
+  });
   const valid = new Set(['V+','GND']);
-  for (const p of parts) {
+  for (const p of [...parts,...switches]) {
     valid.add(p.id + ':a');
     valid.add(p.id + ':b');
   }
@@ -80,7 +101,7 @@ export function validateCircuit(input) {
     seen.add(key);
     return {a:w.a,b:w.b};
   });
-  return {version:1,supplyV:input.supplyV,parts,wires};
+  return {version:1,supplyV:input.supplyV,parts,switches,wires};
 }
 
 function gaussianSolve(matrix, rhs) {
@@ -112,7 +133,7 @@ function gaussianSolve(matrix, rhs) {
  */
 export function solveCircuit(document) {
   const doc=validateCircuit(document);
-  const terminals = ['V+','GND',...doc.parts.flatMap(p=>[p.id+':a',p.id+':b'])];
+  const terminals = ['V+','GND',...[...doc.parts,...doc.switches].flatMap(p=>[p.id+':a',p.id+':b'])];
   const parent=new Map(terminals.map(t=>[t,t]));
   const find=x=>{
     let a=x;
@@ -122,13 +143,18 @@ export function solveCircuit(document) {
   };
   const union=(a,b)=>{const ra=find(a),rb=find(b);if(ra!==rb)parent.set(rb,ra);};
   for(const w of doc.wires) union(w.a,w.b);
+  for(const sw of doc.switches)if(sw.closed)union(sw.id+':a',sw.id+':b');
   const source=find('V+'),ground=find('GND');
   const blank=doc.parts.map(p=>({
     id:p.id,ohms:p.ohms,currentA:null,voltageV:null,powerW:null,state:'unresolved'
   }));
+  const switchResults=()=>doc.switches.map(sw=>({
+    id:sw.id,closed:sw.closed,state:sw.closed?'closed':'open'
+  }));
   if(source===ground){
     return {status:'short',sourceCurrentA:null,equivalentOhms:null,parts:blank,
-      nodeVoltages:{},notices:['Ideal short: a continuous wire joins V+ to GND. Disconnect that path before calculating current.']};
+      switches:switchResults(),nodeVoltages:{},
+      notices:['Ideal short: wires and/or closed switches join V+ directly to GND. Break that path before calculating current.']};
   }
   const edgeList=doc.parts.map((p,i)=>({partIndex:i,a:find(p.id+':a'),b:find(p.id+':b'),conductance:1/p.ohms}));
   const adjacency=new Map();
@@ -199,7 +225,7 @@ export function solveCircuit(document) {
   }
   sourceCurrentA=Math.max(0,sourceCurrentA);
   const notices=[];
-  if(!powered)notices.push('Open circuit: no resistor path connects V+ and GND.');
+  if(!powered)notices.push('Open circuit: no resistor path connects V+ and GND through closed switches.');
   if(parts.some(p=>p.state==='bypassed'))notices.push('A resistor has both terminals connected by ideal wires and is bypassed.');
   if(parts.some(p=>p.state==='floating'))notices.push('Some components are floating: not connected to either supply terminal.');
   if(parts.some(p=>p.state==='inactive')&&powered)notices.push('Some components draw no DC current. They may be in dangling branches.');
@@ -207,5 +233,5 @@ export function solveCircuit(document) {
   const nodeVoltages=Object.fromEntries([...voltages.entries()]);
   return {status:powered?'ok':'open',sourceCurrentA,equivalentOhms:
     powered&&sourceCurrentA>1e-12&&doc.supplyV>0?doc.supplyV/sourceCurrentA:null,
-    parts,nodeVoltages,notices};
+    parts,switches:switchResults(),nodeVoltages,notices};
 }
