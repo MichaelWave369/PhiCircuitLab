@@ -122,7 +122,8 @@ test('an LED with both leads shorted together is bypassed',()=>{
   const doc=presetCircuit('led');
   doc.wires.push(wire('D1:a','D1:b'));
   const x=solveCircuit(doc);
-  assert.equal(x.status,'open');
+  assert.equal(x.status,'ok');
+  near(x.sourceCurrentA,5/330);
   assert.equal(x.leds[0].state,'bypassed');
   assert.ok(x.notices.some(n=>n.includes('bypassed')));
 });
