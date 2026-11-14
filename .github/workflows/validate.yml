@@ -22,3 +22,5 @@ jobs:
           node --check wiring-lab.mjs
       - name: Run dependency-free model tests
         run: npm test
+      - name: Exercise interactive wiring lab in headless Chrome
+        run: npm run test:browser
