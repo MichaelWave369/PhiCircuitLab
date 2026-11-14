@@ -54,3 +54,9 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-
 #wiring-canvas .placed-switch{cursor:grab}
 #wiring-canvas .placed-switch:active{cursor:grabbing}
 #wiring-canvas .placed-switch:focus-visible rect{stroke:#fff;stroke-width:4}
+
+/* v0.5: LEDs share component selection and their glow is model-driven. */
+#wiring-canvas .placed-led{cursor:grab}
+#wiring-canvas .placed-led:active{cursor:grabbing}
+#wiring-canvas .placed-led:focus-visible circle{stroke:#fff;stroke-width:4}
+.wiring-state.wiring-unsolved{background:#3b2026;color:#ffabab;border-color:#a84d50}
