@@ -1,5 +1,5 @@
 import {
-  MAX_RESISTORS, MAX_WIRES, presetCircuit, solveCircuit, validateCircuit
+  MAX_RESISTORS, MAX_SWITCHES, MAX_WIRES, presetCircuit, solveCircuit, validateCircuit
 } from './wiring-solver.mjs';
 
 const STORAGE_KEY='phi-circuit-lab-wiring-v1';
@@ -62,6 +62,23 @@ function svgMarkup(doc,selected,pending,result){
       terminalSVG(p.id+':a',{x:p.x-54,y:p.y},pending)+
       terminalSVG(p.id+':b',{x:p.x+54,y:p.y},pending)+'</g>';
   }).join('');
+  const switches=doc.switches.map(sw=>{
+    const selectedSwitch=selected?.kind==='part'&&selected.id===sw.id;
+    const border=selectedSwitch?'#ffc578':(sw.closed?'#7be1a7':'#a28cff');
+    const lever=sw.closed
+      ? '<path d="M '+(sw.x-20)+' '+sw.y+' H '+(sw.x+20)+'" stroke="#7be1a7" stroke-width="5" fill="none"/>'
+      : '<path d="M '+(sw.x-20)+' '+sw.y+' L '+(sw.x+15)+' '+(sw.y-22)+'" stroke="#a28cff" stroke-width="5" fill="none"/>';
+    return '<g class="placed-switch" data-part-id="'+sw.id+'" role="button" tabindex="0" '+
+      'aria-label="'+sw.id+' '+(sw.closed?'closed':'open')+' switch; select to toggle">' +
+      '<rect x="'+(sw.x-38)+'" y="'+(sw.y-30)+'" width="76" height="60" rx="10" fill="#233148" stroke="'+border+'" stroke-width="2"/>' +
+      '<path d="M '+(sw.x-54)+' '+sw.y+' H '+(sw.x-20)+' M '+(sw.x+20)+' '+sw.y+
+      ' H '+(sw.x+54)+'" fill="none" stroke="#ffc578" stroke-width="3"/>' +
+      lever+
+      '<text x="'+sw.x+'" y="'+(sw.y+49)+'" text-anchor="middle" fill="#edf4ff" font-size="16">'+sw.id+
+      ' '+(sw.closed?'CLOSED':'OPEN')+'</text>' +
+      terminalSVG(sw.id+':a',{x:sw.x-54,y:sw.y},pending)+
+      terminalSVG(sw.id+':b',{x:sw.x+54,y:sw.y},pending)+'</g>';
+  }).join('');
   return '<defs><pattern id="wiring-grid" width="24" height="24" patternUnits="userSpaceOnUse">'+
     '<circle cx="1" cy="1" r="1" fill="#294156"/></pattern></defs>' +
     '<rect x="0" y="0" width="900" height="500" fill="#0a1727" rx="12"/>' +
@@ -74,24 +91,26 @@ function svgMarkup(doc,selected,pending,result){
     '<text x="110" y="295" fill="#edf4ff" font-size="24" text-anchor="middle">−</text>' +
     '<text x="46" y="92" fill="#55e2df" font-size="16">V+</text>' +
     '<text x="42" y="445" fill="#55e2df" font-size="16">GND</text>' +
-    wires+parts+
+    wires+parts+switches+
     terminalSVG('V+',SOURCE_TERMINALS['V+'],pending)+
     terminalSVG('GND',SOURCE_TERMINALS.GND,pending)+
     '<text x="470" y="478" text-anchor="middle" fill="#59738c" font-size="13">Educational model only. No currents are assumed for an ideal source short.</text>';
 }
 
 function wiringPanelHTML() {
-  return '<span class="eyebrow">VIRTUAL HARDWARE WORKSHOP • V0.3</span>' +
+  return '<span class="eyebrow">VIRTUAL HARDWARE WORKSHOP • V0.4</span>' +
     '<h1>Wiring Sandbox</h1>' +
-    '<p>Arrange resistors, connect their terminals, and calculate currents from your own circuit topology. ' +
-    'Start with a preset or use the disconnected example to build a circuit yourself.</p>' +
+    '<p>Arrange resistors and switches, connect their terminals, and calculate currents from your circuit topology. ' +
+    'Open and close switches to see a real change in the conductive path. No physical kit required.</p>' +
     '<div class="panel wiring-toolbar">' +
     '<label>Start from a circuit<select id="wiring-preset" class="lab-select" aria-label="Start circuit example">' +
     '<option value="" disabled>Current design (saved locally)</option><option value="series">Two resistors in series</option>' +
     '<option value="parallel">Two parallel branches</option>' +
     '<option value="divider">Loaded voltage divider</option>' +
+    '<option value="switch">Series switch challenge</option>' +
     '<option value="open">Blank wiring challenge</option></select></label>' +
     '<button type="button" id="wiring-add" class="button primary">+ Add resistor</button>' +
+    '<button type="button" id="wiring-add-switch" class="button">+ Add switch</button>' +
     '<button type="button" id="wiring-delete" class="button">Delete selected</button>' +
     '<button type="button" id="wiring-clear" class="button">Disconnect all</button>' +
     '<button type="button" id="wiring-undo" class="button">Undo</button></div>' +
@@ -116,7 +135,9 @@ function wiringPanelHTML() {
     'R1’s right terminal to R2’s left, and R2’s right terminal to GND. Your goal is a complete series loop with a measurable current.</p>' +
     '<p class="micro">This solver supports up to '+MAX_RESISTORS+' ideal resistors and '+MAX_WIRES+
     ' ideal wires. It does not model semiconductors, capacitance, transient behavior, physical voltage limits or source impedance. ' +
-    'A direct V+ to GND wire is treated as a fault, not as a numerical current.</p></section>';
+    'A direct V+ to GND path through wires and closed switches is treated as a fault. ' +
+    'Switches are ideal open/closed contacts, not physical current-rated components. ' +
+    'For LEDs, use the dedicated LED + Resistor bench; nonlinear LED simulation in this wiring graph is a later milestone.</p></section>';
 }
 
 /** Create and bind the interactive wiring canvas inside its own app route. */
@@ -155,6 +176,7 @@ export function mountWiringLab(root) {
     root.querySelector('#wiring-supply-value').textContent=doc.supplyV+' V';
     root.querySelector('#wiring-undo').disabled=history.length===0;
     root.querySelector('#wiring-add').disabled=doc.parts.length>=MAX_RESISTORS;
+    root.querySelector('#wiring-add-switch').disabled=doc.switches.length>=MAX_SWITCHES;
     root.querySelector('#wiring-delete').disabled=!selected;
     stateBanner.className='wiring-state wiring-'+result.status;
     const summaries={ok:'Connected circuit',open:'Open circuit',short:'Ideal source short detected'};
@@ -163,14 +185,23 @@ export function mountWiringLab(root) {
     root.querySelector('#wiring-equivalent').textContent=result.equivalentOhms===null?'—':result.equivalentOhms.toFixed(2)+' Ω';
     root.querySelector('#wiring-readings-body').innerHTML=result.parts.map(p=>
       '<tr><td>'+p.id+'</td><td>'+formatV(p.voltageV)+'</td><td>'+formatMa(p.currentA)+'</td>' +
-      '<td>'+formatW(p.powerW)+'</td><td>'+p.state+'</td></tr>').join('');
+      '<td>'+formatW(p.powerW)+'</td><td>'+p.state+'</td></tr>').join('') +
+      result.switches.map(sw=>
+      '<tr><td>'+sw.id+'</td><td>—</td><td>—</td><td>—</td><td>'+sw.state+'</td></tr>').join('');
     root.querySelector('#wiring-notices').innerHTML=result.notices.map(n=>'<li>'+textSafe(n)+'</li>').join('');
     if(!result.notices.length)root.querySelector('#wiring-notices').innerHTML=
       '<li>Ideal DC readings only. Confirm all real component ratings before building.</li>';
     if(selected?.kind==='part'){
-      const p=doc.parts.find(x=>x.id===selected.id);
+      const p=doc.parts.find(x=>x.id===selected.id)||doc.switches.find(x=>x.id===selected.id);
       if(!p){selected=null;inspector.innerHTML='';}
-      else inspector.innerHTML='<div class="wiring-inspector"><strong>Selected: '+p.id+
+      else if(p.id.startsWith('S')){
+        inspector.innerHTML='<div class="wiring-inspector"><strong>Selected: '+p.id+' (ideal switch)</strong>' +
+          '<p>State: <strong>'+ (p.closed?'Closed':'Open')+'</strong></p>' +
+          '<button type="button" class="button primary" id="wiring-toggle-switch" ' +
+          'aria-label="Toggle selected switch '+p.id+'">Toggle switch</button>' +
+          '<p class="micro">Closed behaves like an ideal wire; open interrupts the path. ' +
+          'The switch branch current is not individually reported because ideal-wire current sharing is not always unique.</p></div>';
+      } else inspector.innerHTML='<div class="wiring-inspector"><strong>Selected: '+p.id+
         '</strong><label><span>Resistance (Ω)</span><input type="number" id="wiring-resistance" ' +
         'min="1" max="10000000" step="100" value="'+p.ohms+'" inputmode="decimal"></label>' +
         '<p class="micro">Change resistance, then press Enter or click outside the box.</p></div>';
@@ -178,7 +209,7 @@ export function mountWiringLab(root) {
       const w=doc.wires[selected.index];
       inspector.innerHTML=w?'<p><strong>Selected wire:</strong> '+textSafe(w.a)+' ↔ '+textSafe(w.b)+
         '</p><p class="micro">Use Delete selected to disconnect it.</p>':'';
-    } else inspector.innerHTML='<p class="micro">Select a resistor to change its resistance or drag it to a new position.</p>';
+    } else inspector.innerHTML='<p class="micro">Select a resistor to edit its value, or a switch to toggle it. Drag either component to move it.</p>';
     hint.textContent=(pending?'Connecting from '+pending+'. Click another terminal, or press Escape. ': '')+notice;
     persist();
   }
@@ -218,7 +249,9 @@ export function mountWiringLab(root) {
     if(!hit)return;
     if(hit.kind==='terminal'){terminalClick(hit.id);return;}
     if(hit.kind==='wire'){selected={kind:'wire',index:hit.index};pending=null;message('Wire selected.');render();return;}
-    if(hit.kind==='part'){selected={kind:'part',id:hit.id};pending=null;message('Resistor selected; adjust its value below.');render();}
+    if(hit.kind==='part'){selected={kind:'part',id:hit.id};pending=null;
+      message(hit.id.startsWith('S')?'Switch selected; toggle it in the parts panel.':'Resistor selected; adjust its value below.');
+      render();}
   }
   canvas.addEventListener('click',e=>{if(!drag)choose(e.target);});
   canvas.addEventListener('keydown',e=>{
@@ -233,7 +266,7 @@ export function mountWiringLab(root) {
     if(e.button!==0||e.target.closest('[data-terminal]'))return;
     const hit=inspectTarget(e.target);
     if(hit?.kind!=='part')return;
-    const p=doc.parts.find(x=>x.id===hit.id),xy=toPoint(e);
+    const p=[...doc.parts,...doc.switches].find(x=>x.id===hit.id),xy=toPoint(e);
     if(!p||!xy)return;
     drag={pointerId:e.pointerId,id:p.id,startX:xy.x,startY:xy.y,offsetX:p.x-xy.x,offsetY:p.y-xy.y,moved:false};
     selected={kind:'part',id:p.id};pending=null;
@@ -244,7 +277,7 @@ export function mountWiringLab(root) {
     const xy=toPoint(e);if(!xy)return;
     if(!drag.moved && Math.hypot(xy.x-drag.startX,xy.y-drag.startY)<6)return;
     if(!drag.moved){snapshot();drag.moved=true;}
-    const p=doc.parts.find(p=>p.id===drag.id);
+    const p=[...doc.parts,...doc.switches].find(p=>p.id===drag.id);
     if(!p)return;
     p.x=clamp(Math.round(xy.x+drag.offsetX),150,810);
     p.y=clamp(Math.round(xy.y+drag.offsetY),75,425);
@@ -276,6 +309,22 @@ export function mountWiringLab(root) {
     selected={kind:'part',id};pending=null;
     message('Added '+id+'. Click terminals to wire it.');render();
   });
+  root.querySelector('#wiring-add-switch').addEventListener('click',()=>{
+    if(doc.switches.length>=MAX_SWITCHES)return;
+    let n=1;while(doc.switches.some(sw=>sw.id==='S'+n))n++;
+    snapshot();
+    const id='S'+n,x=285+((doc.switches.length*137)%470),y=125+((doc.switches.length*75)%235);
+    doc.switches.push({id,closed:false,x,y});
+    selected={kind:'part',id};pending=null;
+    message('Added '+id+'. Wire it into a circuit, then toggle it.');render();
+  });
+  root.querySelector('#wiring-inspector').addEventListener('click',e=>{
+    if(!e.target.closest('#wiring-toggle-switch')||selected?.kind!=='part')return;
+    const sw=doc.switches.find(sw=>sw.id===selected.id);
+    if(!sw)return;
+    snapshot();sw.closed=!sw.closed;
+    message(sw.id+' is '+(sw.closed?'closed':'open')+'.');render();
+  });
   root.querySelector('#wiring-delete').addEventListener('click',()=>{
     if(!selected)return;
     snapshot();
@@ -284,6 +333,7 @@ export function mountWiringLab(root) {
     } else {
       const id=selected.id;
       doc.parts=doc.parts.filter(p=>p.id!==id);
+      doc.switches=doc.switches.filter(sw=>sw.id!==id);
       doc.wires=doc.wires.filter(w=>!w.a.startsWith(id+':')&&!w.b.startsWith(id+':'));
       message(id+' removed along with its connected wires.');
     }
