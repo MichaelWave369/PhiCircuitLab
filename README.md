@@ -4,10 +4,10 @@
 
 A free, open-source virtual electronics academy from PHI369 Labs. Begin with no physical components, no paid subscriptions, and no account.
 
-## What works in v0.1
+## What works in v0.2
 
 - **Nine guided modules** covering electricity, components, digital logic, embedded systems, communication, PCB design, and a Node-01 capstone.
-- **Three interactive learning benches**: Ohm's law, a resistor-and-LED model, and six Boolean logic gates.
+- **Six interactive learning benches**: Ohm's law, LEDs, series/parallel networks, voltage dividers (including loads), RC timing, and six Boolean logic gates.
 - **Short knowledge checks**: pass each two-question quiz to mark a module complete.
 - **Local progress tracking** with browser localStorage; no sign-in, tracking, or backend.
 - **Free textbook and safety notes** in the docs folder.
@@ -43,9 +43,9 @@ Once the feature branch has been merged to `main`, open repository **Settings â†
 | Level | Subject | In-app experiment |
 | --- | --- | --- |
 | 01 | Electricity 101 | Ohm's Law Bench |
-| 02 | Series & Parallel | Equivalent-resistance practice |
+| 02 | Series & Parallel | Series & Parallel Bench; Voltage Divider exploration |
 | 03 | LEDs & Resistors | LED Bench |
-| 04 | Components & Signals | LED voltage exploration |
+| 04 | Components & Signals | RC charge/discharge timing |
 | 05 | Digital Logic | Logic Gate Bench |
 | 06 | Microcontrollers | External Wokwi exercise |
 | 07 | Hardware Communication | Design exercise |
@@ -57,6 +57,7 @@ Once the feature branch has been merged to `main`, open repository **Settings â†
 - [Complete lesson book](docs/LESSONBOOK.md)
 - [Lab safety and model limitations](docs/SAFETY.md)
 - [Node-01 virtual capstone brief](docs/NODE01.md)
+- [Printable experiment worksheets](docs/WORKSHEETS.md)
 
 ## Continue learning for free
 
@@ -64,11 +65,11 @@ Once the feature branch has been merged to `main`, open repository **Settings â†
 - [Wokwi](https://wokwi.com/) for virtual microcontroller development. The hosted service has its own pricing and usage conditions; use public/free projects when applicable.
 - [KiCad](https://www.kicad.org/) for free, open-source schematic and PCB design.
 
-PhiCircuitLab does not depend on any of these services to run its three built-in benches.
+PhiCircuitLab does not depend on any external service to run its six built-in benches.
 
 ## Suggested development roadmap
 
-1. Expand interactive exercises (voltage divider, RC timing, series/parallel).
+1. Add hands-on guided predictions and an experiment notebook for each existing bench.
 2. Add printable worksheets and downloadable progress reports.
 3. Implement a visual wiring editor using a proper circuit-solver backend.
 4. Import/export SPICE-friendly circuit descriptions with clear simulator limitations.

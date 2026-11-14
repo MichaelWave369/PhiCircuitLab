@@ -16,5 +16,7 @@ jobs:
         run: |
           node --check app.js
           node --check circuits.mjs
+          node --check advanced-circuits.mjs
+          node --check advanced-workbench.mjs
       - name: Run dependency-free model tests
         run: npm test

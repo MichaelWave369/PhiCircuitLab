@@ -1,4 +1,5 @@
 import { simulateOhms, simulateLed, logicGate } from './circuits.mjs';
+import { isAdvancedLab, advancedBenchMarkup, updateAdvancedBench } from './advanced-workbench.mjs';
 
 // Curated original classroom content. A quiz unlocks completion only when all answers are correct.
 const lessons = [
@@ -19,7 +20,7 @@ const lessons = [
     ]
   },
   {
-    title: 'Series & Parallel', subtitle: 'Where electricity flows', lab: 'ohms', time: '15 min',
+    title: 'Series & Parallel', subtitle: 'Where electricity flows', lab: 'network', time: '15 min',
     intro: 'Two basic wiring arrangements shape nearly every circuit: series components share a path; parallel branches share a pair of nodes.',
     objectives: ['Describe series versus parallel wiring', 'Calculate total series resistance', 'Explain shared voltage in parallel branches'],
     concepts: [
@@ -28,7 +29,7 @@ const lessons = [
       ['Open circuit', 'A broken path prevents current through that path.'],
       ['Short circuit', 'A very low-resistance path can draw excessive current. Real circuits need current limiting and protection.']
     ],
-    challenge: 'Pretend two 500 Ω resistors are in series. In the Ohm’s Law Bench, use their equivalent 1,000 Ω value and a 6 V supply.',
+    challenge: 'Open the Series & Parallel Bench, set R1 to 500 Ω and R2 to 500 Ω, then compare series and parallel at 6 V. Predict the equivalent resistance, supply current, and each resistor’s voltage before switching. Next, explore the Voltage Divider bench to observe a load.',
     quiz: [
       ['Two 100 Ω resistors in series total:', ['50 Ω', '100 Ω', '200 Ω'], 2],
       ['Ideal parallel branches share the same:', ['Voltage', 'Current always', 'Resistance always'], 0]
@@ -51,7 +52,7 @@ const lessons = [
     ]
   },
   {
-    title: 'Components & Signals', subtitle: 'Capacitors, diodes, transistors', lab: 'led', time: '20 min',
+    title: 'Components & Signals', subtitle: 'Capacitors, diodes, transistors', lab: 'rc', time: '20 min',
     intro: 'Real electronics uses components to store energy, steer current, and control larger signals with smaller ones.',
     objectives: ['Recognize core component symbols', 'Explain a capacitor’s basic role', 'Differentiate diodes and transistors'],
     concepts: [
@@ -60,7 +61,7 @@ const lessons = [
       ['Transistor', 'Can act as an electronic switch or amplifier. Common families include MOSFETs and bipolar junction transistors.'],
       ['Sensor', 'Converts a physical condition, such as temperature or light, into a signal the circuit can measure.']
     ],
-    challenge: 'In the LED lab, change the LED color while holding the supply and resistor fixed. Observe how the simplified forward-voltage assumption changes current.',
+    challenge: 'Open RC Timing. Set R = 1,000 Ω, C = 100 µF. Find the time constant τ, compare capacitor voltage at 1τ and 5τ, and switch to discharge. Then explain why the curve changes when R doubles.',
     quiz: [
       ['Which component stores energy in an electric field?', ['Capacitor', 'Resistor', 'Fuse'], 0],
       ['Which component is widely used as an electronic switch?', ['Transistor', 'Wire label', 'Screw'], 0]
@@ -208,7 +209,7 @@ function renderLesson() {
     '</section><aside class="panel"><h2>Your objectives</h2><ul>' + l.objectives.map(x=>'<li>'+x+'</li>').join('') +
     '</ul><h3>Lab assignment</h3><div class="callout"><p>' + l.challenge + '</p></div>' +
     '<div class="actions">' + (l.lab ?
-    '<button class="button primary" data-open-lab="' + l.lab + '">Launch ' + (l.lab==='ohms' ? 'Ohm’s Bench' : l.lab==='led' ? 'LED Bench' : 'Logic Bench') + '</button>' :
+    '<button class="button primary" data-open-lab="' + l.lab + '">Launch ' + (l.lab==='ohms' ? 'Ohm’s Bench' : l.lab==='led' ? 'LED Bench' : l.lab==='network' ? 'Network Bench' : l.lab==='rc' ? 'RC Timing Bench' : 'Logic Bench') + '</button>' :
     '<button class="button primary" data-view="workbench">Explore lab resources</button>') + '</div></aside></div>' +
     '<section class="panel" style="margin-top:1rem"><span class="eyebrow">KNOWLEDGE CHECK</span><h2>Quiz</h2>' +
     '<p>Answer every question correctly to mark this module complete. You can retry as often as you want.</p>' +
@@ -226,7 +227,7 @@ function renderTextbook() {
     '<section class="panel"><h2>Table of contents</h2><ol class="chapter-list">' +
     lessons.map((l,i) => '<li><button class="button" data-lesson="' + i + '">Chapter ' + (i+1) + ': ' + l.title + '</button> <span class="micro">' + l.subtitle + '</span></li>').join('') +
     '</ol><div class="actions"><a class="button primary" href="https://github.com/MichaelWave369/PhiCircuitLab/blob/main/docs/LESSONBOOK.md" target="_blank" rel="noopener noreferrer">Open full lesson book</a>' +
-    '<a class="button" href="https://github.com/MichaelWave369/PhiCircuitLab/blob/main/docs/SAFETY.md" target="_blank" rel="noopener noreferrer">Read safety guide</a></div></section>' +
+    '<a class="button" href="https://github.com/MichaelWave369/PhiCircuitLab/blob/main/docs/SAFETY.md" target="_blank" rel="noopener noreferrer">Read safety guide</a><a class="button" href="https://github.com/MichaelWave369/PhiCircuitLab/blob/main/docs/WORKSHEETS.md" target="_blank" rel="noopener noreferrer">Experiment worksheets</a></div></section>' +
     '<div class="section-heading"><h2>Engineering references</h2></div><div class="grid">' +
     '<div class="card"><span class="chip">CIRCUIT EXPLORATION</span><h3>CircuitJS / Falstad</h3><p>General-purpose circuit experimentation beyond our guided benches.</p><a href="https://falstad.com/circuit/" target="_blank" rel="noopener noreferrer">Open simulator</a></div>' +
     '<div class="card"><span class="chip">MICROCONTROLLERS</span><h3>Wokwi</h3><p>Virtual ESP32 and Arduino-style firmware experiments; third-party service with its own terms.</p><a href="https://wokwi.com/" target="_blank" rel="noopener noreferrer">Open Wokwi</a></div>' +
@@ -244,12 +245,12 @@ function renderProgress() {
     '</ul><button class="button" id="reset-progress">Reset local progress</button></section>';
 }
 function renderWorkbench() {
-  const items = [['ohms','Ohm’s Law'],['led','LED + Resistor'],['logic','Logic Gates']];
+  const items = [['ohms','Ohm’s Law'],['led','LED + Resistor'],['network','Series & Parallel'],['divider','Voltage Divider'],['rc','RC Timing'],['logic','Logic Gates']];
   root.innerHTML = '<span class="eyebrow">VIRTUAL LABORATORY</span><h1>The Workbench</h1>' +
     '<p>Change inputs and see calculated circuit behavior instantly. These are intentionally simple educational models, not full physics or hardware emulation.</p>' +
     '<div class="lab-tabs" role="group" aria-label="Choose experiment">' +
     items.map(([id,title]) => '<button class="lab-tab ' + (state.lab===id?'active':'') + '" data-lab="' + id + '">' + title + '</button>').join('') + '</div>' +
-    (state.lab==='ohms' ? ohmsWorkbench() : state.lab==='led' ? ledWorkbench() : logicWorkbench()) +
+    (isAdvancedLab(state.lab) ? advancedBenchMarkup(state.lab) : state.lab==='ohms' ? ohmsWorkbench() : state.lab==='led' ? ledWorkbench() : logicWorkbench()) +
     '<div class="panel" style="margin-top:1rem"><h3>Continue in engineering tools</h3><p>Explore more complex circuits in <a href="https://falstad.com/circuit/" target="_blank" rel="noopener noreferrer">CircuitJS</a>, embedded firmware in <a href="https://wokwi.com/" target="_blank" rel="noopener noreferrer">Wokwi</a>, or PCB layouts in <a href="https://www.kicad.org/" target="_blank" rel="noopener noreferrer">KiCad</a>.</p>' +
     '<div class="callout warning"><strong>Simulation limits:</strong> ideal resistor behavior, fixed LED forward-voltage assumptions, and Boolean logic. Do not treat these readings as component specifications or electrical safety certification.</div></div>';
   updateBench();
@@ -298,6 +299,7 @@ function logicWorkbench() {
 }
 function updateBench() {
   if (state.view !== 'workbench') return;
+  if (isAdvancedLab(state.lab)) { updateAdvancedBench(state.lab); return; }
   if (state.lab === 'ohms') {
     const v = Number(document.getElementById('ohms-voltage').value);
     const r = Number(document.getElementById('ohms-resistance').value);
