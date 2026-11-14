@@ -31,19 +31,21 @@ function panel(title, description, diagram, controls, metrics, notes) {
     '<p id="advanced-warning" class="feedback" role="status"></p></section></div>';
 }
 function networkBench() {
-  const diagram = '<svg viewBox="0 0 490 260" role="img" aria-label="Two resistors connected in either a series loop or in parallel branches">' +
-    '<g fill="none" stroke="#55e2df" stroke-width="4" stroke-linecap="round"><path d="M68 45 H120 M68 45 V210 H425 V45 H350"/></g>' +
-    '<g id="network-series"><path fill="none" stroke="#55e2df" stroke-width="4" d="M120 45 H153 M240 45 H275 M363 45 H425"/>' +
-    '<rect x="153" y="25" width="87" height="40" rx="6" stroke="#ffc578" stroke-width="3" fill="#3e3529"/>' +
+  const diagram = '<svg viewBox="0 0 490 260" role="img" aria-label="Two resistors in a series loop or two parallel branches">' +
+    '<g id="network-series"><g fill="none" stroke="#55e2df" stroke-width="4" stroke-linecap="round">' +
+    '<path d="M68 45 H155 M242 45 H275 M362 45 H425 V210 H68 V148 M68 93 V45"/></g>' +
+    '<rect x="155" y="25" width="87" height="40" rx="6" stroke="#ffc578" stroke-width="3" fill="#3e3529"/>' +
     '<rect x="275" y="25" width="87" height="40" rx="6" stroke="#ffc578" stroke-width="3" fill="#3e3529"/>' +
     '<text x="170" y="50" fill="#edf4ff" font-size="17">R1</text><text x="290" y="50" fill="#edf4ff" font-size="17">R2</text>' +
-    '<text x="181" y="127" fill="#55e2df" font-size="17">One current path</text></g>' +
-    '<g id="network-parallel" class="hidden"><path fill="none" stroke="#55e2df" stroke-width="4" d="M120 45 H425 M120 45 V140 H160 M247 140 H300 M387 140 H425 V45"/>' +
-    '<rect x="160" y="25" width="87" height="40" rx="6" stroke="#ffc578" stroke-width="3" fill="#3e3529"/>' +
-    '<rect x="300" y="120" width="87" height="40" rx="6" stroke="#ffc578" stroke-width="3" fill="#3e3529"/>' +
-    '<text x="179" y="50" fill="#edf4ff" font-size="17">R1</text><text x="317" y="145" fill="#edf4ff" font-size="17">R2</text>' +
-    '<text x="180" y="191" fill="#55e2df" font-size="16">Two voltage-sharing branches</text></g>' +
-    '<g fill="#edf4ff" font-size="15"><text x="22" y="128">DC</text><text x="80" y="234">Ideal circuit, not to scale</text></g>' +
+    '<text x="185" y="138" fill="#55e2df" font-size="16">One current path</text></g>' +
+    '<g id="network-parallel" class="hidden"><g fill="none" stroke="#55e2df" stroke-width="4" stroke-linecap="round">' +
+    '<path d="M68 45 H150 V85 H205 M285 85 H425 V210 H68 V148 M68 93 V45 M150 85 V155 H205 M285 155 H425"/></g>' +
+    '<rect x="205" y="65" width="80" height="40" rx="6" stroke="#ffc578" stroke-width="3" fill="#3e3529"/>' +
+    '<rect x="205" y="135" width="80" height="40" rx="6" stroke="#ffc578" stroke-width="3" fill="#3e3529"/>' +
+    '<text x="227" y="90" fill="#edf4ff" font-size="17">R1</text><text x="227" y="160" fill="#edf4ff" font-size="17">R2</text>' +
+    '<text x="170" y="237" fill="#55e2df" font-size="15">Two branches share voltage</text></g>' +
+    '<g fill="none" stroke="#edf4ff" stroke-width="3"><line x1="51" y1="94" x2="85" y2="94"/><line x1="57" y1="113" x2="79" y2="113"/></g>' +
+    '<g fill="#edf4ff" font-size="15"><text x="8" y="108">DC</text></g>' +
     '</svg>';
   const controls = select('network-topology', 'Connection', [['series','Series'],['parallel','Parallel']]) +
     slider('network-supply','Supply voltage',0,12,.5,6,'V') +
