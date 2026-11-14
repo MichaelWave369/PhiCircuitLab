@@ -135,7 +135,8 @@ try {
   assert.equal(short.current,'—');
   console.log('PASS: ideal short is diagnosed without inventing a current');
   // A switch should interrupt and restore a real user-built circuit.
-  const switchOpen=await evaluate("(()=>{const p=document.querySelector('#wiring-preset');p.value='switch';p.dispatchEvent(new Event('change',{bubbles:true}));return {status:document.querySelector('#wiring-state').textContent,visible:!!document.querySelector('[data-part-id=S1]')}})()");
+  const switchOpen=await evaluate("(()=>{const p=document.querySelector('#wiring-preset');p.value='switch';let exception=null;try{p.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){exception=e.message;}return {status:document.querySelector('#wiring-state').textContent,visible:!!document.querySelector('[data-part-id=S1]'),preset:p.value,optionCount:p.options.length,exception}})()");
+  console.log('Switch preset transition:',JSON.stringify(switchOpen),'browser exceptions:',JSON.stringify(exceptions));
   assert.equal(switchOpen.status,'Open circuit');
   assert.equal(switchOpen.visible,true);
   const switchClosed=await evaluate("(()=>{document.querySelector('[data-part-id=S1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));const toggle=document.querySelector('#wiring-toggle-switch');if(!toggle)return {error:'No switch toggle'};toggle.click();return {status:document.querySelector('#wiring-state').textContent,current:document.querySelector('#wiring-current').textContent,openText:document.querySelector('#wiring-toggle-switch')?.textContent}})()");
