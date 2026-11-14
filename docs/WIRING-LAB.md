@@ -75,7 +75,7 @@ This is an exercise about recognizing dangerous topology, **not** something you 
 2. **Fault check:** if V+ and GND collapse to the same node, report an ideal short.
 3. **Resistor graph:** group electrically connected resistor networks.
 4. **Boundary conditions:** impose V+ and GND voltages on the ideal source.
-5. **Nodal analysis:** solve \`Σ conductance × voltage difference = 0\` at internal nodes with Gaussian elimination.
+5. **Nodal analysis:** solve `Σ conductance × voltage difference = 0` at internal nodes with Gaussian elimination.
 6. **Derived readings:** individual resistor voltage, signed current (Ohm's law), power, source current, and equivalent resistance when measurable.
 
 An unconnected (floating) resistor network has no defined absolute DC potential. The app does not invent one. An unpowered one-terminal-connected branch has zero ideal steady-state current.
@@ -95,9 +95,9 @@ For real hardware, verify datasheets, low-voltage limits, wiring, resistor power
 
 ## Document format
 
-A circuit is a JSON object with \`version: 1\`, a supply voltage, resistor parts, and wires.
+A circuit is a JSON object with `version: 1`, a supply voltage, resistor parts, and wires.
 
-\`\`\`json
+```json
 {
   "version": 1,
   "supplyV": 9,
@@ -111,7 +111,7 @@ A circuit is a JSON object with \`version: 1\`, a supply voltage, resistor parts
     {"a":"R2:b","b":"GND"}
   ]
 }
-\`\`\`
+```
 
 Import validation rejects unknown terminals, duplicate wires, nonfinite electrical values, malformed IDs, and oversized designs. Only safe, defined fields are retained.
 
