@@ -227,7 +227,7 @@ function renderTextbook() {
     '<section class="panel"><h2>Table of contents</h2><ol class="chapter-list">' +
     lessons.map((l,i) => '<li><button class="button" data-lesson="' + i + '">Chapter ' + (i+1) + ': ' + l.title + '</button> <span class="micro">' + l.subtitle + '</span></li>').join('') +
     '</ol><div class="actions"><a class="button primary" href="https://github.com/MichaelWave369/PhiCircuitLab/blob/main/docs/LESSONBOOK.md" target="_blank" rel="noopener noreferrer">Open full lesson book</a>' +
-    '<a class="button" href="https://github.com/MichaelWave369/PhiCircuitLab/blob/main/docs/SAFETY.md" target="_blank" rel="noopener noreferrer">Read safety guide</a></div></section>' +
+    '<a class="button" href="https://github.com/MichaelWave369/PhiCircuitLab/blob/main/docs/SAFETY.md" target="_blank" rel="noopener noreferrer">Read safety guide</a><a class="button" href="https://github.com/MichaelWave369/PhiCircuitLab/blob/main/docs/WORKSHEETS.md" target="_blank" rel="noopener noreferrer">Experiment worksheets</a></div></section>' +
     '<div class="section-heading"><h2>Engineering references</h2></div><div class="grid">' +
     '<div class="card"><span class="chip">CIRCUIT EXPLORATION</span><h3>CircuitJS / Falstad</h3><p>General-purpose circuit experimentation beyond our guided benches.</p><a href="https://falstad.com/circuit/" target="_blank" rel="noopener noreferrer">Open simulator</a></div>' +
     '<div class="card"><span class="chip">MICROCONTROLLERS</span><h3>Wokwi</h3><p>Virtual ESP32 and Arduino-style firmware experiments; third-party service with its own terms.</p><a href="https://wokwi.com/" target="_blank" rel="noopener noreferrer">Open Wokwi</a></div>' +
