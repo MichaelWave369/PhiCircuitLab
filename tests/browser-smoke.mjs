@@ -131,7 +131,17 @@ try {
   assert.deepEqual(exceptions,[]);
   console.log('PASS: no uncaught browser JavaScript exceptions');
 } finally {
-  chrome.kill('SIGTERM');
+  // Chrome may still write into its profile for a moment after SIGTERM.
+  // Wait for process exit, then retry removal. A cleanup race is not a
+  // failed circuit test (the runner removes its temporary directory anyway).
+  if(chrome.exitCode===null){
+    chrome.kill('SIGTERM');
+    await Promise.race([
+      new Promise(resolve=>chrome.once('exit',resolve)),
+      new Promise(resolve=>setTimeout(resolve,2500))
+    ]);
+  }
   await new Promise(resolve=>server.close(resolve));
-  await rm(profile,{recursive:true,force:true});
+  try{await rm(profile,{recursive:true,force:true,maxRetries:15,retryDelay:100});}
+  catch(error){console.warn('Chrome temporary-profile cleanup warning:',error.code);}
 }
