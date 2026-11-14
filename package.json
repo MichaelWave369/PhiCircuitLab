@@ -1,10 +1,11 @@
 {
   "name": "phi-circuit-lab",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/browser-smoke.mjs"
   },
   "description": "Free browser-based electronics academy; no runtime dependencies."
 }
