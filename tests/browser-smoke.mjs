@@ -34,54 +34,63 @@ const server=createServer(async(req,res)=>{
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const url='http://127.0.0.1:'+server.address().port+'/';
 const profile=await mkdtemp(path.join(os.tmpdir(),'phi-wiring-smoke-'));
-const debugPort=25000+(process.pid%15000);
+// Chrome's pipe transport avoids flaky TCP debugging-port discovery on
+// shared GitHub Actions runners, and keeps the browser debug endpoint private.
 const chrome=spawn(chromeBin,['--headless=new','--no-sandbox','--disable-dev-shm-usage',
   '--disable-gpu','--no-first-run','--no-default-browser-check',
   '--disable-background-networking','--disable-extensions',
-  '--user-data-dir='+profile,'--remote-debugging-port='+debugPort,url],
-  {stdio:'ignore'});
+  '--user-data-dir='+profile,'--remote-debugging-pipe',url],
+  {stdio:['ignore','ignore','ignore','pipe','pipe']});
 
-let ws=null;
 try {
+  let serial=0,buffer='';
+  const pending=new Map(),exceptions=[];
+  const protocolOut=chrome.stdio[3];
+  const protocolIn=chrome.stdio[4];
+  protocolIn.on('data',chunk=>{
+    buffer+=chunk.toString('utf8');
+    let index;
+    while((index=buffer.indexOf('\0'))!==-1){
+      const item=buffer.slice(0,index);buffer=buffer.slice(index+1);
+      if(!item.trim())continue;
+      let packet;
+      try{packet=JSON.parse(item);}catch(_){continue;}
+      if(packet.method==='Runtime.exceptionThrown'){
+        exceptions.push(packet.params?.exceptionDetails?.text||'Browser JavaScript exception');
+      }
+      if(!packet.id)continue;
+      const callback=pending.get(packet.id);
+      if(!callback)continue;
+      pending.delete(packet.id);
+      clearTimeout(callback.timer);
+      if(packet.error)callback.reject(new Error(packet.error.message));
+      else callback.resolve(packet.result);
+    }
+  });
+  const cdp=(method,params={},sessionId=null)=>new Promise((resolve,reject)=>{
+    const id=++serial;
+    const timer=setTimeout(()=>{
+      pending.delete(id);reject(new Error('CDP timed out: '+method));
+    },8000);
+    pending.set(id,{resolve,reject,timer});
+    const command={id,method,params};
+    if(sessionId)command.sessionId=sessionId;
+    protocolOut.write(JSON.stringify(command)+'\0');
+  });
   let target;
   for(let attempt=0;attempt<100;attempt++){
-    if(chrome.exitCode!==null)throw new Error('Chromium exited before opening debug protocol');
-    try {
-      const resp=await fetch('http://127.0.0.1:'+debugPort+'/json');
-      const tabs=await resp.json();
-      target=tabs.find(tab=>tab.type==='page'&&tab.webSocketDebuggerUrl);
-      if(target)break;
-    }catch(_){/* Browser is starting. */ }
+    if(chrome.exitCode!==null)throw new Error('Chromium exited before CDP was available');
+    const tabs=await cdp('Target.getTargets');
+    target=tabs.targetInfos?.find(t=>t.type==='page');
+    if(target)break;
     await new Promise(resolve=>setTimeout(resolve,100));
   }
-  if(!target)throw new Error('Could not connect to Chromium debugging endpoint');
-  ws=new WebSocket(target.webSocketDebuggerUrl);
-  await new Promise((resolve,reject)=>{
-    ws.addEventListener('open',resolve,{once:true});
-    ws.addEventListener('error',reject,{once:true});
-  });
-  let serial=0;
-  const pending=new Map(),exceptions=[];
-  ws.addEventListener('message',event=>{
-    const packet=JSON.parse(event.data);
-    if(packet.method==='Runtime.exceptionThrown'){
-      exceptions.push(packet.params.exceptionDetails?.text||'Browser JavaScript exception');
-    }
-    if(!packet.id)return;
-    const callback=pending.get(packet.id);
-    if(!callback)return;
-    pending.delete(packet.id);
-    if(packet.error)callback.reject(new Error(packet.error.message));
-    else callback.resolve(packet.result);
-  });
-  const cdp=(method,params={})=>new Promise((resolve,reject)=>{
-    const id=++serial;
-    pending.set(id,{resolve,reject});
-    ws.send(JSON.stringify({id,method,params}));
-  });
-  await cdp('Runtime.enable');
+  if(!target)throw new Error('Chromium did not create a page target');
+  const attached=await cdp('Target.attachToTarget',{targetId:target.targetId,flatten:true});
+  const sessionId=attached.sessionId;
+  await cdp('Runtime.enable',{},sessionId);
   async function evaluate(expression){
-    const response=await cdp('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});
+    const response=await cdp('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true},sessionId);
     if(response.exceptionDetails)throw new Error('Browser exception: '+response.exceptionDetails.text);
     return response.result.value;
   }
@@ -122,7 +131,6 @@ try {
   assert.deepEqual(exceptions,[]);
   console.log('PASS: no uncaught browser JavaScript exceptions');
 } finally {
-  if(ws)ws.close();
   chrome.kill('SIGTERM');
   await new Promise(resolve=>server.close(resolve));
   await rm(profile,{recursive:true,force:true});
