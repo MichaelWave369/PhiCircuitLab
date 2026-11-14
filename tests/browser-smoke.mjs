@@ -1,0 +1,129 @@
+/**
+ * Zero-npm-dependency Chromium smoke test for the PhiCircuitLab classroom.
+ * Starts a local web server, uses Chrome DevTools Protocol, then closes it.
+ * Chrome/Chromium must be available on PATH; no external services are used.
+ */
+import assert from 'node:assert/strict';
+import { spawn, spawnSync } from 'node:child_process';
+import { createServer } from 'node:http';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+
+const root=process.cwd();
+const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json'};
+const candidates=[process.env.CHROME_BIN,'google-chrome','google-chrome-stable','chromium','chromium-browser'].filter(Boolean);
+let chromeBin=null;
+for(const bin of candidates){
+  if(spawnSync('which',[bin],{stdio:'ignore'}).status===0){chromeBin=bin;break;}
+}
+if(!chromeBin)throw new Error('Chromium or Google Chrome is required to run the browser smoke test');
+
+const server=createServer(async(req,res)=>{
+  try{
+    const requested=new URL(req.url,'http://127.0.0.1').pathname;
+    const filename=path.resolve(root,'.'+(requested==='/'?'/index.html':requested));
+    if(filename!==root&&!filename.startsWith(root+path.sep)){
+      res.writeHead(403);res.end('Forbidden');return;
+    }
+    const body=await readFile(filename);
+    res.writeHead(200,{'content-type':mime[path.extname(filename)]||'application/octet-stream'});
+    res.end(body);
+  }catch(_){res.writeHead(404);res.end('Not found');}
+});
+await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+const url='http://127.0.0.1:'+server.address().port+'/';
+const profile=await mkdtemp(path.join(os.tmpdir(),'phi-wiring-smoke-'));
+const debugPort=25000+(process.pid%15000);
+const chrome=spawn(chromeBin,['--headless=new','--no-sandbox','--disable-dev-shm-usage',
+  '--disable-gpu','--no-first-run','--no-default-browser-check',
+  '--disable-background-networking','--disable-extensions',
+  '--user-data-dir='+profile,'--remote-debugging-port='+debugPort,url],
+  {stdio:'ignore'});
+
+let ws=null;
+try {
+  let target;
+  for(let attempt=0;attempt<100;attempt++){
+    if(chrome.exitCode!==null)throw new Error('Chromium exited before opening debug protocol');
+    try {
+      const resp=await fetch('http://127.0.0.1:'+debugPort+'/json');
+      const tabs=await resp.json();
+      target=tabs.find(tab=>tab.type==='page'&&tab.webSocketDebuggerUrl);
+      if(target)break;
+    }catch(_){/* Browser is starting. */ }
+    await new Promise(resolve=>setTimeout(resolve,100));
+  }
+  if(!target)throw new Error('Could not connect to Chromium debugging endpoint');
+  ws=new WebSocket(target.webSocketDebuggerUrl);
+  await new Promise((resolve,reject)=>{
+    ws.addEventListener('open',resolve,{once:true});
+    ws.addEventListener('error',reject,{once:true});
+  });
+  let serial=0;
+  const pending=new Map(),exceptions=[];
+  ws.addEventListener('message',event=>{
+    const packet=JSON.parse(event.data);
+    if(packet.method==='Runtime.exceptionThrown'){
+      exceptions.push(packet.params.exceptionDetails?.text||'Browser JavaScript exception');
+    }
+    if(!packet.id)return;
+    const callback=pending.get(packet.id);
+    if(!callback)return;
+    pending.delete(packet.id);
+    if(packet.error)callback.reject(new Error(packet.error.message));
+    else callback.resolve(packet.result);
+  });
+  const cdp=(method,params={})=>new Promise((resolve,reject)=>{
+    const id=++serial;
+    pending.set(id,{resolve,reject});
+    ws.send(JSON.stringify({id,method,params}));
+  });
+  await cdp('Runtime.enable');
+  async function evaluate(expression){
+    const response=await cdp('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});
+    if(response.exceptionDetails)throw new Error('Browser exception: '+response.exceptionDetails.text);
+    return response.result.value;
+  }
+  const initial=await evaluate("(async()=>{for(let n=0;n<60&&!document.querySelector('#app-content h1');n++)await new Promise(r=>setTimeout(r,50));return {title:document.querySelector('#app-content h1')?.textContent,hasBuilder:!!document.querySelector('[data-view=builder]')}})()");
+  assert.match(initial.title||'',/Build the knowledge/);
+  assert.equal(initial.hasBuilder,true);
+  console.log('PASS: classroom loads and exposes the Wiring Lab');
+  const opened=await evaluate("(()=>{document.querySelector('[data-view=builder]').click();return {title:document.querySelector('#app-content h1')?.textContent,status:document.querySelector('#wiring-state')?.textContent}})()");
+  assert.match(opened.title||'',/Wiring Sandbox/);
+  assert.equal(opened.status,'Connected circuit');
+  console.log('PASS: Wiring Lab opens and solves the series preset');
+  const series=await evaluate("({current:document.querySelector('#wiring-current').textContent,eq:document.querySelector('#wiring-equivalent').textContent})");
+  assert.equal(series.current,'4.500 mA');
+  assert.equal(series.eq,'2000.00 Ω');
+  const open=await evaluate("(()=>{const s=document.querySelector('#wiring-preset');s.value='open';s.dispatchEvent(new Event('change',{bubbles:true}));return {status:document.querySelector('#wiring-state').textContent,current:document.querySelector('#wiring-current').textContent}})()");
+  assert.equal(open.status,'Open circuit');
+  assert.equal(open.current,'0.000 mA');
+  console.log('PASS: blank circuit reports open topology');
+  for(const terminal of ['V+','R1:a','R1:b','R2:a','R2:b','GND']){
+    const success=await evaluate("(()=>{const t=document.querySelector('[data-terminal="+JSON.stringify(terminal)+"]');if(!t)return false;t.dispatchEvent(new MouseEvent('click',{bubbles:true}));return true;})()");
+    assert.equal(success,true,'Missing SVG terminal: '+terminal);
+  }
+  const connected=await evaluate("({status:document.querySelector('#wiring-state').textContent,current:document.querySelector('#wiring-current').textContent,eq:document.querySelector('#wiring-equivalent').textContent})");
+  assert.equal(connected.status,'Connected circuit');
+  assert.equal(connected.current,'4.500 mA');
+  assert.equal(connected.eq,'2000.00 Ω');
+  console.log('PASS: user-drawn wires form a computed series network');
+  const deleted=await evaluate("(()=>{document.querySelector('[data-wire-index=\"0\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#wiring-delete').click();return document.querySelector('#wiring-state').textContent})()");
+  assert.equal(deleted,'Open circuit');
+  console.log('PASS: deleting a wire breaks the live circuit');
+  const undo=await evaluate("(()=>{document.querySelector('#wiring-undo').click();return document.querySelector('#wiring-state').textContent})()");
+  assert.equal(undo,'Connected circuit');
+  console.log('PASS: undo restores the circuit');
+  const short=await evaluate("(()=>{const s=document.querySelector('#wiring-preset');s.value='open';s.dispatchEvent(new Event('change',{bubbles:true}));for(const t of ['V+','GND'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));return {status:document.querySelector('#wiring-state').textContent,current:document.querySelector('#wiring-current').textContent}})()");
+  assert.equal(short.status,'Ideal source short detected');
+  assert.equal(short.current,'—');
+  console.log('PASS: ideal short is diagnosed without inventing a current');
+  assert.deepEqual(exceptions,[]);
+  console.log('PASS: no uncaught browser JavaScript exceptions');
+} finally {
+  if(ws)ws.close();
+  chrome.kill('SIGTERM');
+  await new Promise(resolve=>server.close(resolve));
+  await rm(profile,{recursive:true,force:true});
+}
