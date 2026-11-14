@@ -1,8 +1,8 @@
 # Φ Circuit Lab • Wiring Sandbox Field Manual
 
-**Release:** v0.4 • **Price:** free • **Hardware:** none required
+**Release:** v0.5 • **Price:** free • **Hardware:** none required
 
-This lab lets you experiment with *arbitrary connections among a small set of resistors and ideal open/closed switches* and a single ideal DC supply. It solves the resistor network numerically based on the wires you draw. It does not simulate all electronics, and it is not a circuit-board CAD editor.
+This lab lets you experiment with *arbitrary connections among resistors, ideal open/closed switches, and simplified polarized LEDs* and a single ideal DC supply. It solves the resistor network numerically based on the wires you draw. It does not simulate all electronics, and it is not a circuit-board CAD editor.
 
 ## Your first run
 
@@ -96,7 +96,7 @@ For real hardware, verify datasheets, low-voltage limits, wiring, resistor power
 
 ## Document format
 
-A circuit is a JSON object with `version: 1`, a supply voltage, resistor parts, optional switches, and wires. Older designs that omit switches still load.
+A circuit is a JSON object with `version: 1`, a supply voltage, resistor parts, optional switches, and wires. Older designs that omit switches or LEDs still load.
 
 ```json
 {
@@ -118,8 +118,12 @@ Import validation rejects unknown terminals, duplicate wires, nonfinite electric
 
 ## What comes next
 
-A true schematic editor would add a richer component palette (diodes, sensors), multi-step simulation, connection validation, symbol libraries, and eventually KiCad-friendly exports. The v0.4 sandbox includes ideal switches; LEDs are still taught in the standalone LED bench.
+A true schematic editor would add a richer component palette (diodes, sensors), multi-step simulation, connection validation, symbol libraries, and eventually KiCad-friendly exports. The v0.5 sandbox includes a piecewise-linear LED model and overcurrent warnings. For its assumptions, see [LED Wiring Studio](LEDS.md).
 
 ## Experiment E: a switched series circuit
 
 See the [switch lesson](SWITCHES.md). Open the switch preset, select S1, and toggle it. The open state should yield zero source current; the closed state should yield 9 mA through the 1 kΩ resistor at 9 V.
+
+## Experiment F: an LED with correct polarity
+
+Open **Red LED + 330 Ω**. At 5 V the classroom piecewise-linear model gives about 8.571 mA. Change the LED color, reverse its wiring, and compare with the no-resistor caution preset. See the [complete LED lesson](LEDS.md) for model differences and safety.
