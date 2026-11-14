@@ -4,12 +4,14 @@
 
 A free, open-source virtual electronics academy from PHI369 Labs. Begin with no physical components, no paid subscriptions, and no account.
 
-## What works in v0.2
+## What works in v0.3
 
 - **Nine guided modules** covering electricity, components, digital logic, embedded systems, communication, PCB design, and a Node-01 capstone.
 - **Six interactive learning benches**: Ohm's law, LEDs, series/parallel networks, voltage dividers (including loads), RC timing, and six Boolean logic gates.
+- **New Wiring Sandbox**: drag and arrange up to eight resistors, click terminals to draw ideal wires, simulate arbitrary resistor-network topologies, and inspect current/voltage/power. Includes short/open/floating/bypassed detection.
 - **Short knowledge checks**: pass each two-question quiz to mark a module complete.
-- **Local progress tracking** with browser localStorage; no sign-in, tracking, or backend.
+- **Local progress tracking and a saved wiring design** with browser localStorage; no sign-in, tracking, or backend.
+- **JSON import/export for wiring designs**, with schema and bounds validation. No cloud required.
 - **Free textbook and safety notes** in the docs folder.
 - **Responsive static website**, suitable for GitHub Pages or local hosting.
 - **Dependency-free calculation tests** with Node.js.
@@ -58,6 +60,13 @@ Once the feature branch has been merged to `main`, open repository **Settings â†
 - [Lab safety and model limitations](docs/SAFETY.md)
 - [Node-01 virtual capstone brief](docs/NODE01.md)
 - [Printable experiment worksheets](docs/WORKSHEETS.md)
+- [Wiring Sandbox field manual](docs/WIRING-LAB.md)
+
+## Wiring Sandbox
+
+Open **Wiring Lab** in the top navigation. Start with a series, parallel, loaded-divider or blank circuit. Connect terminals by clicking them in pairs, drag resistors, inspect results, and experiment with open circuits and ideal shorts. All calculation runs locally.
+
+See [the field manual](docs/WIRING-LAB.md) for four challenges and the model's limits. The engine performs ideal-resistor DC nodal analysis, **not full SPICE**. It cannot yet simulate LEDs, reactive parts, switches, PCB layouts or real power-source fault behavior.
 
 ## Continue learning for free
 
@@ -69,7 +78,7 @@ PhiCircuitLab does not depend on any external service to run its six built-in be
 
 ## Suggested development roadmap
 
-1. Add hands-on guided predictions and an experiment notebook for each existing bench.
+1. Add guided prediction challenges and circuit snapshots inside the Wiring Lab.
 2. Add printable worksheets and downloadable progress reports.
 3. Implement a visual wiring editor using a proper circuit-solver backend.
 4. Import/export SPICE-friendly circuit descriptions with clear simulator limitations.
