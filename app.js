@@ -30,7 +30,7 @@ const lessons = [
       ['Open circuit', 'A broken path prevents current through that path.'],
       ['Short circuit', 'A very low-resistance path can draw excessive current. Real circuits need current limiting and protection.']
     ],
-    challenge: 'Open the Series & Parallel Bench, set R1 to 500 Ω and R2 to 500 Ω, then compare series and parallel at 6 V. Predict the equivalent resistance, supply current, and each resistor’s voltage before switching. Next, explore the Voltage Divider bench to observe a load. Then open Wiring Lab and rebuild the series path by connecting terminals yourself.',
+    challenge: 'Open the Series & Parallel Bench, set R1 to 500 Ω and R2 to 500 Ω, then compare series and parallel at 6 V. Predict the equivalent resistance, supply current, and each resistor’s voltage before switching. Next, explore the Voltage Divider bench to observe a load. Then open Wiring Lab, select the Series Switch Challenge, and toggle S1. Predict what will happen to total current when the switch opens or closes.',
     quiz: [
       ['Two 100 Ω resistors in series total:', ['50 Ω', '100 Ω', '200 Ω'], 2],
       ['Ideal parallel branches share the same:', ['Voltage', 'Current always', 'Resistance always'], 0]
