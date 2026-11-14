@@ -46,7 +46,7 @@ const lessons = [
       ['Limit current', 'A first-pass resistor estimate is R = (V_supply - V_forward) / I_target. This classroom uses a simplified fixed forward-voltage model.'],
       ['Resistor rating', 'Check dissipated power: P = I²R. A resistor can overheat even when its resistance value is correct.']
     ],
-    challenge: 'Choose a 5 V supply, red LED, and 330 Ω resistor. Compare the simulated current to a target of around 9 mA.',
+    challenge: 'Choose a 5 V supply, red LED, and 330 Ω resistor in the LED Bench. Then open Wiring Lab, select Red LED + 330 Ω, and compare why the two educational diode models predict slightly different currents.',
     quiz: [
       ['Why do most basic LEDs need a series resistor?', ['To raise voltage', 'To limit current', 'To generate Wi-Fi'], 1],
       ['What can happen if an LED draws too much current?', ['It can be damaged', 'It becomes a capacitor', 'Nothing'], 0]
