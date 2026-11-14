@@ -154,7 +154,7 @@ try {
   const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   if (Array.isArray(saved)) completed = new Set(saved.filter(n => Number.isInteger(n) && n >= 0 && n < lessons.length));
 } catch (_) { /* Storage can be unavailable in locked-down browsers. */ }
-const state = { view: 'classroom', lesson: 0, lab: 'led' };
+const state = { view: 'home', lesson: 0, lab: 'led' };
 const root = document.getElementById('app-content');
 
 function save() {
@@ -225,8 +225,8 @@ function renderTextbook() {
     '<p>A nine-chapter companion to the interactive classroom. Every chapter includes a hands-on exercise and an answer key. No purchases required.</p>' +
     '<section class="panel"><h2>Table of contents</h2><ol class="chapter-list">' +
     lessons.map((l,i) => '<li><button class="button" data-lesson="' + i + '">Chapter ' + (i+1) + ': ' + l.title + '</button> <span class="micro">' + l.subtitle + '</span></li>').join('') +
-    '</ol><div class="actions"><a class="button primary" href="./docs/LESSONBOOK.md" target="_blank" rel="noopener noreferrer">Open full lesson book</a>' +
-    '<a class="button" href="./docs/SAFETY.md" target="_blank" rel="noopener noreferrer">Read safety guide</a></div></section>' +
+    '</ol><div class="actions"><a class="button primary" href="https://github.com/MichaelWave369/PhiCircuitLab/blob/main/docs/LESSONBOOK.md" target="_blank" rel="noopener noreferrer">Open full lesson book</a>' +
+    '<a class="button" href="https://github.com/MichaelWave369/PhiCircuitLab/blob/main/docs/SAFETY.md" target="_blank" rel="noopener noreferrer">Read safety guide</a></div></section>' +
     '<div class="section-heading"><h2>Engineering references</h2></div><div class="grid">' +
     '<div class="card"><span class="chip">CIRCUIT EXPLORATION</span><h3>CircuitJS / Falstad</h3><p>General-purpose circuit experimentation beyond our guided benches.</p><a href="https://falstad.com/circuit/" target="_blank" rel="noopener noreferrer">Open simulator</a></div>' +
     '<div class="card"><span class="chip">MICROCONTROLLERS</span><h3>Wokwi</h3><p>Virtual ESP32 and Arduino-style firmware experiments; third-party service with its own terms.</p><a href="https://wokwi.com/" target="_blank" rel="noopener noreferrer">Open Wokwi</a></div>' +
