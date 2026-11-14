@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="description" content="PhiCircuitLab: a free, browser-based classroom for learning electronics, circuits, microcontrollers and PCB design.">
+  <title>Φ Circuit Lab | Learn. Simulate. Build.</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a href="./" class="brand" aria-label="PhiCircuitLab home">
+      <span class="brand-icon" aria-hidden="true">Φ</span>
+      <span><strong>CIRCUIT LAB</strong><small>PHI369 LABS • OPEN HARDWARE EDUCATION</small></span>
+    </a>
+    <nav class="top-nav" aria-label="Primary">
+      <button type="button" class="nav-button active" data-view="home">Home</button>
+      <button type="button" class="nav-button" data-view="classroom">Classroom</button>
+      <button type="button" class="nav-button" data-view="workbench">Workbench</button>
+      <button type="button" class="nav-button" data-view="textbook">Textbook</button>
+      <button type="button" class="nav-button" data-view="progress">Progress</button>
+    </nav>
+  </header>
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="Lesson modules">
+      <div class="sidebar-heading"><span>YOUR LEARNING PATH</span><span id="progress-count">0 / 9</span></div>
+      <div class="progress-track"><span id="progress-fill"></span></div>
+      <div id="lesson-list" class="lesson-list"></div>
+      <div class="sidebar-footer">No gear required.<br>No account required.<br>Progress stays in this browser.</div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <div id="app-content" aria-live="polite"></div>
+    </main>
+  </div>
+  <footer class="site-footer">Φ Circuit Lab • MIT licensed • Learn it. Simulate it. Design it. Build it. <a href="https://github.com/MichaelWave369/PhiCircuitLab">Source on GitHub</a></footer>
+</body>
+</html>
