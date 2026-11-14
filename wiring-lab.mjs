@@ -11,7 +11,7 @@ const SOURCE_TERMINALS={
 function endpointPosition(doc,name) {
   if (SOURCE_TERMINALS[name]) return SOURCE_TERMINALS[name];
   const [id,side]=name.split(':');
-  const p=doc.parts.find(p=>p.id===id);
+  const p=[...doc.parts,...doc.switches].find(p=>p.id===id);
   if (!p) throw new Error('Unknown component terminal');
   return {x:p.x+(side==='a'?-54:54),y:p.y};
 }
