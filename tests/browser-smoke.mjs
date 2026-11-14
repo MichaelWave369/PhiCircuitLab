@@ -78,14 +78,20 @@ try {
     protocolOut.write(JSON.stringify(command)+'\0');
   });
   let target;
-  for(let attempt=0;attempt<100;attempt++){
-    if(chrome.exitCode!==null)throw new Error('Chromium exited before CDP was available');
-    const tabs=await cdp('Target.getTargets');
-    target=tabs.targetInfos?.find(t=>t.type==='page');
-    if(target)break;
-    await new Promise(resolve=>setTimeout(resolve,100));
+  // Shared runners sometimes take longer than 8 seconds to start Chrome.
+  // Retry the protocol handshake instead of failing on the first request.
+  let startupError=null;
+  const startupDeadline=Date.now()+45000;
+  while(Date.now()<startupDeadline){
+    if(chrome.exitCode!==null)throw new Error('Chromium exited during startup');
+    try{
+      const tabs=await cdp('Target.getTargets');
+      target=tabs.targetInfos?.find(t=>t.type==='page');
+      if(target)break;
+    }catch(err){startupError=err;}
+    await new Promise(resolve=>setTimeout(resolve,350));
   }
-  if(!target)throw new Error('Chromium did not create a page target');
+  if(!target)throw new Error('Chromium did not create a page target: '+(startupError?.message||'startup timed out'));
   const attached=await cdp('Target.attachToTarget',{targetId:target.targetId,flatten:true});
   const sessionId=attached.sessionId;
   await cdp('Runtime.enable',{},sessionId);
