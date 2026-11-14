@@ -18,25 +18,25 @@ A free, open-source virtual electronics academy from PHI369 Labs. Begin with no 
 
 ## Run locally
 
-No install or build step is required for the website, but ES modules should be served over HTTP rather than opened with a \`file://\` URL.
+No install or build step is required for the website, but ES modules should be served over HTTP rather than opened with a `file://` URL.
 
-\`\`\`bash
+```bash
 git clone https://github.com/MichaelWave369/PhiCircuitLab.git
 cd PhiCircuitLab
 python -m http.server 8000
-\`\`\`
+```
 
-Open \`http://localhost:8000/\`.
+Open `http://localhost:8000/`.
 
 To test the simulation math (Node.js 20+):
 
-\`\`\`bash
+```bash
 npm test
-\`\`\`
+```
 
 ## Publish with GitHub Pages
 
-Once the feature branch has been merged to \`main\`, open repository **Settings → Pages**, choose **Deploy from a branch**, then select \`main\` and \`/(root)\`. GitHub Pages will serve \`index.html\` as a static website.
+Once the feature branch has been merged to `main`, open repository **Settings → Pages**, choose **Deploy from a branch**, then select `main` and `/(root)`. GitHub Pages will serve `index.html` as a static website.
 
 ## Curriculum
 
