@@ -2,7 +2,7 @@
 
 ## What this classroom is
 
-PhiCircuitLab v0.1 offers **idealized mathematical demonstrations** of Ohm's law, a fixed-forward-voltage LED circuit, and Boolean logic gates. It is suitable for learning and prediction exercises.
+PhiCircuitLab offers **idealized teaching models** of resistors, a fixed-forward-voltage LED circuit, switches, logic gates and a simplified piecewise-linear LED wiring solver. It is suitable for learning and prediction exercises.
 
 It does **not** simulate transient circuit behavior, semiconductor curves, voltage regulator dynamics, electromagnetic compatibility, PCB trace heating, fault protection, or physical device hazards.
 
@@ -30,3 +30,7 @@ If you later try a physical build:
 ## Ideal-switch warning
 
 The Wiring Sandbox now supports ideal open/closed switches. A closed switch is mathematically identical to a zero-resistance connection. Real switches have voltage/current ratings and imperfect contacts. The solver flags a direct V+ to GND path through wires and closed switches as a short but cannot predict safe fault current or heating. Never build or test an intentional short on a real power source.
+
+## v0.5 LED wiring model safety
+
+The LED Wiring Studio approximates three LED colors using fixed forward thresholds and a shared artificial 20 Ω slope. Real LEDs have nonlinear I–V curves, reverse-voltage limits, thermal effects, and variable current ratings. The simulator warns at 20 mA only as an educational heuristic, not as a safe operating threshold for any real LED or microcontroller GPIO. The **LED without resistor** example intentionally illustrates a bad design; never reproduce it using physical power. The simulated 150 mA is not a reliable prediction of real fault current.
