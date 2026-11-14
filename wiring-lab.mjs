@@ -137,7 +137,8 @@ function wiringPanelHTML() {
     ' ideal wires. It does not model semiconductors, capacitance, transient behavior, physical voltage limits or source impedance. ' +
     'A direct V+ to GND path through wires and closed switches is treated as a fault. ' +
     'Switches are ideal open/closed contacts, not physical current-rated components. ' +
-    'For LEDs, use the dedicated LED + Resistor bench; nonlinear LED simulation in this wiring graph is a later milestone.</p></section>';
+    'For LEDs, use the dedicated LED + Resistor bench; nonlinear LED simulation in this wiring graph is a later milestone.</p>' +
+    '<button class="button" data-open-lab="led">Open LED + Resistor Bench</button></section>';
 }
 
 /** Create and bind the interactive wiring canvas inside its own app route. */
@@ -270,13 +271,14 @@ export function mountWiringLab(root) {
     if(!p||!xy)return;
     drag={pointerId:e.pointerId,id:p.id,startX:xy.x,startY:xy.y,offsetX:p.x-xy.x,offsetY:p.y-xy.y,moved:false};
     selected={kind:'part',id:p.id};pending=null;
-    canvas.setPointerCapture(e.pointerId);
+    // Capture only after movement crosses the drag threshold. This allows
+    // an ordinary pointer click to select a component on real devices.
   });
   canvas.addEventListener('pointermove',e=>{
     if(!drag||e.pointerId!==drag.pointerId)return;
     const xy=toPoint(e);if(!xy)return;
     if(!drag.moved && Math.hypot(xy.x-drag.startX,xy.y-drag.startY)<6)return;
-    if(!drag.moved){snapshot();drag.moved=true;}
+    if(!drag.moved){snapshot();drag.moved=true;canvas.setPointerCapture(e.pointerId);}
     const p=[...doc.parts,...doc.switches].find(p=>p.id===drag.id);
     if(!p)return;
     p.x=clamp(Math.round(xy.x+drag.offsetX),150,810);
@@ -287,7 +289,9 @@ export function mountWiringLab(root) {
     if(drag?.pointerId===e.pointerId){
       const moved=drag.moved;
       drag=null;
-      if(moved){message('Resistor moved.');render();}
+      if(moved)message('Component moved.');
+      else message('Component selected. Edit it in the parts panel.');
+      render();
       // A captured pointer gesture may produce a click on the SVG root;
       // that does not alter wiring.
     }
