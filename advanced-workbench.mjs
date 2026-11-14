@@ -62,7 +62,8 @@ function networkBench() {
 }
 function dividerBench() {
   const diagram = '<svg viewBox="0 0 480 250" role="img" aria-label="Two-resistor voltage divider with the output across the bottom resistor; optional load in parallel with R2">' +
-    '<g stroke="#55e2df" stroke-width="4" fill="none"><path d="M85 35 H220 V60 M220 107 V137 M220 188 V219 H85 V35 M220 137 H354"/></g>' +
+    '<g stroke="#55e2df" stroke-width="4" fill="none"><path d="M85 35 H220 V60 M220 107 V143 M220 188 V219 H85 V159 M85 94 V35 M220 137 H354"/></g>' +
+    '<g fill="none" stroke="#edf4ff" stroke-width="3"><line x1="68" y1="97" x2="102" y2="97"/><line x1="74" y1="114" x2="96" y2="114"/></g>' +
     '<rect x="198" y="60" width="44" height="47" rx="5" fill="#403629" stroke="#ffc578" stroke-width="3"/>' +
     '<rect x="198" y="143" width="44" height="45" rx="5" fill="#403629" stroke="#ffc578" stroke-width="3"/>' +
     '<g font-size="17" fill="#edf4ff"><text x="252" y="89">R1</text><text x="252" y="173">R2</text><text x="358" y="142">Vout</text><text x="50" y="126">Vin</text>' +
