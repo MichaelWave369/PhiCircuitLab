@@ -24,11 +24,11 @@ Three measurements appear everywhere:
 
 For an ideal resistor, **Ohm's law** is:
 
-\`\`\`text
+```text
 I = V / R
 V = I * R
 R = V / I
-\`\`\`
+```
 
 Electrical power can be calculated as **P = V × I**, with units of watts (W).
 
@@ -52,15 +52,15 @@ If resistance stays constant, doubling voltage doubles current. If voltage stays
 
 **Series** components share a single current path. The current through ideal series resistors is the same, and resistance values add.
 
-\`\`\`text
+```text
 R_series = R1 + R2 + ...
-\`\`\`
+```
 
 **Parallel** components connect across the same pair of nodes. Each ideal branch sees the same voltage. For two ideal resistors:
 
-\`\`\`text
+```text
 1 / R_parallel = 1 / R1 + 1 / R2
-\`\`\`
+```
 
 An **open circuit** breaks a path. A **short circuit** provides a low-resistance path, possibly allowing unsafe current. Real designs need attention to current limiting, conductors, and protection.
 
@@ -90,9 +90,9 @@ A simple LED indicator usually has a **series current-limiting resistor**.
 
 A useful starting estimate is:
 
-\`\`\`text
+```text
 R = (V_supply - V_LED) / I_target
-\`\`\`
+```
 
 This is an approximation: LED forward voltage is not fixed in real life. It changes with current, temperature, LED chemistry, and manufacturing tolerances.
 
@@ -100,9 +100,9 @@ This is an approximation: LED forward voltage is not fixed in real life. It chan
 
 For a 5 V supply, a red LED approximated at 2 V, and desired current of 0.01 A:
 
-\`\`\`text
+```text
 R = (5 - 2) / 0.01 = 300 ohms
-\`\`\`
+```
 
 A common nearby resistor value is 330 Ω. The simplified predicted current is (5 − 2) / 330 ≈ **9.09 mA**.
 
@@ -188,7 +188,7 @@ Common peripherals include:
 
 ### Pseudocode
 
-\`\`\`text
+```text
 configure LED output
 configure button input
 repeat:
@@ -197,7 +197,7 @@ repeat:
         LED on
     else:
         LED off
-\`\`\`
+```
 
 ### Virtual exercise
 
@@ -225,11 +225,11 @@ A device may read a sensor through I²C and publish the result via Wi-Fi using a
 
 Draw a system block diagram:
 
-\`\`\`text
+```text
 [Temperature Sensor] -- I2C --> [ESP32] -- Wi-Fi --> [PhiOS Dashboard]
                                       |
                                   [Status LED]
-\`\`\`
+```
 
 Label power, ground, input/output, and data direction. Identify which portions are conceptual and which would require actual pin selection.
 
