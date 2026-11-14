@@ -173,7 +173,12 @@ export function solveLedNetwork(doc) {
       notices:['Ideal short: a wire or closed switch joins V+ to GND without a limiting component.']
     };
   }
-  for(let mask=0;mask<(1<<doc.leds.length);mask++){
+  // Prefer forward-conducting states. If two open diodes separate a
+  // floating node, their individual off-bias checks are underdetermined;
+  // a higher-conduction solution must be considered before declaring an
+  // apparently open circuit. Each candidate still must pass KCL and
+  // nonnegative-on / subthreshold-off consistency checks.
+  for(let mask=(1<<doc.leds.length)-1;mask>=0;mask--){
     const solved=solveForMask(doc,find,source,ground,mask);
     if(!solved)continue;
     const parts=doc.parts.map(p=>{
