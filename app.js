@@ -1,5 +1,6 @@
 import { simulateOhms, simulateLed, logicGate } from './circuits.mjs';
 import { isAdvancedLab, advancedBenchMarkup, updateAdvancedBench } from './advanced-workbench.mjs';
+import { mountWiringLab } from './wiring-lab.mjs';
 
 // Curated original classroom content. A quiz unlocks completion only when all answers are correct.
 const lessons = [
@@ -29,7 +30,7 @@ const lessons = [
       ['Open circuit', 'A broken path prevents current through that path.'],
       ['Short circuit', 'A very low-resistance path can draw excessive current. Real circuits need current limiting and protection.']
     ],
-    challenge: 'Open the Series & Parallel Bench, set R1 to 500 Ω and R2 to 500 Ω, then compare series and parallel at 6 V. Predict the equivalent resistance, supply current, and each resistor’s voltage before switching. Next, explore the Voltage Divider bench to observe a load.',
+    challenge: 'Open the Series & Parallel Bench, set R1 to 500 Ω and R2 to 500 Ω, then compare series and parallel at 6 V. Predict the equivalent resistance, supply current, and each resistor’s voltage before switching. Next, explore the Voltage Divider bench to observe a load. Then open Wiring Lab and rebuild the series path by connecting terminals yourself.',
     quiz: [
       ['Two 100 Ω resistors in series total:', ['50 Ω', '100 Ω', '200 Ω'], 2],
       ['Ideal parallel branches share the same:', ['Voltage', 'Current always', 'Resistance always'], 0]
@@ -192,7 +193,8 @@ function renderHome() {
     '<p>Your virtual electronics academy. Start with volts and ohms, experiment in interactive benches, master digital logic, and design your first PCB.</p>' +
     '<div class="hero-actions"><button class="button primary" data-lesson="' + chosen + '">' +
     (completed.size ? 'Continue learning' : 'Begin Lesson 01') +
-    '</button><button class="button" data-view="workbench">Open the Workbench</button></div></section>' +
+    '</button><button class="button" data-view="workbench">Open the Workbench</button>' +
+    '<button class="button" data-view="builder">Enter Wiring Lab</button></div></section>' +
     '<div class="section-heading"><h2>Learning modules</h2><span class="muted">' + completed.size + ' of 9 complete</span></div>' +
     '<div class="grid">' + lessons.map((l,i) => '<button type="button" class="card clickable" data-lesson="' + i + '" style="text-align:left;color:inherit">' +
     '<span class="chip">MODULE ' + String(i+1).padStart(2,'0') + (completed.has(i) ? ' • COMPLETE' : '') +
@@ -353,6 +355,7 @@ function render() {
   if (state.view === 'home') renderHome();
   else if (state.view === 'classroom') renderLesson();
   else if (state.view === 'workbench') renderWorkbench();
+  else if (state.view === 'builder') mountWiringLab(root);
   else if (state.view === 'textbook') renderTextbook();
   else if (state.view === 'progress') renderProgress();
 }
