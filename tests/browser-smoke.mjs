@@ -128,6 +128,24 @@ try {
   assert.equal(short.status,'Ideal source short detected');
   assert.equal(short.current,'—');
   console.log('PASS: ideal short is diagnosed without inventing a current');
+  // A switch should interrupt and restore a real user-built circuit.
+  const switchOpen=await evaluate("(()=>{const p=document.querySelector('#wiring-preset');p.value='switch';p.dispatchEvent(new Event('change',{bubbles:true}));return {status:document.querySelector('#wiring-state').textContent,visible:!!document.querySelector('[data-part-id=S1]')}})()");
+  assert.equal(switchOpen.status,'Open circuit');
+  assert.equal(switchOpen.visible,true);
+  const switchClosed=await evaluate("(()=>{document.querySelector('[data-part-id=S1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));const toggle=document.querySelector('#wiring-toggle-switch');if(!toggle)return {error:'No switch toggle'};toggle.click();return {status:document.querySelector('#wiring-state').textContent,current:document.querySelector('#wiring-current').textContent,openText:document.querySelector('#wiring-toggle-switch')?.textContent}})()");
+  assert.equal(switchClosed.status,'Connected circuit');
+  assert.equal(switchClosed.current,'9.000 mA');
+  assert.ok(!switchClosed.error);
+  const toggledOff=await evaluate("(()=>{document.querySelector('#wiring-toggle-switch').click();return {status:document.querySelector('#wiring-state').textContent,current:document.querySelector('#wiring-current').textContent}})()");
+  assert.equal(toggledOff.status,'Open circuit');
+  assert.equal(toggledOff.current,'0.000 mA');
+  console.log('PASS: switch toggling opens and closes the circuit in the browser');
+  const switchUndo=await evaluate("(()=>{document.querySelector('#wiring-undo').click();return document.querySelector('#wiring-state').textContent})()");
+  assert.equal(switchUndo,'Connected circuit');
+  console.log('PASS: undo restores the previous switch position');
+  const switchAdded=await evaluate("(()=>{document.querySelector('#wiring-add-switch').click();return !!document.querySelector('[data-part-id=S2]')})()");
+  assert.equal(switchAdded,true);
+  console.log('PASS: palette creates a second switch');
   assert.deepEqual(exceptions,[]);
   console.log('PASS: no uncaught browser JavaScript exceptions');
 } finally {
