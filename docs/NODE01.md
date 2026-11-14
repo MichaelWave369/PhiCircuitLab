@@ -20,7 +20,7 @@ Design a compact, USB-powered microcontroller node that reads a button and senso
 
 ## Block diagram
 
-\`\`\`text
+```text
        USB power (documented dev board)
                     |
              [ESP32-S3 module]
@@ -30,7 +30,7 @@ Design a compact, USB-powered microcontroller node that reads a button and senso
                Wi-Fi / HTTP
                     |
                PhiOS viewer
-\`\`\`
+```
 
 Actual connectors, GPIO pins, operating voltages, software protocols, current limits, and protection **must** be selected from the specific board and component datasheets. The diagram is conceptual.
 
