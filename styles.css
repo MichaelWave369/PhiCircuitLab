@@ -11,3 +11,41 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-
 .lab-select{display:block;width:100%;margin:.4rem 0 0;padding:.65rem .8rem;background:#17243a;border:1px solid #49637f;color:#edf4ff;border-radius:9px}
 .lab-select option{background:#17243a;color:#edf4ff}
 .diagram svg{max-height:310px}
+
+
+/* Φ Circuit Lab v0.3: wiring workspace, optimized for mouse, pen and touch. */
+.wiring-toolbar{display:flex;align-items:end;gap:.6rem;flex-wrap:wrap;margin:1.2rem 0}
+.wiring-toolbar label{font-size:.8rem;color:var(--muted);min-width:200px;flex:1}
+.wiring-toolbar select{font-size:.87rem}
+.wiring-toolbar .button{white-space:nowrap}
+.wiring-workspace{border:1px solid #34607a;border-radius:14px;overflow:auto;background:#091725;box-shadow:inset 0 2px 22px #0005}
+#wiring-canvas{display:block;width:100%;height:auto;min-width:710px;touch-action:none;user-select:none;-webkit-user-select:none}
+#wiring-canvas [data-terminal]{cursor:crosshair;outline:none}
+#wiring-canvas [data-part-id]{cursor:grab}
+#wiring-canvas [data-part-id]:active{cursor:grabbing}
+#wiring-canvas [data-wire-index]{cursor:pointer}
+#wiring-canvas [data-terminal]:focus-visible circle:first-child,
+#wiring-canvas [data-part-id]:focus-visible rect,
+#wiring-canvas [data-wire-index]:focus-visible path:last-child{stroke:#fff;stroke-width:5}
+#wiring-canvas [data-terminal]:hover circle:first-child{stroke:#ffc578;stroke-width:5}
+#wiring-canvas .part-title{font-size:16px;fill:#edf4ff;font-weight:bold;pointer-events:none}
+#wiring-canvas .part-value{font-size:12px;fill:#b7c8dd;pointer-events:none}
+.wiring-bottom{display:grid;grid-template-columns:minmax(270px,.75fr) minmax(0,1.25fr);gap:1rem;margin-top:1rem}
+.wiring-supply{display:grid;gap:.35rem;margin:1rem 0;color:var(--muted);font-size:.88rem}
+.wiring-supply output{color:var(--cyan);font-weight:700}
+.wiring-inspector{border-top:1px solid var(--line);padding-top:1rem}
+.wiring-inspector label{display:grid;gap:.4rem;margin-top:.7rem;color:var(--muted)}
+.wiring-inspector input{width:100%;padding:.65rem;border:1px solid var(--line);color:var(--text);background:#102339;border-radius:9px}
+.wiring-state{border-radius:9px;padding:.5rem .85rem;font-weight:700;font-size:.87rem;border:1px solid #44667a;background:#13273a;color:var(--cyan)}
+.wiring-state.wiring-ok{border-color:#37745d;color:#83e8b2;background:#152d28}
+.wiring-state.wiring-open{border-color:#896840;color:#ffd08b;background:#33281c}
+.wiring-state.wiring-short{border-color:#a84d50;color:#ffabab;background:#3b2026}
+.wiring-readings{font-size:.79rem;white-space:nowrap}
+.wiring-readings th,.wiring-readings td{padding:.5rem .3rem}
+.wiring-table-wrap{overflow-x:auto;margin-top:.9rem}
+.wiring-notices{padding-left:1.1rem;font-size:.87rem}
+.wiring-notices li{margin:.3rem 0;color:var(--muted)}
+.wiring-upload{display:inline-flex;align-items:center;justify-content:center}
+.wiring-upload input{display:none}
+@media(max-width:900px){.wiring-bottom{grid-template-columns:1fr}}
+@media(max-width:630px){.wiring-toolbar{padding:1rem}.wiring-toolbar .button{flex:1}.wiring-workspace{margin:0 -.3rem}.wiring-bottom .panel{padding:1rem}}
