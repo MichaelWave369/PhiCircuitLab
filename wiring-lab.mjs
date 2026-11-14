@@ -87,7 +87,7 @@ function wiringPanelHTML() {
     'Start with a preset or use the disconnected example to build a circuit yourself.</p>' +
     '<div class="panel wiring-toolbar">' +
     '<label>Start from a circuit<select id="wiring-preset" class="lab-select" aria-label="Start circuit example">' +
-    '<option value="series">Two resistors in series</option>' +
+    '<option value="" disabled>Current design (saved locally)</option><option value="series">Two resistors in series</option>' +
     '<option value="parallel">Two parallel branches</option>' +
     '<option value="divider">Loaded voltage divider</option>' +
     '<option value="open">Blank wiring challenge</option></select></label>' +
@@ -132,6 +132,7 @@ export function mountWiringLab(root) {
     if(cached){doc=validateCircuit(JSON.parse(cached));loaded=true;}
   } catch (_) { /* Broken local data should never prevent loading lessons. */ }
   if(!doc)doc=presetCircuit('series');
+  root.querySelector('#wiring-preset').value=loaded?'':'series';
   const history=[];
   let selected=null;
   let pending=null;
@@ -142,6 +143,7 @@ export function mountWiringLab(root) {
     catch(_){/* Storage may be disabled by browser settings. */ }
   }
   function snapshot(){
+    root.querySelector('#wiring-preset').value='';
     history.push(JSON.stringify(doc));
     if(history.length>30)history.shift();
   }
@@ -260,7 +262,9 @@ export function mountWiringLab(root) {
   canvas.addEventListener('pointerup',finishDrag);
   canvas.addEventListener('pointercancel',finishDrag);
   root.querySelector('#wiring-preset').addEventListener('change',e=>{
-    snapshot();doc=presetCircuit(e.target.value);selected=null;pending=null;
+    const kind=e.target.value;
+    if(!kind)return;
+    snapshot();doc=presetCircuit(kind);e.target.value=kind;selected=null;pending=null;
     message('Example loaded: '+e.target.selectedOptions[0].textContent+'.');render();
   });
   root.querySelector('#wiring-add').addEventListener('click',()=>{
@@ -296,6 +300,7 @@ export function mountWiringLab(root) {
     selected=null;pending=null;message('Last action undone.');render();
   });
   root.querySelector('#wiring-supply').addEventListener('input',e=>{
+    root.querySelector('#wiring-preset').value='';
     doc.supplyV=Number(e.target.value);
     message('Changed the ideal supply voltage.');render();
   });
