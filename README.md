@@ -4,10 +4,11 @@
 
 A free, open-source virtual electronics academy from PHI369 Labs. Begin with no physical components, no paid subscriptions, and no account.
 
-## What works in v1.1
+## What works in v1.2
 
 - **Virtual Electronics Workstation**: twelve named offline projects, each with its own DC circuit, independent RC oscilloscope settings and measurement notebook, plus import/export of versioned JSON backups.
 - **Virtual Breadboard and Component Library**: 12-column solderless training board with real A–E/F–J contact-strip isolation, unpowered independent P/N rails, placeable components/jumpers, DC solver results, contact probing, and validated JSON import/export.
+- **Verified Schematic-to-Breadboard Bridge**: deterministically maps supported DC Wiring Lab and Workstation circuits to hole-by-hole 12-column breadboard plans, audits every direct terminal-net connection and electrical result, and transfers only with explicit approval.
 - **Nine guided modules** covering electricity, components, digital logic, embedded systems, communication, PCB design, and a Node-01 capstone.
 - **Six interactive learning benches**: Ohm's law, LEDs, series/parallel networks, voltage dividers (including loads), RC timing, and six Boolean logic gates.
 - **Wiring Sandbox**: drag and arrange up to eight resistors, four ideal switches and three direction-sensitive LEDs, click to connect terminals, and inspect calculated voltage/current/power. Includes shorts, floating parts, reverse LEDs and missing current-limiting warnings.
@@ -75,6 +76,7 @@ Once the feature branch has been merged to `main`, open repository **Settings �
 - [Virtual Oscilloscope: first-order RC time-domain laboratory](docs/OSCILLOSCOPE.md)
 - [v1.0 Virtual Electronics Workstation: project portfolio and laboratory notebook](docs/WORKSTATION.md)
 - [v1.1 Virtual Breadboard and Component Library](docs/BREADBOARD.md)
+- [v1.2 Schematic-to-Breadboard Bridge: verified component and jumper placement](docs/SCHEMATIC-BRIDGE.md)
 
 ## Wiring Sandbox
 
@@ -103,6 +105,10 @@ Use **Project Workstation** in the top navigation to keep a DC wiring design, an
 ## Solderless Virtual Breadboard v1.1
 
 Open **Breadboard** from the navigation or **Build on Breadboard** on Home. Learn which holes share hidden metal strips, place resistors/switches/LEDs across the center trench, and wire a virtual source to independent power rails. Probe real calculated contact voltages and ideal-wire continuity, then export the board as JSON. **Send to Wiring Lab** asks for explicit confirmation before replacing the original free-build schematic save. The standalone Breadboard, Project Workstation and other learning modes maintain separate storage. See the [Breadboard workbook](docs/BREADBOARD.md).
+
+## Verified Schematic-to-Breadboard Bridge v1.2
+
+Open **Schematic Bridge** from navigation or **Plan on Breadboard** inside Wiring Lab. Convert a saved DC schematic or the active Project Workstation circuit into a read-only 12-column placement preview with numbered component and jumper instructions. The generator checks every pair of original named terminals for equivalent direct-wire connectivity and verifies modeled currents, voltages, component states and solver status. It refuses source shorts or circuits needing over 12 component columns, rather than hiding an unsafe or unsupported topology. **Load this layout into Breadboard** asks for confirmation before modifying the separate Breadboard save. See the [Bridge workbook](docs/SCHEMATIC-BRIDGE.md).
 
 ## Continue learning for free
 
