@@ -178,6 +178,7 @@ function wiringPanelHTML() {
     '<label class="wiring-supply"><span>Ideal supply</span><input type="range" min="0" max="24" step=".5" value="9" id="wiring-supply"><output id="wiring-supply-value">9 V</output></label>' +
     '<div id="wiring-inspector"></div>' +
     '<div class="actions"><button class="button" id="wiring-export">Export JSON</button>' +
+    '<button class="button" type="button" data-view="bridge">Plan on Breadboard</button>' +
     '<label class="button wiring-upload">Import JSON<input id="wiring-import" type="file" accept=".json,application/json" hidden></label></div>' +
     '<p class="micro">The document is saved locally in this browser. Import files are checked before use. No account or server required.</p></section>' +
     '<section class="panel wiring-results"><h2>Circuit readings</h2>' +
