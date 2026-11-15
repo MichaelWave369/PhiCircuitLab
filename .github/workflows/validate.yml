@@ -29,6 +29,8 @@ jobs:
           node --check academy-ui.mjs
           node --check mystery-engine.mjs
           node --check mystery-ui.mjs
+          node --check scope-engine.mjs
+          node --check scope-ui.mjs
           node --check wiring-lab.mjs
       - name: Run dependency-free model tests
         run: npm test
