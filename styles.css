@@ -71,3 +71,42 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-
 #meter-probes{display:block;overflow-wrap:anywhere;color:#d8eafa}
 .meter-shortcuts{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.4rem}
 @media(max-width:620px){.meter-results{grid-template-columns:1fr}.meter-header label{max-width:none}.meter-shortcuts .button{flex:1}}
+
+
+/* v0.7: Challenge Academy. Reuses the existing Wiring Lab, never overwrites it. */
+.academy-header{margin-bottom:1rem}
+.academy-header h1{margin-bottom:.55rem}
+.academy-header p{max-width:72ch}
+.academy-scores{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.1rem}
+.academy-scores>div{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:.7rem 1rem;min-width:148px;display:grid}
+.academy-scores small{color:var(--muted);font-size:.78rem}
+.academy-scores strong{font:700 1.4rem/1.4 'Space Grotesk',sans-serif;color:var(--cyan)}
+.academy-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:1rem 0}
+.academy-actions label{display:flex;gap:.45rem;align-items:center;color:var(--muted);font-size:.87rem}
+.academy-actions input{max-width:165px;min-width:145px;padding:.48rem;border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:8px}
+.academy-missions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;margin:1rem 0 1.4rem}
+.academy-mission{text-align:left;border:1px solid var(--line);border-radius:11px;padding:.75rem .85rem;background:var(--surface);color:var(--text);display:grid;gap:.2rem;min-width:0}
+.academy-mission:hover,.academy-mission:focus-visible{border-color:var(--cyan)}
+.academy-mission.active{border-color:var(--cyan);background:var(--surface2);box-shadow:inset 0 0 0 1px var(--cyan)}
+.academy-mission small{color:var(--cyan);font-size:.72rem;font-weight:700}
+.academy-mission strong{font-size:.89rem;line-height:1.3}
+.academy-mission span{color:var(--muted);font-size:.76rem}
+.academy-brief{border:1px solid #42627f;background:linear-gradient(140deg,#14273b,#111b2c);margin-bottom:1rem}
+.academy-brief h2{margin:.4rem 0}
+.academy-predict{display:flex;gap:.65rem;align-items:end;flex-wrap:wrap;margin:.8rem 0}
+.academy-predict label{width:100%;font-size:.85rem;color:var(--muted)}
+.academy-predict select{min-width:230px;flex:1}
+.academy-controls{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
+.academy-controls .button{flex:1;min-width:140px}
+.academy-brief .button:disabled{opacity:.5;cursor:not-allowed}
+.academy-goal{border-left:3px solid var(--cyan);padding:.55rem .85rem;margin:.85rem 0;background:#102537;color:var(--text)}
+.academy-hint{border-left:3px solid var(--amber);padding:.55rem .85rem;margin:.65rem 0;background:#32291c;color:#ffdda1}
+.academy-feedback{color:var(--text);font-weight:600;min-height:1.6rem;margin:.85rem 0 0}
+.academy-workspace{margin-top:1.1rem}
+.academy-workspace .academy-hidden-control{display:none!important}
+.academy-workspace h1{font-size:clamp(1.35rem,2.6vw,2rem)}
+.academy-workspace>.eyebrow{display:none}
+.academy-workspace>p:first-of-type{font-size:.88rem}
+.academy-footnote{margin:1rem 0 1.4rem}
+@media(max-width:900px){.academy-missions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.academy-missions{grid-template-columns:1fr}.academy-actions label{width:100%}.academy-actions input{flex:1}.academy-predict select{min-width:0;width:100%}.academy-controls .button{min-width:120px}}

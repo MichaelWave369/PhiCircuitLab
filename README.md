@@ -4,12 +4,13 @@
 
 A free, open-source virtual electronics academy from PHI369 Labs. Begin with no physical components, no paid subscriptions, and no account.
 
-## What works in v0.6
+## What works in v0.7
 
 - **Nine guided modules** covering electricity, components, digital logic, embedded systems, communication, PCB design, and a Node-01 capstone.
 - **Six interactive learning benches**: Ohm's law, LEDs, series/parallel networks, voltage dividers (including loads), RC timing, and six Boolean logic gates.
 - **Wiring Sandbox**: drag and arrange up to eight resistors, four ideal switches and three direction-sensitive LEDs, click to connect terminals, and inspect calculated voltage/current/power. Includes shorts, floating parts, reverse LEDs and missing current-limiting warnings.
 - **Virtual multimeter and troubleshooting**: non-invasive DC voltage probes, ideal-wire continuity tracer, signed resistor/LED current inspection, and five fault-finding missions.
+- **Circuit Challenge Academy**: nine seeded hands-on fault missions with predicted diagnoses, verified repairs, replayable seeds, local scores, and a dedicated save separate from the free Wiring Lab.
 - **Short knowledge checks**: pass each two-question quiz to mark a module complete.
 - **Local progress tracking and a saved wiring design** with browser localStorage; no sign-in, tracking, or backend.
 - **JSON import/export for wiring designs**, with schema and bounds validation. No cloud required.
@@ -65,6 +66,7 @@ Once the feature branch has been merged to `main`, open repository **Settings �
 - [Ideal switches: experiments and safety](docs/SWITCHES.md)
 - [LED Wiring Studio: polarity, current limiting and model assumptions](docs/LEDS.md)
 - [Virtual multimeter and fault-finding workbook](docs/MULTIMETER.md)
+- [Circuit Challenge Academy: nine scored fault-finding missions](docs/ACADEMY.md)
 
 ## Wiring Sandbox
 
@@ -73,6 +75,10 @@ Open **Wiring Lab** in the top navigation. Start with a series, parallel, loaded
 Use the **Virtual Multimeter** directly below the wiring canvas to probe two terminals for voltage or wire connectivity, or select a resistor/LED to inspect branch current. This is ideal-model instrumentation, not physical hardware emulation; continuity traces only ideal wires and closed switches.
 
 See [the field manual](docs/WIRING-LAB.md) for four challenges and the model's limits. The engine performs ideal-resistor DC nodal analysis, **not full SPICE**. It models ideal open/closed switches and a simplified piecewise-linear LED with fixed forward voltage and a teaching-only 20 Ω slope. It does not simulate physical diode I–V curves, temperature, reactive parts, PCB layouts or real power-source fault behavior.
+
+## Circuit Challenge Academy
+
+Open **Challenge Academy** in the navigation or choose **Play Challenge Academy** on Home. Diagnose a seeded fault, repair the circuit with the actual Wiring Lab tools, then submit a solver-verified repair for points. Nine missions cover wire breaks, switch faults, incomplete parallel branches, reversed LEDs, overcurrent, undervoltage, shorts and multiple failures. The Academy never overwrites free-builder circuits or lesson completion. See the [complete Academy workbook](docs/ACADEMY.md).
 
 ## Continue learning for free
 

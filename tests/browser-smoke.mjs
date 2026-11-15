@@ -97,7 +97,7 @@ try {
   await cdp('Runtime.enable',{},sessionId);
   async function evaluate(expression){
     const response=await cdp('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true},sessionId);
-    if(response.exceptionDetails)throw new Error('Browser exception: '+response.exceptionDetails.text);
+    if(response.exceptionDetails)throw new Error('Browser exception: '+(response.exceptionDetails.exception?.description||response.exceptionDetails.text)+'\nIn expression: '+expression.slice(0,1400));
     return response.result.value;
   }
   const initial=await evaluate("(async()=>{for(let n=0;n<60&&!document.querySelector('#app-content h1');n++)await new Promise(r=>setTimeout(r,50));return {title:document.querySelector('#app-content h1')?.textContent,hasBuilder:!!document.querySelector('[data-view=builder]')}})()");
@@ -214,6 +214,40 @@ try {
   assert.equal(meterLed.voltage,'2.171 V');
   assert.equal(meterLed.current,'8.571 mA');
   console.log('PASS: diode-aware solver drives voltage and current measurements');
+  // The Academy intentionally runs on a separate localStorage key.
+  const academyLoaded=await evaluate("(()=>{const free=localStorage.getItem('phi-circuit-lab-wiring-v1');document.querySelector('[data-view=academy]').click();return {freeBefore:free,freeAfter:localStorage.getItem('phi-circuit-lab-wiring-v1'),title:document.querySelector('#app-content h1')?.textContent,missions:document.querySelectorAll('[data-academy-index]').length,score:document.querySelector('#academy-score')?.textContent}})()");
+  assert.equal(academyLoaded.title,'Circuit Challenge Academy');
+  assert.equal(academyLoaded.missions,9);
+  assert.equal(academyLoaded.score,'0 / 900');
+  assert.equal(academyLoaded.freeAfter,academyLoaded.freeBefore);
+  console.log('PASS: Academy launches nine missions without overwriting free-build circuit');
+  const solveAcademy=async(index,diagnosis,jsRepair)=>{
+    const response=await evaluate("(()=>{const slot=document.querySelector('[data-academy-index=\""+index+"\"]');slot.click();const option=document.querySelector('#academy-prediction');option.value="+JSON.stringify(diagnosis)+";option.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('#academy-lock').click();"+jsRepair+";document.querySelector('#academy-check').click();return {score:document.querySelector('#academy-score').textContent,cleared:document.querySelector('#academy-cleared').textContent,feedback:document.querySelector('#academy-feedback').textContent}})()");
+    assert.match(response.feedback,/MISSION CLEARED/,JSON.stringify(response));
+    assert.equal(response.cleared,(index+1)+' / 9',JSON.stringify(response));
+    assert.equal(response.score,((index+1)*100)+' / 900',JSON.stringify(response));
+    console.log('PASS: Academy mission '+(index+1)+' diagnosed and physically repaired in the wiring sandbox');
+  };
+  const tapTerminal=(a,b)=>"for(const t of ["+JSON.stringify(a)+","+JSON.stringify(b)+"])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}))";
+  await solveAcademy(0,'open',tapTerminal('V+','R1:a'));
+  await solveAcademy(1,'open',tapTerminal('R1:b','R2:a'));
+  await solveAcademy(2,'partial',tapTerminal('R2:b','GND'));
+  await solveAcademy(3,'switch',"document.querySelector('[data-part-id=S1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#wiring-toggle-switch').click()");
+  await solveAcademy(4,'reverse',"document.querySelector('[data-part-id=D1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#wiring-flip-led').click()");
+  await solveAcademy(5,'overcurrent',"document.querySelector('[data-part-id=R1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));const field=document.querySelector('#wiring-resistance');field.value='330';field.dispatchEvent(new Event('change',{bubbles:true}))");
+  await solveAcademy(6,'threshold',"const range=document.querySelector('#wiring-supply');range.value='5';range.dispatchEvent(new Event('input',{bubbles:true}))");
+  await solveAcademy(7,'short',"document.querySelector('[data-wire-index=\"3\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#wiring-delete').click()");
+  await solveAcademy(8,'double',"document.querySelector('[data-part-id=S1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#wiring-toggle-switch').click();"+tapTerminal('R1:b','GND'));
+  const academyPersist=await evaluate("(()=>{const before=JSON.parse(localStorage.getItem('phi-circuit-lab-academy-v1')).missions;const free=JSON.parse(localStorage.getItem('phi-circuit-lab-wiring-v1'));document.querySelector('[data-view=builder]').click();const afterFree=JSON.parse(localStorage.getItem('phi-circuit-lab-wiring-v1'));document.querySelector('[data-view=academy]').click();return {before,after:JSON.parse(localStorage.getItem('phi-circuit-lab-academy-v1')).missions,score:document.querySelector('#academy-score')?.textContent,freeBefore:free,freeAfter:afterFree}})()");
+  assert.equal(academyPersist.score,'900 / 900');
+  assert.deepEqual(academyPersist.freeBefore,academyPersist.freeAfter);
+  assert.deepEqual(academyPersist.before,academyPersist.after);
+  console.log('PASS: all nine scores survive route changes, free-build save stays isolated');
+  const seedReset=await evaluate("(()=>{window.confirm=()=>true;const input=document.querySelector('#academy-seed-input');input.value='369';document.querySelector('#academy-seed-load').click();return {seed:document.querySelector('#academy-seed').textContent,score:document.querySelector('#academy-score').textContent,free:localStorage.getItem('phi-circuit-lab-wiring-v1')}})()");
+  assert.equal(seedReset.seed,'369');
+  assert.equal(seedReset.score,'0 / 900');
+  assert.deepEqual(JSON.parse(seedReset.free),JSON.parse(academyLoaded.freeBefore));
+  console.log('PASS: replaying a deterministic seed resets only the Academy run');
   assert.deepEqual(exceptions,[]);
   console.log('PASS: no uncaught browser JavaScript exceptions');
 } finally {

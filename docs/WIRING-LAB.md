@@ -131,3 +131,7 @@ Open **Red LED + 330 Ω**. At 5 V the classroom piecewise-linear model gives abo
 ## Experiment G: virtual multimeter
 
 Below the circuit canvas, switch from **Wire / edit** to **DC voltage probes**, **Wire continuity (power off)**, or **Branch current**. Click component terminals in red/black order for voltage or wire continuity, or a resistor/LED body for current. The probes are non-invasive and do not alter circuit topology. Read the [Virtual Multimeter workbook](MULTIMETER.md) for five diagnostic missions and important physical safety caveats.
+
+## v0.7 Challenge Academy practice
+
+The [Circuit Challenge Academy](ACADEMY.md) embeds this same Wiring Lab with a faulted circuit, without overwriting your free-built circuit. Select a diagnosis, then repair the wiring, switch, LED orientation, source or resistor according to the mission. Use the virtual multimeter to reason about the fault; score checks evaluate the modeled electrical result. A new **Flip LED polarity** control swaps D1:a and D1:b's external wire connections when a selected LED is backwards.

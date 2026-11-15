@@ -3,6 +3,7 @@ import {
 } from './wiring-solver.mjs';
 import { LED_FORWARD_V } from './wiring-diode-solver.mjs';
 import { measureVoltage, traceContinuity, inspectBranchCurrent } from './wiring-meter.mjs';
+import { flipLedPolarity } from './academy-engine.mjs';
 
 const STORAGE_KEY='phi-circuit-lab-wiring-v1';
 const SVG_NS='http://www.w3.org/2000/svg';
@@ -198,17 +199,33 @@ function wiringPanelHTML() {
 }
 
 /** Create and bind the interactive wiring canvas inside its own app route. */
-export function mountWiringLab(root) {
+export function mountWiringLab(root,options={}) {
+  const { initialCircuit=null, storageKey=STORAGE_KEY,
+    onCircuitChange=null, challengeMode=false }=options;
   root.innerHTML=wiringPanelHTML();
+  if(challengeMode){
+    // Keep the editing controls in the document for existing event handlers,
+    // but hide unrelated presets/imports and new-part buttons during missions.
+    for(const selector of ['#wiring-preset','#wiring-add','#wiring-add-switch','#wiring-add-led',
+      '#wiring-import','#wiring-export']){
+      const control=root.querySelector(selector);
+      if(control)control.closest('label')?.classList.add('academy-hidden-control');
+      if(control&&!control.closest('label'))control.classList.add('academy-hidden-control');
+    }
+  }
   const canvas=root.querySelector('#wiring-canvas');
   const inspector=root.querySelector('#wiring-inspector');
   const hint=root.querySelector('#wiring-help');
   const stateBanner=root.querySelector('#wiring-state');
   let doc,loaded=false;
-  try {
-    const cached=localStorage.getItem(STORAGE_KEY);
-    if(cached){doc=validateCircuit(JSON.parse(cached));loaded=true;}
-  } catch (_) { /* Broken local data should never prevent loading lessons. */ }
+  if(initialCircuit){
+    doc=validateCircuit(initialCircuit);loaded=true;
+  }else if(storageKey!==null){
+    try{
+      const cached=localStorage.getItem(storageKey);
+      if(cached){doc=validateCircuit(JSON.parse(cached));loaded=true;}
+    }catch(_){/* Bad local data must not prevent using the classroom. */}
+  }
   if(!doc)doc=presetCircuit('series');
   root.querySelector('#wiring-preset').value=loaded?'':'series';
   const history=[];
@@ -218,8 +235,10 @@ export function mountWiringLab(root) {
   let drag=null;
   let notice=loaded?'Restored locally saved circuit.':'Start by connecting two terminals.';
   function persist(){
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(doc));}
-    catch(_){/* Storage may be disabled by browser settings. */ }
+    if(storageKey!==null){
+      try{localStorage.setItem(storageKey,JSON.stringify(doc));}
+      catch(_){/* Storage may be disabled by browser settings. */}
+    }
   }
   function snapshot(){
     root.querySelector('#wiring-preset').value='';
@@ -266,6 +285,8 @@ export function mountWiringLab(root) {
           '<label>LED color / forward threshold<select id="wiring-led-color" class="lab-select">'+
           Object.entries(LED_FORWARD_V).map(([name,v])=>'<option value="'+name+'"'+
           (name===p.color?' selected':'')+'>'+name+' (≈'+v+' V)</option>').join('')+'</select></label>'+
+          '<button type="button" class="button" id="wiring-flip-led">Flip LED polarity</button>' +
+          '<p class="micro">Flip swaps which external wires connect to the anode and cathode.</p>' +
           '<p class="micro">The model uses a fixed 20 Ω series slope, not a real diode datasheet.</p></div>';
       } else if(p.id.startsWith('S')){
         inspector.innerHTML='<div class="wiring-inspector"><strong>Selected: '+p.id+' (ideal switch)</strong>' +
@@ -286,6 +307,7 @@ export function mountWiringLab(root) {
     hint.textContent=(pending?'Connecting from '+pending+'. Click another terminal, or press Escape. ': '')+notice;
     renderMeter(result);
     persist();
+    if(typeof onCircuitChange==='function')onCircuitChange(validateCircuit(doc),result);
   }
   function renderMeter(result){
     const readout=root.querySelector('#meter-readout');
@@ -481,6 +503,14 @@ export function mountWiringLab(root) {
     message('Added '+id+' (red). Wire anode a to positive through a suitable resistor, cathode b to ground.');render();
   });
   root.querySelector('#wiring-inspector').addEventListener('click',e=>{
+    if(e.target.closest('#wiring-flip-led')&&selected?.kind==='part'){
+      const led=doc.leds.find(d=>d.id===selected.id);
+      if(!led)return;
+      snapshot();
+      doc=flipLedPolarity(doc,led.id);
+      message('Flipped '+led.id+' polarity by swapping its connected anode/cathode leads.');
+      render();return;
+    }
     if(!e.target.closest('#wiring-toggle-switch')||selected?.kind!=='part')return;
     const sw=doc.switches.find(sw=>sw.id===selected.id);
     if(!sw)return;
