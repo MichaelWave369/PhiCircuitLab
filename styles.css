@@ -226,3 +226,55 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-
 #ws-embedded-circuit h1,#ws-embedded-scope h1{font-size:clamp(1.35rem,2.8vw,2rem)}
 @media(max-width:980px){.ws-summary-grid{grid-template-columns:1fr}.ws-tab{min-width:130px}}
 @media(max-width:610px){.ws-project-top{grid-template-columns:1fr}.ws-capture{display:grid}.ws-capture .button{width:100%}.ws-tabbar{gap:.4rem}.ws-tab{min-width:150px}}
+
+
+/* v1.1: physical-contact, SVG solderless teaching breadboard */
+.bb-header{margin:0 0 1rem}
+.bb-header h1{margin:.3rem 0 .6rem}
+.bb-header p{max-width:82ch}
+.bb-toolbar{margin:1rem 0}
+.bb-toolbar-primary{display:flex;gap:.8rem;flex-wrap:wrap}
+.bb-toolbar-primary label{display:grid;gap:.35rem;flex:1;min-width:185px;color:var(--muted);font-size:.88rem}
+.bb-toolbar-primary input,.bb-toolbar-primary select{width:100%;padding:.5rem .65rem;border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:8px}
+.bb-toolbar-actions{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.9rem}
+.bb-toolbar-actions .button{font-size:.84rem}
+.bb-toolbar-actions .button:disabled{opacity:.45;cursor:not-allowed}
+.bb-import-control{cursor:pointer}
+.bb-tool-message{margin:.7rem 0 .1rem;min-height:1.6em}
+.bb-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,300px);gap:1rem;align-items:start}
+.bb-visual,.bb-side .panel{min-width:0}
+.bb-visual-heading{display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap}
+.bb-visual-heading h2{font-size:1.3rem;margin:0}
+.bb-status{padding:.35rem .65rem;border:1px solid var(--line);border-radius:100px;font-size:.81rem;font-weight:700}
+.bb-status[data-status="ok"]{color:#9bffbd;border-color:#387559}
+.bb-status[data-status="short"]{color:#ffabab;border-color:#a74545}
+.bb-status[data-status="open"]{color:#ffd7a0;border-color:#977443}
+.bb-svg-wrap{overflow-x:auto;border:1px solid #304862;border-radius:12px;margin:.7rem 0;background:#0d1c29}
+#bb-canvas{display:block;width:100%;height:auto;min-width:530px;touch-action:pan-x pan-y}
+#bb-canvas [data-bb-contact],#bb-canvas [data-bb-part],#bb-canvas [data-bb-wire]{cursor:pointer}
+#bb-canvas [data-bb-contact]:focus-visible circle:first-child,#bb-canvas [data-bb-part]:focus-visible rect{stroke:#e2a93b;stroke-width:4}
+.bb-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem}
+.bb-summary>div{border-radius:9px;background:var(--surface2);padding:.55rem .7rem;border:1px solid var(--line);min-width:0}
+.bb-summary small{display:block;font-size:.72rem;line-height:1.4;color:var(--muted)}
+.bb-summary strong{display:block;overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.bb-notices{padding-left:1.2rem;margin:.7rem 0 .2rem}
+.bb-notices li{font-size:.8rem;line-height:1.5}
+.bb-side{display:grid;gap:.8rem;min-width:0}
+.bb-side .panel{padding:1rem}
+.bb-side h2{font-size:1.2rem}
+.bb-library-rows{display:grid;gap:.5rem}
+.bb-library{padding:.55rem .65rem;text-align:left;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:8px;display:grid;gap:.1rem}
+.bb-library:hover,.bb-library:focus-visible{border-color:var(--cyan)}
+.bb-library span{color:var(--muted);font-size:.78rem}
+#bb-inspector{display:grid;gap:.6rem}
+#bb-inspector label{display:grid;gap:.35rem;color:var(--muted);font-size:.85rem}
+#bb-inspector input,#bb-inspector select{width:100%;border:1px solid var(--line);background:var(--surface2);padding:.5rem;border-radius:8px;color:var(--text)}
+#bb-inspector p{margin:0;overflow-wrap:anywhere}
+.bb-meter-readout{display:block;font:700 clamp(1.25rem,2.3vw,1.9rem)/1.35 ui-monospace,SFMono-Regular,Consolas,monospace;color:#9df3cd;margin:.65rem 0}
+.bb-rule-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.85rem;margin-top:.8rem}
+.bb-rule-grid>div{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:.75rem .9rem}
+.bb-rule-grid p{font-size:.83rem;margin:.4rem 0 0}
+.bb-how-it-works{margin:1rem 0}
+@media(max-width:1160px){.bb-workspace{grid-template-columns:minmax(0,1fr)}.bb-side{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:750px){.bb-side{grid-template-columns:1fr}.bb-rule-grid{grid-template-columns:1fr}.bb-toolbar-primary label{min-width:150px}}
+@media(max-width:560px){.bb-summary{grid-template-columns:1fr 1fr}.bb-toolbar-primary{display:grid}.bb-toolbar-primary label{min-width:0}.bb-toolbar-actions .button{flex:1;min-width:125px}}
