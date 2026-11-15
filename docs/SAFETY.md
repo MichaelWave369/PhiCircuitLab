@@ -34,3 +34,7 @@ The Wiring Sandbox now supports ideal open/closed switches. A closed switch is m
 ## v0.5 LED wiring model safety
 
 The LED Wiring Studio approximates three LED colors using fixed forward thresholds and a shared artificial 20 Ω slope. Real LEDs have nonlinear I–V curves, reverse-voltage limits, thermal effects, and variable current ratings. The simulator warns at 20 mA only as an educational heuristic, not as a safe operating threshold for any real LED or microcontroller GPIO. The **LED without resistor** example intentionally illustrates a bad design; never reproduce it using physical power. The simulated 150 mA is not a reliable prediction of real fault current.
+
+## v0.6 multimeter and continuity-tracing safety
+
+The virtual meter is mathematical instrumentation, not a calibrated multimeter. Its continuity setting only traces ideal 0 Ω wires and closed switches and conceptually ignores the power source; it is not a physical resistance measurement. Never measure continuity on an energized physical circuit. A real ammeter is normally inserted in series, not placed across a supply; the app's current tool is a non-invasive solver readout. Check physical meter/probe ratings, discharge stored energy, and work only with safe low-voltage current-limited setups for beginner experiments.
