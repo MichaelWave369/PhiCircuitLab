@@ -55,7 +55,8 @@ function overviewMarkup(project){
     '<div class="ws-links"><button class="button" data-view="classroom">Classroom</button>'+
     '<button class="button" data-view="workbench">Fundamentals Workbench</button>'+
     '<button class="button" data-view="academy">Challenge Academy</button>'+
-    '<button class="button" data-view="mystery">Mystery Diagnostics</button></div></div>';
+    '<button class="button" data-view="mystery">Mystery Diagnostics</button>'+
+    '<button class="button" data-view="bridge">Plan on Breadboard</button></div></div>';
 }
 function notesMarkup(project){
   return '<section class="panel ws-notebook"><h2>Project laboratory notebook</h2>'+

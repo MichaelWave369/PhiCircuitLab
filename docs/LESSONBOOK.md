@@ -355,3 +355,7 @@ Use the [Virtual Electronics Workstation manual](WORKSTATION.md) to organize one
 ## v1.1 hands-on solderless breadboard workshop
 
 Use the [Virtual Breadboard workbook](BREADBOARD.md) to learn actual contact topology: five holes per strip, a center-trench break, and separate power rails that need deliberate source-jack wires. Verify a 9 V/1 kΩ resistor, a current-limited LED, an open/closed switch, and the difference between modeled source current and direct copper continuity. A validated schematic can be sent to Wiring Lab only with explicit confirmation.
+
+## v1.2 capstone: Verified schematic-to-breadboard build
+
+Open [Schematic-to-Breadboard Bridge](SCHEMATIC-BRIDGE.md) and plan the two-resistor series schematic. Check the R1 E1–F1 and R2 E2–F2 placements, the five jumper instructions and the expected 4.500 mA source current. Explain why A1/E1 are one strip but E1/F1 are not, and why equal source current alone cannot prove equivalent wiring. Try a reverse-biased LED or open switch to see faithful fault preservation. An ideal source short or more than 12 components should cause a clear refusal rather than an incomplete build plan.

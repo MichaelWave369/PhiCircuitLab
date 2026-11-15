@@ -40,7 +40,8 @@ const panel=()=>'<section class="bb-header"><span class="eyebrow">Φ CIRCUIT LAB
   '<button id="bb-clear" class="button" type="button">Clear board</button>'+
   '<button id="bb-export" class="button" type="button">Export breadboard JSON</button>'+
   '<label class="button bb-import-control">Import breadboard JSON<input id="bb-import" type="file" hidden accept=".json,application/json"></label>'+
-  '<button id="bb-send-to-wiring" class="button" type="button">Send to Wiring Lab</button></div>'+
+  '<button id="bb-send-to-wiring" class="button" type="button">Send to Wiring Lab</button>'+
+  '<button data-view="bridge" class="button" type="button">Plan from Schematic</button></div>'+
   '<p class="micro bb-tool-message" id="bb-message" role="status" aria-live="polite">Select a tool, then use the labeled hole contacts.</p></section>'+
   '<div class="bb-workspace"><section class="panel bb-visual" aria-label="Solderless breadboard visualization">'+
   '<div class="bb-visual-heading"><h2>12-column training breadboard</h2>'+
@@ -147,6 +148,14 @@ function svgBoard(doc,analysis,selected,pending,tool){
   return base+wires+comps+holes+jacks;
 }
 
+/** Static placement preview: uses the same component and contact geometry as
+ * the editable breadboard, but cannot change circuit data. */
+export function renderBreadboardPreview(layout){
+  const doc=validateBreadboard(layout);
+  return svgBoard(doc,analyzeBreadboard(doc),null,null,'select')
+    .replaceAll('role="button"','role="presentation"')
+    .replaceAll('tabindex="0"','tabindex="-1"');
+}
 export function mountBreadboardLab(root){
   root.innerHTML=panel();
   let doc,loaded=false;

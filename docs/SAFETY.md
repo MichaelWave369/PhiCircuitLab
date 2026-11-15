@@ -58,3 +58,7 @@ The Workstation groups educational models into an offline project, without turni
 ## v1.1 breadboard safety
 
 The virtual breadboard has **ideal** conductors and a miniature 12-column layout, not a rating or construction certificate for commercial breadboards. Power rails may be physically split or differently arranged on real products. Never connect household mains, unprotected high-current batteries or unknown high-voltage equipment to a solderless breadboard. The educational short-circuit example must stay virtual. Use real current-limited low-voltage supplies, verify actual strip connectivity while **de-energized**, and consult proper component ratings before physical assembly.
+
+## v1.2 schematic bridge verification is not hardware safety certification
+
+The schematic-to-breadboard bridge verifies every named terminal net connection and ideal DC solver output, but it does not confirm real component ratings, polarity markings, commercial breadboard rail splitting, thermal limits, isolation, grounding or physical workmanship. It deliberately refuses ideal source shorts and unsupported component counts. Never assume that a generated build guide authorizes the use of mains, unprotected batteries or other high-energy sources. Compare actual board strip continuity and component datasheets before attempting any real low-voltage circuit.
