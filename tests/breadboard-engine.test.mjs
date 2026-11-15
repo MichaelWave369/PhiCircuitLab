@@ -99,7 +99,7 @@ test('LED example conducts modeled forward current through series limiter',()=>{
 });
 test('reversed LED across trench does not conduct',()=>{
   const x=powered(createBreadboardExample('reverse-led'));
-  assert.equal(x.leds[0].state,'off');
+  assert.equal(x.leds[0].state,'reverse');
   near(x.sourceCurrentA,0);
 });
 test('switch preset begins open and only conducts when contact closes',()=>{
@@ -170,7 +170,7 @@ test('flipping LED reverses anode/cathode, but keeps its physical holes',()=>{
   const flipped=editBoardPart(base,'D1',{flip:true});
   assert.equal(flipped.leds[0].a,base.leds[0].b);
   assert.equal(flipped.leds[0].b,base.leds[0].a);
-  assert.equal(powered(flipped).leds[0].state,'off');
+  assert.equal(powered(flipped).leds[0].state,'reverse');
   assert.equal(powered(base).leds[0].state,'on');
   assert.deepEqual(editBoardPart(flipped,'D1',{flip:true}),base);
 });
