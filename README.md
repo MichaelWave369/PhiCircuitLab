@@ -4,7 +4,7 @@
 
 A free, open-source virtual electronics academy from PHI369 Labs. Begin with no physical components, no paid subscriptions, and no account.
 
-## What works in v0.8
+## What works in v0.9
 
 - **Nine guided modules** covering electricity, components, digital logic, embedded systems, communication, PCB design, and a Node-01 capstone.
 - **Six interactive learning benches**: Ohm's law, LEDs, series/parallel networks, voltage dividers (including loads), RC timing, and six Boolean logic gates.
@@ -12,6 +12,7 @@ A free, open-source virtual electronics academy from PHI369 Labs. Begin with no 
 - **Virtual multimeter and troubleshooting**: non-invasive DC voltage probes, ideal-wire continuity tracer, signed resistor/LED current inspection, and five fault-finding missions.
 - **Circuit Challenge Academy**: nine seeded hands-on fault missions with predicted diagnoses, verified repairs, replayable seeds, local scores, and a dedicated save separate from the free Wiring Lab.
 - **Mystery Circuit Diagnostics**: eight sealed black-box service calls where students measure hidden circuits, record evidence, commit a diagnosis and then repair the revealed circuit in an independent workspace.
+- **Virtual Oscilloscope & RC Signal Lab**: real analytic time-domain charging/discharging with step, pulse and periodic square inputs, colored traces, dual measurement cursors and local CSV export.
 - **Short knowledge checks**: pass each two-question quiz to mark a module complete.
 - **Local progress tracking and a saved wiring design** with browser localStorage; no sign-in, tracking, or backend.
 - **JSON import/export for wiring designs**, with schema and bounds validation. No cloud required.
@@ -69,6 +70,7 @@ Once the feature branch has been merged to `main`, open repository **Settings â†
 - [Virtual multimeter and fault-finding workbook](docs/MULTIMETER.md)
 - [Circuit Challenge Academy: nine scored fault-finding missions](docs/ACADEMY.md)
 - [Mystery Circuit Diagnostics: eight hidden-fault cases](docs/MYSTERY.md)
+- [Virtual Oscilloscope: first-order RC time-domain laboratory](docs/OSCILLOSCOPE.md)
 
 ## Wiring Sandbox
 
@@ -85,6 +87,10 @@ Open **Challenge Academy** in the navigation or choose **Play Challenge Academy*
 ## Mystery Circuit Diagnostics
 
 Open **Mystery Diagnostics** from navigation or the Home shortcut. Before you can see the circuit, use the virtual meter's labeled test points to collect at least two distinct readings. Lock your prediction to reveal the faulted wiring, then repair the actual circuit for a modeled grade. Eight seeded cases support reproducible classroom practice and save progress separately from both free-build and Challenge Academy. See the [Mystery Workbook](docs/MYSTERY.md).
+
+## Virtual Oscilloscope and RC Signal Lab
+
+Open **Oscilloscope** from the navigation or **Open Oscilloscope** on Home. Adjust an ideal resistor/capacitor, source amplitude and initial voltage; observe charging, discharging, voltage pulses and periodic square waves over time with dual measurement cursors. The physics uses exact first-order solutions across every source transition, not fake animation. Save 501 trace samples as a local CSV. This is a **specialized** RC station, not full SPICE nor capacitors inside the Wiring Lab topology solver. See the [scope workbook](docs/OSCILLOSCOPE.md).
 
 ## Continue learning for free
 
