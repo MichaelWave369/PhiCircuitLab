@@ -438,6 +438,15 @@ try {
   assert.equal(bbRetention.status,'Connected circuit');
   assert.deepEqual(bbRetention.original,bbBegin.workstation);
   console.log('PASS: breadboard save is separate from Workstation and free Wiring Lab');
+  const bbImportGood=await evaluate("(async()=>{const incoming=JSON.parse(localStorage.getItem('phi-circuit-lab-breadboard-v1'));incoming.supplyV=7;const file=new File([JSON.stringify(incoming)],'board.json',{type:'application/json'});const input=document.querySelector('#bb-import');Object.defineProperty(input,'files',{configurable:true,value:[file]});window.confirm=()=>true;input.dispatchEvent(new Event('change',{bubbles:true}));for(let i=0;i<40&&document.querySelector('#bb-current').textContent!=='7.000 mA';i++)await new Promise(r=>setTimeout(r,10));return {current:document.querySelector('#bb-current').textContent,supply:JSON.parse(localStorage.getItem('phi-circuit-lab-breadboard-v1')).supplyV}})()");
+  assert.deepEqual(bbImportGood,{current:'7.000 mA',supply:7});
+  const bbImportBad=await evaluate("(async()=>{const snapshot=localStorage.getItem('phi-circuit-lab-breadboard-v1');const incoming=JSON.parse(snapshot);incoming.version=99;const file=new File([JSON.stringify(incoming)],'invalid-board.json',{type:'application/json'});const input=document.querySelector('#bb-import');Object.defineProperty(input,'files',{configurable:true,value:[file]});input.dispatchEvent(new Event('change',{bubbles:true}));for(let i=0;i<40&&!document.querySelector('#bb-message').textContent.includes('Import rejected');i++)await new Promise(r=>setTimeout(r,10));return {unchanged:snapshot===localStorage.getItem('phi-circuit-lab-breadboard-v1'),feedback:document.querySelector('#bb-message').textContent}})()");
+  assert.equal(bbImportBad.unchanged,true);
+  assert.match(bbImportBad.feedback,/Import rejected/);
+  const bbRestoreVoltage=await evaluate("(()=>{const field=document.querySelector('#bb-supply');field.value='5';field.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('#bb-export').click();return {current:document.querySelector('#bb-current').textContent,message:document.querySelector('#bb-message').textContent}})()");
+  assert.equal(bbRestoreVoltage.current,'5.000 mA');
+  assert.match(bbRestoreVoltage.message,/Exported/);
+  console.log('PASS: validated breadboard import/export and rejected-invalid-file rollback');
   const bbTransfer=await evaluate("(()=>{window.confirm=()=>true;document.querySelector('#bb-send-to-wiring').click();return {view:document.querySelector('#app-content h1')?.textContent,status:document.querySelector('#wiring-state')?.textContent,current:document.querySelector('#wiring-current')?.textContent,source:JSON.parse(localStorage.getItem('phi-circuit-lab-breadboard-v1')).supplyV}})()");
   assert.equal(bbTransfer.view,'Wiring Sandbox');
   assert.equal(bbTransfer.status,'Connected circuit');
