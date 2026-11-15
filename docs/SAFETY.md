@@ -46,3 +46,7 @@ Challenge Academy includes deliberately faulty *virtual* circuits: open wires, r
 ## v0.8 sealed diagnostic cases
 
 Mystery Circuit Diagnostics is a black-box exercise in reading simulated test points. A hidden schematic or solver status does not imply a physically enclosed or electrically insulated real device. Its ideal continuity mode is conceptual and must never be used as guidance to measure powered real hardware. Shorts and overcurrent cases are deliberately faulty virtual demonstrations only; never recreate them with real supplies, batteries or LED components. Diagnosis scores are educational feedback, not electrical safety certification.
+
+## v0.9 oscilloscope safety and model boundaries
+
+The Virtual Oscilloscope plots a mathematical model of one ideal R-C low-pass circuit, not electrical measurements of physical hardware. Real oscilloscopes often use earth-ground-referenced probe clips; incorrect clipping can short dangerous voltages. Never connect a beginner scope probe to household mains, high-voltage circuits, unknown chargers or other high-energy systems. Real input loading, grounding, calibration, sampling and component tolerances are not modeled. Use appropriately current-limited low-voltage training setups with expert guidance if moving to physical electronics.
