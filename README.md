@@ -4,11 +4,12 @@
 
 A free, open-source virtual electronics academy from PHI369 Labs. Begin with no physical components, no paid subscriptions, and no account.
 
-## What works in v0.5
+## What works in v0.6
 
 - **Nine guided modules** covering electricity, components, digital logic, embedded systems, communication, PCB design, and a Node-01 capstone.
 - **Six interactive learning benches**: Ohm's law, LEDs, series/parallel networks, voltage dividers (including loads), RC timing, and six Boolean logic gates.
 - **Wiring Sandbox**: drag and arrange up to eight resistors, four ideal switches and three direction-sensitive LEDs, click to connect terminals, and inspect calculated voltage/current/power. Includes shorts, floating parts, reverse LEDs and missing current-limiting warnings.
+- **Virtual multimeter and troubleshooting**: non-invasive DC voltage probes, ideal-wire continuity tracer, signed resistor/LED current inspection, and five fault-finding missions.
 - **Short knowledge checks**: pass each two-question quiz to mark a module complete.
 - **Local progress tracking and a saved wiring design** with browser localStorage; no sign-in, tracking, or backend.
 - **JSON import/export for wiring designs**, with schema and bounds validation. No cloud required.
@@ -63,10 +64,13 @@ Once the feature branch has been merged to `main`, open repository **Settings �
 - [Wiring Sandbox field manual](docs/WIRING-LAB.md)
 - [Ideal switches: experiments and safety](docs/SWITCHES.md)
 - [LED Wiring Studio: polarity, current limiting and model assumptions](docs/LEDS.md)
+- [Virtual multimeter and fault-finding workbook](docs/MULTIMETER.md)
 
 ## Wiring Sandbox
 
 Open **Wiring Lab** in the top navigation. Start with a series, parallel, loaded-divider, series-switch, LED, reverse-LED or blank circuit. Connect terminals by clicking them in pairs, drag resistors, inspect results, and experiment with open circuits and ideal shorts. All calculation runs locally.
+
+Use the **Virtual Multimeter** directly below the wiring canvas to probe two terminals for voltage or wire connectivity, or select a resistor/LED to inspect branch current. This is ideal-model instrumentation, not physical hardware emulation; continuity traces only ideal wires and closed switches.
 
 See [the field manual](docs/WIRING-LAB.md) for four challenges and the model's limits. The engine performs ideal-resistor DC nodal analysis, **not full SPICE**. It models ideal open/closed switches and a simplified piecewise-linear LED with fixed forward voltage and a teaching-only 20 Ω slope. It does not simulate physical diode I–V curves, temperature, reactive parts, PCB layouts or real power-source fault behavior.
 

@@ -2,6 +2,7 @@ import {
   MAX_RESISTORS, MAX_SWITCHES, MAX_LEDS, MAX_WIRES, presetCircuit, solveCircuit, validateCircuit
 } from './wiring-solver.mjs';
 import { LED_FORWARD_V } from './wiring-diode-solver.mjs';
+import { measureVoltage, traceContinuity, inspectBranchCurrent } from './wiring-meter.mjs';
 
 const STORAGE_KEY='phi-circuit-lab-wiring-v1';
 const SVG_NS='http://www.w3.org/2000/svg';
@@ -38,7 +39,7 @@ function terminalSVG(id,point,pending){
     '" stroke="'+(active?'#ffc578':'#55e2df')+'" stroke-width="3"/>' +
     '<circle cx="'+point.x+'" cy="'+point.y+'" r="4" fill="'+(active?'#09131e':'#55e2df')+'"/></g>';
 }
-function svgMarkup(doc,selected,pending,result){
+function svgMarkup(doc,selected,pending,result,meter){
   const wires=doc.wires.map((w,index)=>{
     const a=endpointPosition(doc,w.a),b=endpointPosition(doc,w.b);
     const d=path(a,b),active=selected?.kind==='wire'&&selected.index===index;
@@ -104,6 +105,17 @@ function svgMarkup(doc,selected,pending,result){
       terminalSVG(d.id+':a',{x:d.x-54,y:d.y},pending)+
       terminalSVG(d.id+':b',{x:d.x+54,y:d.y},pending)+'</g>';
   }).join('');
+  // Visual probe markers are overlays only, never physical wires or
+  // current paths. They do not intercept mouse or keyboard events.
+  const probeMarks=['voltage','continuity'].includes(meter.mode)
+    ? [[meter.red,'#ff7882'],[meter.black,'#85bfff']]
+      .filter(([t])=>t!==null)
+      .map(([t,color])=>{
+        const pt=endpointPosition(doc,t);
+        return '<circle cx="'+pt.x+'" cy="'+pt.y+'" r="17" stroke="'+color+
+          '" stroke-width="4" fill="none" pointer-events="none"/>';
+      }).join('')
+    : '';
   return '<defs><pattern id="wiring-grid" width="24" height="24" patternUnits="userSpaceOnUse">'+
     '<circle cx="1" cy="1" r="1" fill="#294156"/></pattern></defs>' +
     '<rect x="0" y="0" width="900" height="500" fill="#0a1727" rx="12"/>' +
@@ -118,12 +130,12 @@ function svgMarkup(doc,selected,pending,result){
     '<text x="42" y="445" fill="#55e2df" font-size="16">GND</text>' +
     wires+parts+switches+ledParts+
     terminalSVG('V+',SOURCE_TERMINALS['V+'],pending)+
-    terminalSVG('GND',SOURCE_TERMINALS.GND,pending)+
+    terminalSVG('GND',SOURCE_TERMINALS.GND,pending)+probeMarks+
     '<text x="470" y="478" text-anchor="middle" fill="#59738c" font-size="13">Educational model only. No currents are assumed for an ideal source short.</text>';
 }
 
 function wiringPanelHTML() {
-  return '<span class="eyebrow">VIRTUAL HARDWARE WORKSHOP • V0.5</span>' +
+  return '<span class="eyebrow">VIRTUAL HARDWARE WORKSHOP • V0.6</span>' +
     '<h1>Wiring Sandbox</h1>' +
     '<p>Place resistors, switches and polarized LEDs, connect terminals, and simulate an idealized DC circuit. ' +
     'LEDs light only when the model predicts forward current. No hardware required.</p>' +
@@ -144,7 +156,22 @@ function wiringPanelHTML() {
     '<button type="button" id="wiring-clear" class="button">Disconnect all</button>' +
     '<button type="button" id="wiring-undo" class="button">Undo</button></div>' +
     '<div class="wiring-workspace"><svg id="wiring-canvas" viewBox="0 0 900 500" role="group" aria-label="Interactive circuit drawing canvas"></svg></div>' +
-    '<p id="wiring-help" class="micro" aria-live="polite">Click one terminal circle, then another to add a wire. Click a wire or resistor to select it. Drag a resistor to move it. Press Escape to cancel connecting.</p>' +
+    '<p id="wiring-help" class="micro" aria-live="polite">Select Wire to connect terminals or choose a meter mode to investigate. Drag components to move them.</p>' +
+    '<section class="panel meter-panel" aria-label="Virtual multimeter">' +
+      '<div class="meter-header"><div><h2>Virtual Multimeter</h2><p class="micro">Ideal measurements • no real hardware</p></div>' +
+      '<label>Tool / measurement mode<select id="meter-mode" class="lab-select" aria-label="Choose wiring or meter tool">' +
+      '<option value="wire">Wire / edit</option><option value="voltage">DC voltage probes</option>' +
+      '<option value="continuity">Wire continuity (power off)</option>' +
+      '<option value="current">Inspect branch current</option></select></label></div>' +
+      '<div class="meter-results"><div><span class="micro" id="meter-label">Ready to measure</span>' +
+      '<div id="meter-readout" class="meter-digits" role="status" aria-live="polite">—</div></div>' +
+      '<div><strong id="meter-probes">Select a mode</strong><p id="meter-details" class="micro">' +
+      'DC voltmeter readings do not load the model. Continuity checks ideal wires and closed switches only.</p></div></div>' +
+      '<p class="micro">Voltage / continuity: click the RED probe terminal, then the BLACK probe terminal. ' +
+      'To reposition, click another terminal. Current: select a resistor or LED body. ' +
+      'A real ammeter normally requires a series connection; this tool reads simulated branch current without changing the circuit.</p>' +
+      '<div class="meter-shortcuts"><button type="button" id="meter-reset" class="button">Clear probes</button>' +
+      '<button type="button" id="meter-source" class="button">Probe supply V+ / GND</button></div></section>' +
     '<div class="wiring-bottom">' +
     '<section class="panel wiring-details"><h2>Parts & power</h2>' +
     '<label class="wiring-supply"><span>Ideal supply</span><input type="range" min="0" max="24" step=".5" value="9" id="wiring-supply"><output id="wiring-supply-value">9 V</output></label>' +
@@ -185,6 +212,7 @@ export function mountWiringLab(root) {
   if(!doc)doc=presetCircuit('series');
   root.querySelector('#wiring-preset').value=loaded?'':'series';
   const history=[];
+  const meter={mode:'wire',red:null,black:null,part:null};
   let selected=null;
   let pending=null;
   let drag=null;
@@ -201,7 +229,7 @@ export function mountWiringLab(root) {
   function message(value){notice=value;}
   function render(){
     const result=solveCircuit(doc);
-    canvas.innerHTML=svgMarkup(doc,selected,pending,result);
+    canvas.innerHTML=svgMarkup(doc,selected,pending,result,meter);
     root.querySelector('#wiring-supply').value=String(doc.supplyV);
     root.querySelector('#wiring-supply-value').textContent=doc.supplyV+' V';
     root.querySelector('#wiring-undo').disabled=history.length===0;
@@ -256,9 +284,59 @@ export function mountWiringLab(root) {
         '</p><p class="micro">Use Delete selected to disconnect it.</p>':'';
     } else inspector.innerHTML='<p class="micro">Select a resistor, LED or switch to edit it. Drag components to move them.</p>';
     hint.textContent=(pending?'Connecting from '+pending+'. Click another terminal, or press Escape. ': '')+notice;
+    renderMeter(result);
     persist();
   }
+  function renderMeter(result){
+    const readout=root.querySelector('#meter-readout');
+    const detail=root.querySelector('#meter-details');
+    const labels=root.querySelector('#meter-probes');
+    root.querySelector('#meter-mode').value=meter.mode;
+    if(meter.mode==='wire'){
+      readout.textContent='—';
+      labels.textContent='Wiring tool';
+      detail.textContent='Click two terminals to add an ideal wire. Select a meter mode to inspect the design.';
+      return;
+    }
+    if(meter.mode==='current'){
+      labels.textContent=meter.part?'Part '+meter.part:'Select a part';
+      if(!meter.part){readout.textContent='—';detail.textContent='Click any resistor or LED body for signed branch current.';return;}
+      if(![...doc.parts,...doc.switches,...doc.leds].some(p=>p.id===meter.part)){
+        meter.part=null;readout.textContent='—';detail.textContent='Selected part no longer exists.';return;
+      }
+      const x=inspectBranchCurrent(doc,result,meter.part);
+      readout.textContent=x.status==='ok'?formatMa(x.value):'—';
+      detail.textContent=x.details;
+      return;
+    }
+    labels.textContent='RED: '+(meter.red||'choose terminal')+' | BLACK: '+(meter.black||'choose terminal');
+    if(!meter.red||!meter.black){
+      readout.textContent='—';
+      detail.textContent='Click red (+) terminal first, then black (−). Probe markers do not alter the circuit.';
+      return;
+    }
+    const x=meter.mode==='voltage'?
+      measureVoltage(doc,result,meter.red,meter.black):
+      traceContinuity(doc,meter.red,meter.black);
+    readout.textContent=meter.mode==='voltage'?
+      (x.status==='ok'?formatV(x.value):'—'):
+      (x.value?'CONNECTED':'OPEN');
+    detail.textContent=x.details;
+  }
+  function meterTerminalClick(t){
+    if(meter.mode==='current'){
+      message('Current tool: select a resistor or LED body, not a terminal.');render();return;
+    }
+    if(!meter.red||meter.black!==null){
+      meter.red=t;meter.black=null;
+      message('Red probe placed at '+t+'. Choose the black probe terminal.');
+    }else{
+      meter.black=t;message('Measured '+meter.red+' relative to '+t+'.');
+    }
+    render();
+  }
   function terminalClick(t){
+    if(meter.mode!=='wire'){meterTerminalClick(t);return;}
     if(pending===null){
       pending=t;selected=null;message('Choose a second terminal to complete the connection.');render();return;
     }
@@ -293,8 +371,17 @@ export function mountWiringLab(root) {
     const hit=inspectTarget(target);
     if(!hit)return;
     if(hit.kind==='terminal'){terminalClick(hit.id);return;}
-    if(hit.kind==='wire'){selected={kind:'wire',index:hit.index};pending=null;message('Wire selected.');render();return;}
-    if(hit.kind==='part'){selected={kind:'part',id:hit.id};pending=null;
+    if(hit.kind==='wire'){
+      if(meter.mode!=='wire'){message('Choose terminals or components for this meter mode.');render();return;}
+      selected={kind:'wire',index:hit.index};pending=null;message('Wire selected.');render();return;
+    }
+    if(hit.kind==='part'){
+      if(meter.mode==='current'){
+        meter.part=hit.id;
+        message('Inspecting current through '+hit.id+'.');
+        render();return;
+      }
+      selected={kind:'part',id:hit.id};pending=null;
       message(hit.id.startsWith('S')?'Switch selected; toggle it below.':
         hit.id.startsWith('D')?'LED selected; choose its color below.':
         'Resistor selected; adjust its value below.');
@@ -303,7 +390,8 @@ export function mountWiringLab(root) {
   canvas.addEventListener('click',e=>{if(!drag)choose(e.target);});
   canvas.addEventListener('keydown',e=>{
     if(e.key==='Escape'){
-      pending=null;message('Connection canceled.');render();e.preventDefault();return;
+      pending=null;meter.red=null;meter.black=null;meter.part=null;
+      message('Wiring or meter selection cleared.');render();e.preventDefault();return;
     }
     if(e.key!=='Enter'&&e.key!==' ')return;
     const hit=inspectTarget(e.target);
@@ -344,10 +432,25 @@ export function mountWiringLab(root) {
   };
   canvas.addEventListener('pointerup',finishDrag);
   canvas.addEventListener('pointercancel',finishDrag);
+  root.querySelector('#meter-mode').addEventListener('change',e=>{
+    meter.mode=e.target.value;
+    meter.red=null;meter.black=null;meter.part=null;pending=null;
+    message(meter.mode==='wire'?'Wire tool selected.':'Meter mode: '+e.target.selectedOptions[0].textContent+'.');
+    render();
+  });
+  root.querySelector('#meter-reset').addEventListener('click',()=>{
+    meter.red=null;meter.black=null;meter.part=null;
+    message('Cleared virtual meter probes.');render();
+  });
+  root.querySelector('#meter-source').addEventListener('click',()=>{
+    meter.mode='voltage';meter.red='V+';meter.black='GND';meter.part=null;pending=null;
+    message('Voltage probes placed across the supply.');render();
+  });
   root.querySelector('#wiring-preset').addEventListener('change',e=>{
     const kind=e.target.value;
     if(!kind)return;
     snapshot();doc=presetCircuit(kind);e.target.value=kind;selected=null;pending=null;
+    meter.red=null;meter.black=null;meter.part=null;
     message('Example loaded: '+e.target.selectedOptions[0].textContent+'.');render();
   });
   root.querySelector('#wiring-add').addEventListener('click',()=>{
@@ -448,6 +551,7 @@ export function mountWiringLab(root) {
       if(file.size>50000)throw new RangeError('Circuit JSON must be under 50 KB');
       const input=validateCircuit(JSON.parse(await file.text()));
       snapshot();doc=input;selected=null;pending=null;
+      meter.red=null;meter.black=null;meter.part=null;
       message('Imported a validated local circuit document.');
     }catch(err){message('Import rejected: '+err.message);}
     e.target.value='';
