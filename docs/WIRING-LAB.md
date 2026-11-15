@@ -139,3 +139,7 @@ The [Circuit Challenge Academy](ACADEMY.md) embeds this same Wiring Lab with a f
 ## v1.1 breadboard-to-schematic transfer
 
 The [Virtual Breadboard](BREADBOARD.md) lets you arrange resistors, LEDs, switches, source jacks, and jumper wires on realistic internal copper strips. **Send to Wiring Lab** converts these physical strip nets into a validated equivalent DC schematic. Transfer requires explicit confirmation because it replaces the free-build Wiring Lab's local save; the breadboard itself is preserved. The two representations have equivalent **electrical connectivity**, not identical drawing coordinates or physical pin geometry.
+
+## v1.2: Schematic-to-breadboard planning
+
+Select **Plan on Breadboard** from Wiring Lab to open the [verified layout bridge](SCHEMATIC-BRIDGE.md). This translates supported DC schematic components and zero-ohm nets into explicit hole placements and jumper steps on the 12-column miniature board. The planner verifies *both* net connectivity and electrical results, and prompts before replacing the separate Breadboard layout. It does not change the Wiring Lab's source design or support RC scope designs or general PCB routing.
