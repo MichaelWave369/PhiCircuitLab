@@ -54,3 +54,7 @@ The Virtual Oscilloscope plots a mathematical model of one ideal R-C low-pass ci
 ## v1.0 project workstation safety and persistence
 
 The Workstation groups educational models into an offline project, without turning the DC Wiring Lab and RC Oscilloscope into one physical simulator. Neither tool replaces rated equipment, verified schematics or professional electrical safety practices. Never assume a simulated short or overcurrent reading predicts physical fault energy. Save work using Export projects JSON before clearing local browser data; notebook and circuit records are stored locally and are not encrypted at rest.
+
+## v1.1 breadboard safety
+
+The virtual breadboard has **ideal** conductors and a miniature 12-column layout, not a rating or construction certificate for commercial breadboards. Power rails may be physically split or differently arranged on real products. Never connect household mains, unprotected high-current batteries or unknown high-voltage equipment to a solderless breadboard. The educational short-circuit example must stay virtual. Use real current-limited low-voltage supplies, verify actual strip connectivity while **de-energized**, and consult proper component ratings before physical assembly.
