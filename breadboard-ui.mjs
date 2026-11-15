@@ -115,9 +115,12 @@ function svgBoard(doc,analysis,selected,pending,tool){
       ({red:'#be5263',green:'#3b9c72',blue:'#4f78c5'}[part.color]);
     const label=part.kind==='resistor'?part.ohms+' Ω':
       part.kind==='switch'?(part.closed?'CLOSED':'OPEN'):part.color.toUpperCase()+' LED';
-    return '<g data-bb-part="'+part.id+'" tabindex="0" role="button" aria-label="Inspect '+part.kind+' '+part.id+'">'+
+    const illuminated=part.kind==='led'&&
+      analysis.result.leds.some(led=>led.id===part.id&&led.state==='on');
+    return '<g data-bb-part="'+part.id+'" data-bb-lit="'+(illuminated?'yes':'no')+'" tabindex="0" role="button" aria-label="Inspect '+part.kind+' '+part.id+'">'+
+      (illuminated?'<circle class="bb-led-glow" cx="'+x+'" cy="'+y+'" r="43" fill="'+color+'" opacity=".28" pointer-events="none"/>':'')+
       '<path d="M '+a.x+' '+a.y+' L '+b.x+' '+b.y+'" fill="none" stroke="#68717b" stroke-width="6" pointer-events="none"/>'+
-      '<rect x="'+(x-35)+'" y="'+(y-17)+'" width="70" height="34" rx="7" fill="'+(active?'#2b415b':color)+'"'+
+      '<rect x="'+(x-35)+'" y="'+(y-17)+'" width="70" height="34" rx="7" fill="'+(active?'#2b415b':part.kind==='led'&&!illuminated?'#5e6670':color)+'"'+
       ' stroke="'+(active?'#f5dc71':'#f7f7e9')+'" stroke-width="'+(active?'4':'1.5')+'"/>'+
       '<text x="'+x+'" y="'+(y-4)+'" text-anchor="middle" fill="#fff" font-size="13" font-weight="700" pointer-events="none">'+part.id+'</text>'+
       '<text x="'+x+'" y="'+(y+10)+'" text-anchor="middle" fill="#fff" font-size="9.5" pointer-events="none">'+safe(label)+'</text>'+
@@ -194,7 +197,12 @@ export function mountBreadboardLab(root){
     const p=[...doc.parts,...doc.switches,...doc.leds].find(x=>x.id===selected.id);
     if(!p){selected=null;inspector(analysis);return;}
     const kind=partKind(p.id);
+    const reading=kind==='part'?analysis.result.parts.find(x=>x.id===p.id):
+      kind==='led'?analysis.result.leds.find(x=>x.id===p.id):null;
     container.innerHTML='<p><strong>'+p.id+'</strong> · '+safe(p.a)+' (a) → '+safe(p.b)+' (b)</p>'+
+      (reading?'<p class="micro">Modeled state: '+safe(reading.state)+
+        ' · Current: '+safe(fmtMa(reading.currentA))+
+        ' · Voltage drop: '+safe(fmtV(reading.voltageV))+'</p>':'')+
       (kind==='part'?'<label>Resistance (Ω)<input id="bb-ohms" type="number" min="1" max="10000000" step="10" value="'+p.ohms+'"></label>':'')+
       (kind==='switch'?'<p>Contact: <strong>'+(p.closed?'closed':'open')+'</strong></p>'+
         '<button class="button" type="button" id="bb-toggle">'+(p.closed?'Open switch':'Close switch')+'</button>':'')+
