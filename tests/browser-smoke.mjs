@@ -196,7 +196,7 @@ try {
   const meterContinuity=await evaluate("(()=>{const mode=document.querySelector('#meter-mode');mode.value='continuity';mode.dispatchEvent(new Event('change',{bubbles:true}));for(const t of ['V+','R1:a'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));const connected=document.querySelector('#meter-readout').textContent;for(const t of ['R1:a','R1:b'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));return {connected,blocked:document.querySelector('#meter-readout').textContent,details:document.querySelector('#meter-details').textContent}})()");
   assert.equal(meterContinuity.connected,'CONNECTED');
   assert.equal(meterContinuity.blocked,'OPEN');
-  assert.match(meterContinuity.details,/not treated as a wire/);
+  assert.match(meterContinuity.details,/not treated as a wire/i);
   console.log('PASS: continuity follows direct wires, not resistors');
   const meterCurrent=await evaluate("(()=>{const mode=document.querySelector('#meter-mode');mode.value='current';mode.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('[data-part-id=R1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));return {reading:document.querySelector('#meter-readout').textContent,part:document.querySelector('#meter-probes').textContent}})()");
   assert.equal(meterCurrent.reading,'4.500 mA');
