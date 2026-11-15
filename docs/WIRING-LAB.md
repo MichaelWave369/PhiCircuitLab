@@ -135,3 +135,7 @@ Below the circuit canvas, switch from **Wire / edit** to **DC voltage probes**, 
 ## v0.7 Challenge Academy practice
 
 The [Circuit Challenge Academy](ACADEMY.md) embeds this same Wiring Lab with a faulted circuit, without overwriting your free-built circuit. Select a diagnosis, then repair the wiring, switch, LED orientation, source or resistor according to the mission. Use the virtual multimeter to reason about the fault; score checks evaluate the modeled electrical result. A new **Flip LED polarity** control swaps D1:a and D1:b's external wire connections when a selected LED is backwards.
+
+## v1.1 breadboard-to-schematic transfer
+
+The [Virtual Breadboard](BREADBOARD.md) lets you arrange resistors, LEDs, switches, source jacks, and jumper wires on realistic internal copper strips. **Send to Wiring Lab** converts these physical strip nets into a validated equivalent DC schematic. Transfer requires explicit confirmation because it replaces the free-build Wiring Lab's local save; the breadboard itself is preserved. The two representations have equivalent **electrical connectivity**, not identical drawing coordinates or physical pin geometry.
