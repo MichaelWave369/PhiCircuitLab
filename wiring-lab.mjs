@@ -201,7 +201,7 @@ function wiringPanelHTML() {
 /** Create and bind the interactive wiring canvas inside its own app route. */
 export function mountWiringLab(root,options={}) {
   const { initialCircuit=null, storageKey=STORAGE_KEY,
-    onCircuitChange=null, challengeMode=false }=options;
+    onCircuitChange=null, onMeterSnapshot=null, challengeMode=false }=options;
   root.innerHTML=wiringPanelHTML();
   if(challengeMode){
     // Keep the editing controls in the document for existing event handlers,
@@ -306,6 +306,13 @@ export function mountWiringLab(root,options={}) {
     } else inspector.innerHTML='<p class="micro">Select a resistor, LED or switch to edit it. Drag components to move them.</p>';
     hint.textContent=(pending?'Connecting from '+pending+'. Click another terminal, or press Escape. ': '')+notice;
     renderMeter(result);
+    if(typeof onMeterSnapshot==='function'){
+      const readout=root.querySelector('#meter-readout').textContent;
+      const details=root.querySelector('#meter-details').textContent;
+      const probes=root.querySelector('#meter-probes').textContent;
+      onMeterSnapshot(meter.mode!=='wire'&&readout!=='—'?
+        {mode:meter.mode,readout,details,probes,supplyV:doc.supplyV}:null);
+    }
     persist();
     if(typeof onCircuitChange==='function')onCircuitChange(validateCircuit(doc),result);
   }
