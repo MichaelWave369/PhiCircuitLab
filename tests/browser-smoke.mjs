@@ -222,7 +222,7 @@ try {
   assert.equal(academyLoaded.freeAfter,academyLoaded.freeBefore);
   console.log('PASS: Academy launches nine missions without overwriting free-build circuit');
   const solveAcademy=async(index,diagnosis,jsRepair)=>{
-    const response=await evaluate("(()=>{const slot=document.querySelector('[data-academy-index="+index+"]');slot.click();const option=document.querySelector('#academy-prediction');option.value="+JSON.stringify(diagnosis)+";option.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('#academy-lock').click();"+jsRepair+";document.querySelector('#academy-check').click();return {score:document.querySelector('#academy-score').textContent,cleared:document.querySelector('#academy-cleared').textContent,feedback:document.querySelector('#academy-feedback').textContent}})()");
+    const response=await evaluate("(()=>{const slot=document.querySelector('[data-academy-index=\""+index+"\"]');slot.click();const option=document.querySelector('#academy-prediction');option.value="+JSON.stringify(diagnosis)+";option.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('#academy-lock').click();"+jsRepair+";document.querySelector('#academy-check').click();return {score:document.querySelector('#academy-score').textContent,cleared:document.querySelector('#academy-cleared').textContent,feedback:document.querySelector('#academy-feedback').textContent}})()");
     assert.match(response.feedback,/MISSION CLEARED/,JSON.stringify(response));
     assert.equal(response.cleared,(index+1)+' / 9',JSON.stringify(response));
     assert.equal(response.score,((index+1)*100)+' / 900',JSON.stringify(response));
