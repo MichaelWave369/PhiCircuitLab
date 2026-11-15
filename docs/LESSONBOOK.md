@@ -347,3 +347,7 @@ Complete the [Mystery Diagnostics workbook](MYSTERY.md) for eight sealed service
 ## Bonus lab: Time-domain oscilloscope and RC signals
 
 The [Virtual Oscilloscope workbook](OSCILLOSCOPE.md) provides a specialized first-order circuit with R, C and a step, pulse or square-wave source. Compare the existing standalone RC charge/discharge bench to exact time-dependent plots. Measure τ, verify 63.2% charging at t=τ, and explore capacitor voltage continuity through source transitions. This does not add general capacitors to the Wiring Lab solver.
+
+## v1.0 capstone: Project Workstation
+
+Use the [Virtual Electronics Workstation manual](WORKSTATION.md) to organize one complete experiment. Build and test a DC circuit; capture a modeled meter reading. Run a separate RC scope experiment; record its cursor measurement. Write an explanation and export the resulting project portfolio as JSON. These two model types remain independent, but the shared notebook provides a complete lab record.
