@@ -284,7 +284,11 @@ export function editBoardPart(input,id,changes){
     for(const name of Object.keys(changes)){
       if(!['ohms','color','closed','flip'].includes(name))
         throw new RangeError('Unsupported component parameter');
-      if(name==='flip'){if(changes.flip!==true)throw new RangeError('Flip must be true');[part.a,part.b]=[part.b,part.a];}
+      if(name==='flip'){
+        if(!part.id.startsWith('D')||changes.flip!==true)
+          throw new RangeError('Only an LED has a polarity-flip control');
+        [part.a,part.b]=[part.b,part.a];
+      }
       else if(!Object.prototype.hasOwnProperty.call(part,name))
         throw new RangeError('This component does not have parameter '+name);
       else part[name]=changes[name];
