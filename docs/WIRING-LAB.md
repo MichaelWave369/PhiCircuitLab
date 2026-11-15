@@ -1,6 +1,6 @@
 # Φ Circuit Lab • Wiring Sandbox Field Manual
 
-**Release:** v0.5 • **Price:** free • **Hardware:** none required
+**Release:** v0.6 • **Price:** free • **Hardware:** none required
 
 This lab lets you experiment with *arbitrary connections among resistors, ideal open/closed switches, and simplified polarized LEDs* and a single ideal DC supply. It solves the resistor network numerically based on the wires you draw. It does not simulate all electronics, and it is not a circuit-board CAD editor.
 
@@ -127,3 +127,7 @@ See the [switch lesson](SWITCHES.md). Open the switch preset, select S1, and tog
 ## Experiment F: an LED with correct polarity
 
 Open **Red LED + 330 Ω**. At 5 V the classroom piecewise-linear model gives about 8.571 mA. Change the LED color, reverse its wiring, and compare with the no-resistor caution preset. See the [complete LED lesson](LEDS.md) for model differences and safety.
+
+## Experiment G: virtual multimeter
+
+Below the circuit canvas, switch from **Wire / edit** to **DC voltage probes**, **Wire continuity (power off)**, or **Branch current**. Click component terminals in red/black order for voltage or wire continuity, or a resistor/LED body for current. The probes are non-invasive and do not alter circuit topology. Read the [Virtual Multimeter workbook](MULTIMETER.md) for five diagnostic missions and important physical safety caveats.
