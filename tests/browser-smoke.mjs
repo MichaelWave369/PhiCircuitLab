@@ -179,6 +179,41 @@ try {
   assert.equal(addedLed.added,true);
   assert.equal(addedLed.stored,2);
   console.log('PASS: component palette and local persistence include LEDs');
+  // v0.6 virtual instrumentation must use the same electrical readings as
+  // the circuit solver, without changing or adding a wire.
+  const meterSupply=await evaluate("(()=>{const preset=document.querySelector('#wiring-preset');preset.value='series';preset.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('#meter-source').click();return {mode:document.querySelector('#meter-mode').value,reading:document.querySelector('#meter-readout').textContent,wireCount:JSON.parse(localStorage.getItem('phi-circuit-lab-wiring-v1')).wires.length}})()");
+  assert.equal(meterSupply.mode,'voltage');
+  assert.equal(meterSupply.reading,'9.000 V');
+  assert.equal(meterSupply.wireCount,3);
+  console.log('PASS: voltage meter reads source without adding a wire');
+  const meterDrop=await evaluate("(()=>{const mode=document.querySelector('#meter-mode');mode.value='voltage';mode.dispatchEvent(new Event('change',{bubbles:true}));for(const t of ['R1:a','R1:b'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));return {reading:document.querySelector('#meter-readout').textContent,labels:document.querySelector('#meter-probes').textContent}})()");
+  assert.equal(meterDrop.reading,'4.500 V');
+  assert.match(meterDrop.labels,/R1:a/);
+  console.log('PASS: red/black terminal probes measure a resistor drop');
+  const meterNegative=await evaluate("(()=>{for(const t of ['R1:b','R1:a'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));return document.querySelector('#meter-readout').textContent})()");
+  assert.equal(meterNegative,'-4.500 V');
+  console.log('PASS: swapping voltage probe polarity changes sign');
+  const meterContinuity=await evaluate("(()=>{const mode=document.querySelector('#meter-mode');mode.value='continuity';mode.dispatchEvent(new Event('change',{bubbles:true}));for(const t of ['V+','R1:a'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));const connected=document.querySelector('#meter-readout').textContent;for(const t of ['R1:a','R1:b'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));return {connected,blocked:document.querySelector('#meter-readout').textContent,details:document.querySelector('#meter-details').textContent}})()");
+  assert.equal(meterContinuity.connected,'CONNECTED');
+  assert.equal(meterContinuity.blocked,'OPEN');
+  assert.match(meterContinuity.details,/not treated as a wire/);
+  console.log('PASS: continuity follows direct wires, not resistors');
+  const meterCurrent=await evaluate("(()=>{const mode=document.querySelector('#meter-mode');mode.value='current';mode.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('[data-part-id=R1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));return {reading:document.querySelector('#meter-readout').textContent,part:document.querySelector('#meter-probes').textContent}})()");
+  assert.equal(meterCurrent.reading,'4.500 mA');
+  assert.equal(meterCurrent.part,'Part R1');
+  console.log('PASS: current tool inspects signed resistor branch current');
+  const meterOpenSwitch=await evaluate("(()=>{const p=document.querySelector('#wiring-preset');p.value='switch';p.dispatchEvent(new Event('change',{bubbles:true}));const mode=document.querySelector('#meter-mode');mode.value='voltage';mode.dispatchEvent(new Event('change',{bubbles:true}));for(const t of ['S1:a','S1:b'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));const before=document.querySelector('#meter-readout').textContent;document.querySelector('[data-part-id=S1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#wiring-toggle-switch').click();return {before,after:document.querySelector('#meter-readout').textContent}})()");
+  assert.equal(meterOpenSwitch.before,'9.000 V');
+  assert.equal(meterOpenSwitch.after,'0.000 V');
+  console.log('PASS: voltage across an open switch falls when closed');
+  const meterFloating=await evaluate("(()=>{const p=document.querySelector('#wiring-preset');p.value='open';p.dispatchEvent(new Event('change',{bubbles:true}));const mode=document.querySelector('#meter-mode');mode.value='voltage';mode.dispatchEvent(new Event('change',{bubbles:true}));for(const t of ['R1:a','GND'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));return {reading:document.querySelector('#meter-readout').textContent,details:document.querySelector('#meter-details').textContent}})()");
+  assert.equal(meterFloating.reading,'—');
+  assert.match(meterFloating.details,/floating/i);
+  console.log('PASS: electrically floating probes show unavailable, not invented zero');
+  const meterLed=await evaluate("(()=>{const p=document.querySelector('#wiring-preset');p.value='led';p.dispatchEvent(new Event('change',{bubbles:true}));const mode=document.querySelector('#meter-mode');mode.value='voltage';mode.dispatchEvent(new Event('change',{bubbles:true}));for(const t of ['D1:a','D1:b'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));const voltage=document.querySelector('#meter-readout').textContent;mode.value='current';mode.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('[data-part-id=D1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));return {voltage,current:document.querySelector('#meter-readout').textContent}})()");
+  assert.equal(meterLed.voltage,'2.171 V');
+  assert.equal(meterLed.current,'8.571 mA');
+  console.log('PASS: diode-aware solver drives voltage and current measurements');
   assert.deepEqual(exceptions,[]);
   console.log('PASS: no uncaught browser JavaScript exceptions');
 } finally {
