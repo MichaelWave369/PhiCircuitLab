@@ -38,3 +38,7 @@ The LED Wiring Studio approximates three LED colors using fixed forward threshol
 ## v0.6 multimeter and continuity-tracing safety
 
 The virtual meter is mathematical instrumentation, not a calibrated multimeter. Its continuity setting only traces ideal 0 Ω wires and closed switches and conceptually ignores the power source; it is not a physical resistance measurement. Never measure continuity on an energized physical circuit. A real ammeter is normally inserted in series, not placed across a supply; the app's current tool is a non-invasive solver readout. Check physical meter/probe ratings, discharge stored energy, and work only with safe low-voltage current-limited setups for beginner experiments.
+
+## v0.7 Challenge Academy safety
+
+Challenge Academy includes deliberately faulty *virtual* circuits: open wires, reversed LEDs, overcurrent conditions and direct ideal source shorts. These scenarios are intentionally simulated to teach fault recognition. Never reproduce the short, overcurrent or reverse-bias cases on physical supplies or devices. The in-app scores are educational and do not certify anyone as qualified to perform electrical work. Repair grading uses simplified DC models, not component datasheets, fuse limits, physical current limits or laboratory measurements.
