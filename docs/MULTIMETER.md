@@ -101,3 +101,7 @@ For physical experiments:
 - Verify correct measurement range, safe probe connections, meter ratings and component specifications.
 
 See [Safety](SAFETY.md) and [Wiring Lab Field Manual](WIRING-LAB.md).
+
+## Mystery mode
+
+The [Mystery Circuit Diagnostics](MYSTERY.md) course uses the same measurement concepts with *hidden* starting wiring. Students have access to terminal labels and calculated values only until they have recorded enough evidence and committed a diagnosis. The simulated continuity tracer remains a power-off educational concept; a shorted source never returns invented numeric fault current.
