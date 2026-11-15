@@ -335,3 +335,7 @@ Use the [safety guide](SAFETY.md) before any physical construction.
 ## Bonus practice: Learn to measure before you build
 
 Use the integrated **Wiring Lab → Virtual Multimeter** to verify voltage drops, spot floating terminals, and trace open wires. The [multimeter field workbook](MULTIMETER.md) contains five no-hardware diagnostic exercises. Voltage probes are ideal non-loading calculations; wire continuity is not a real ohmmeter, and current inspection is not a physical series ammeter.
+
+## Practice course: Circuit Challenge Academy
+
+The nine-mission [Circuit Challenge Academy](ACADEMY.md) provides seeded troubleshooting after the core labs. Predict a fault, use the embedded Wiring Lab and virtual meter to diagnose it, and submit a modeled repair. The final mission has two distinct faults. Progress and scores are locally stored separately from free-build circuits.
