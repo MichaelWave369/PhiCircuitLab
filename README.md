@@ -4,8 +4,9 @@
 
 A free, open-source virtual electronics academy from PHI369 Labs. Begin with no physical components, no paid subscriptions, and no account.
 
-## What works in v0.9
+## What works in v1.0
 
+- **Virtual Electronics Workstation**: twelve named offline projects, each with its own DC circuit, independent RC oscilloscope settings and measurement notebook, plus import/export of versioned JSON backups.
 - **Nine guided modules** covering electricity, components, digital logic, embedded systems, communication, PCB design, and a Node-01 capstone.
 - **Six interactive learning benches**: Ohm's law, LEDs, series/parallel networks, voltage dividers (including loads), RC timing, and six Boolean logic gates.
 - **Wiring Sandbox**: drag and arrange up to eight resistors, four ideal switches and three direction-sensitive LEDs, click to connect terminals, and inspect calculated voltage/current/power. Includes shorts, floating parts, reverse LEDs and missing current-limiting warnings.
@@ -71,6 +72,7 @@ Once the feature branch has been merged to `main`, open repository **Settings â†
 - [Circuit Challenge Academy: nine scored fault-finding missions](docs/ACADEMY.md)
 - [Mystery Circuit Diagnostics: eight hidden-fault cases](docs/MYSTERY.md)
 - [Virtual Oscilloscope: first-order RC time-domain laboratory](docs/OSCILLOSCOPE.md)
+- [v1.0 Virtual Electronics Workstation: project portfolio and laboratory notebook](docs/WORKSTATION.md)
 
 ## Wiring Sandbox
 
@@ -91,6 +93,10 @@ Open **Mystery Diagnostics** from navigation or the Home shortcut. Before you ca
 ## Virtual Oscilloscope and RC Signal Lab
 
 Open **Oscilloscope** from the navigation or **Open Oscilloscope** on Home. Adjust an ideal resistor/capacitor, source amplitude and initial voltage; observe charging, discharging, voltage pulses and periodic square waves over time with dual measurement cursors. The physics uses exact first-order solutions across every source transition, not fake animation. Save 501 trace samples as a local CSV. This is a **specialized** RC station, not full SPICE nor capacitors inside the Wiring Lab topology solver. See the [scope workbook](docs/OSCILLOSCOPE.md).
+
+## Virtual Electronics Workstation v1.0
+
+Use **Project Workstation** in the top navigation to keep a DC wiring design, an independent RC scope experiment, and typed evidence together in one named project. Create or duplicate projects, capture actual virtual meter and scope readings into a private notebook, and export/import portable JSON backups. Project data never overwrites free-build designs or game progress. This is an integrated **workflow**, not a claim that both electrical models share one SPICE circuit. See the [Workstation manual](docs/WORKSTATION.md).
 
 ## Continue learning for free
 

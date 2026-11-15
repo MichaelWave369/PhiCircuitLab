@@ -135,18 +135,25 @@ function svgWaveform(trace,cursors,showResistor){
     safe(formatSeconds(trace.durationSeconds))+'</text>';
 }
 
-export function mountScopeLab(root){
+export function mountScopeLab(root,options={}){
+  const {initialConfig=null,storageKey=STORAGE_KEY,
+    onConfigChange=null,onScopeSnapshot=null}=options;
   root.innerHTML=scopeLayout();
   let config={...DEFAULT_SCOPE_CONFIG};
-  try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(raw)config=validateScopeConfig(JSON.parse(raw));
-  }catch(_){/* Bad private storage must not crash the scope. */}
+  if(initialConfig)config=validateScopeConfig(initialConfig);
+  else if(storageKey!==null){
+    try{
+      const raw=localStorage.getItem(storageKey);
+      if(raw)config=validateScopeConfig(JSON.parse(raw));
+    }catch(_){/* Bad private storage must not crash the scope. */}
+  }
   const fields=Object.keys(DEFAULT_SCOPE_CONFIG);
   const selectors=Object.fromEntries(fields.map(key=>[key,root.querySelector('[data-scope="'+key+'"]')]));
   function persist(){
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(config));}
-    catch(_){/* Some browsers block local writes. */}
+    if(storageKey!==null){
+      try{localStorage.setItem(storageKey,JSON.stringify(config));}
+      catch(_){/* Some browsers block local writes. */}
+    }
   }
   function writeFields(){
     for(const key of fields)selectors[key].value=String(config[key]);
@@ -170,6 +177,18 @@ export function mountScopeLab(root){
     set('#scope-energy',(cursors.a.energyJ*1000).toFixed(4)+' mJ');
     set('#scope-notices',trace.notes.join(' '));
     persist();
+    if(typeof onConfigChange==='function')onConfigChange(validateScopeConfig(config));
+    if(typeof onScopeSnapshot==='function'){
+      onScopeSnapshot({
+        waveform:config.waveform,tauSeconds:trace.tauSeconds,
+        cursorATimeSeconds:cursors.a.timeSeconds,
+        cursorBTimeSeconds:cursors.b.timeSeconds,
+        capacitorA:cursors.a.capacitorV,capacitorB:cursors.b.capacitorV,
+        sourceA:cursors.a.sourceV,currentA:cursors.a.currentA,
+        deltaTimeSeconds:cursors.deltaTimeSeconds,
+        deltaCapacitorV:cursors.deltaCapacitorV
+      });
+    }
   }
   writeFields();
   root.querySelector('#scope-example').value='custom';
