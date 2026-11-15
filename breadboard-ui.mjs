@@ -25,7 +25,7 @@ const panel=()=>'<section class="bb-header"><span class="eyebrow">Φ CIRCUIT LAB
   'the center trench, and P/N rails run separately. Nothing is powered until you connect source jacks with jumpers.</p></section>'+
   '<section class="panel bb-toolbar" aria-label="Breadboard tools and starter circuits">'+
   '<div class="bb-toolbar-primary"><label>Starter circuit<select id="bb-example" class="lab-select">'+
-  '<option value="led">LED + limiting resistor</option><option value="resistor">Single resistor</option>'+
+  '<option value="">Current saved breadboard</option><option value="led">LED + limiting resistor</option><option value="resistor">Single resistor</option>'+
   '<option value="parallel">Parallel resistors</option><option value="switch">Switch + resistor</option>'+
   '<option value="reverse-led">Backwards LED diagnosis</option>'+
   '<option value="blank">Blank breadboard</option></select></label>'+
@@ -163,9 +163,9 @@ export function mountBreadboardLab(root){
   const say=text=>{message=text;};
   function mutate(fn,feedback){
     try{
-      const next=fn(doc);
+      const next=validateBreadboard(fn(doc));
       history.push(JSON.stringify(doc));if(history.length>40)history.shift();
-      doc=validateBreadboard(next);
+      doc=next;
       if(feedback)say(feedback);
       pending=null;
     }catch(e){say('Action rejected: '+e.message);}
