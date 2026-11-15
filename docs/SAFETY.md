@@ -42,3 +42,7 @@ The virtual meter is mathematical instrumentation, not a calibrated multimeter. 
 ## v0.7 Challenge Academy safety
 
 Challenge Academy includes deliberately faulty *virtual* circuits: open wires, reversed LEDs, overcurrent conditions and direct ideal source shorts. These scenarios are intentionally simulated to teach fault recognition. Never reproduce the short, overcurrent or reverse-bias cases on physical supplies or devices. The in-app scores are educational and do not certify anyone as qualified to perform electrical work. Repair grading uses simplified DC models, not component datasheets, fuse limits, physical current limits or laboratory measurements.
+
+## v0.8 sealed diagnostic cases
+
+Mystery Circuit Diagnostics is a black-box exercise in reading simulated test points. A hidden schematic or solver status does not imply a physically enclosed or electrically insulated real device. Its ideal continuity mode is conceptual and must never be used as guidance to measure powered real hardware. Shorts and overcurrent cases are deliberately faulty virtual demonstrations only; never recreate them with real supplies, batteries or LED components. Diagnosis scores are educational feedback, not electrical safety certification.
