@@ -116,7 +116,10 @@ test('closed switch remains a component, not an unconditional jumper',()=>{
   const plan=planBreadboardFromCircuit(doc);
   assert.equal(plan.layout.switches[0].closed,true);
   assert.equal(plan.verification.equivalent,true);
-  assert.equal(listed(plan.layout,'E2','F2'),false);
+  assert.equal(listed(plan.layout,'E2','F2'),true);
+  const opened=clone(plan.layout);
+  opened.switches[0].closed=false;
+  assert.equal(listed(opened,'E2','F2'),false);
   const result=analyzeBreadboard(plan.layout).result;
   near(result.sourceCurrentA,.009);
 });
