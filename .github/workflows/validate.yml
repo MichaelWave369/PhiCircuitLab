@@ -35,6 +35,8 @@ jobs:
           node --check workstation-ui.mjs
           node --check breadboard-engine.mjs
           node --check breadboard-ui.mjs
+          node --check breadboard-bridge-engine.mjs
+          node --check breadboard-bridge-ui.mjs
           node --check wiring-lab.mjs
       - name: Run dependency-free model tests
         run: npm test
