@@ -4,9 +4,10 @@
 
 A free, open-source virtual electronics academy from PHI369 Labs. Begin with no physical components, no paid subscriptions, and no account.
 
-## What works in v1.0
+## What works in v1.1
 
 - **Virtual Electronics Workstation**: twelve named offline projects, each with its own DC circuit, independent RC oscilloscope settings and measurement notebook, plus import/export of versioned JSON backups.
+- **Virtual Breadboard and Component Library**: 12-column solderless training board with real A–E/F–J contact-strip isolation, unpowered independent P/N rails, placeable components/jumpers, DC solver results, contact probing, and validated JSON import/export.
 - **Nine guided modules** covering electricity, components, digital logic, embedded systems, communication, PCB design, and a Node-01 capstone.
 - **Six interactive learning benches**: Ohm's law, LEDs, series/parallel networks, voltage dividers (including loads), RC timing, and six Boolean logic gates.
 - **Wiring Sandbox**: drag and arrange up to eight resistors, four ideal switches and three direction-sensitive LEDs, click to connect terminals, and inspect calculated voltage/current/power. Includes shorts, floating parts, reverse LEDs and missing current-limiting warnings.
@@ -73,6 +74,7 @@ Once the feature branch has been merged to `main`, open repository **Settings �
 - [Mystery Circuit Diagnostics: eight hidden-fault cases](docs/MYSTERY.md)
 - [Virtual Oscilloscope: first-order RC time-domain laboratory](docs/OSCILLOSCOPE.md)
 - [v1.0 Virtual Electronics Workstation: project portfolio and laboratory notebook](docs/WORKSTATION.md)
+- [v1.1 Virtual Breadboard and Component Library](docs/BREADBOARD.md)
 
 ## Wiring Sandbox
 
@@ -97,6 +99,10 @@ Open **Oscilloscope** from the navigation or **Open Oscilloscope** on Home. Adju
 ## Virtual Electronics Workstation v1.0
 
 Use **Project Workstation** in the top navigation to keep a DC wiring design, an independent RC scope experiment, and typed evidence together in one named project. Create or duplicate projects, capture actual virtual meter and scope readings into a private notebook, and export/import portable JSON backups. Project data never overwrites free-build designs or game progress. This is an integrated **workflow**, not a claim that both electrical models share one SPICE circuit. See the [Workstation manual](docs/WORKSTATION.md).
+
+## Solderless Virtual Breadboard v1.1
+
+Open **Breadboard** from the navigation or **Build on Breadboard** on Home. Learn which holes share hidden metal strips, place resistors/switches/LEDs across the center trench, and wire a virtual source to independent power rails. Probe real calculated contact voltages and ideal-wire continuity, then export the board as JSON. **Send to Wiring Lab** asks for explicit confirmation before replacing the original free-build schematic save. The standalone Breadboard, Project Workstation and other learning modes maintain separate storage. See the [Breadboard workbook](docs/BREADBOARD.md).
 
 ## Continue learning for free
 

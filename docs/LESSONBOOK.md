@@ -351,3 +351,7 @@ The [Virtual Oscilloscope workbook](OSCILLOSCOPE.md) provides a specialized firs
 ## v1.0 capstone: Project Workstation
 
 Use the [Virtual Electronics Workstation manual](WORKSTATION.md) to organize one complete experiment. Build and test a DC circuit; capture a modeled meter reading. Run a separate RC scope experiment; record its cursor measurement. Write an explanation and export the resulting project portfolio as JSON. These two model types remain independent, but the shared notebook provides a complete lab record.
+
+## v1.1 hands-on solderless breadboard workshop
+
+Use the [Virtual Breadboard workbook](BREADBOARD.md) to learn actual contact topology: five holes per strip, a center-trench break, and separate power rails that need deliberate source-jack wires. Verify a 9 V/1 kΩ resistor, a current-limited LED, an open/closed switch, and the difference between modeled source current and direct copper continuity. A validated schematic can be sent to Wiring Lab only with explicit confirmation.
