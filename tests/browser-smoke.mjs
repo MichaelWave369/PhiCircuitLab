@@ -248,6 +248,45 @@ try {
   assert.equal(seedReset.score,'0 / 900');
   assert.deepEqual(JSON.parse(seedReset.free),JSON.parse(academyLoaded.freeBefore));
   console.log('PASS: replaying a deterministic seed resets only the Academy run');
+  // v0.8: Faults stay hidden until the learner collects unique
+  // observations and commits a diagnosis. Play all eight work orders.
+  const mysteryStart=await evaluate("(()=>{const free=JSON.parse(localStorage.getItem('phi-circuit-lab-wiring-v1'));const academy=JSON.parse(localStorage.getItem('phi-circuit-lab-academy-v1'));document.querySelector('[data-view=mystery]').click();return {title:document.querySelector('#app-content h1')?.textContent,cases:document.querySelectorAll('[data-mystery-index]').length,score:document.querySelector('#mystery-score')?.textContent,hidden:document.querySelector('#mystery-repair').children.length===0,free,academy}})()");
+  assert.equal(mysteryStart.title,'Mystery Circuit Diagnostics');
+  assert.equal(mysteryStart.cases,8);
+  assert.equal(mysteryStart.score,'0 / 800');
+  assert.equal(mysteryStart.hidden,true);
+  console.log('PASS: sealed mystery cases open with no visible schematic or exposed repair');
+  const mysteryChoices=['open','partial','switch','reverse','overcurrent','threshold','short','double'];
+  const mysteryRepairs=[
+    "for(const t of ['V+','R1:a'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}))",
+    "for(const t of ['R2:b','GND'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}))",
+    "document.querySelector('[data-part-id=S1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#wiring-toggle-switch').click()",
+    "document.querySelector('[data-part-id=D1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#wiring-flip-led').click()",
+    "document.querySelector('[data-part-id=R1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));const field=document.querySelector('#wiring-resistance');field.value='330';field.dispatchEvent(new Event('change',{bubbles:true}))",
+    "const range=document.querySelector('#wiring-supply');range.value='5';range.dispatchEvent(new Event('input',{bubbles:true}))",
+    "document.querySelector('[data-wire-index=\"3\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#wiring-delete').click()",
+    "document.querySelector('[data-part-id=S1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#wiring-toggle-switch').click();for(const t of ['R1:b','GND'])document.querySelector('[data-terminal=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}))"
+  ];
+  for(let i=0;i<8;i++){
+    const r=await evaluate("(()=>{const slot=document.querySelector('[data-mystery-index=\""+i+"\"]');slot.click();const before=document.querySelector('#mystery-repair').children.length===0;const mode=document.querySelector('#mystery-mode');const measure=document.querySelector('#mystery-measure');const red=document.querySelector('#mystery-red');const black=document.querySelector('#mystery-black');mode.value='voltage';mode.dispatchEvent(new Event('change',{bubbles:true}));red.value='V+';black.value='GND';measure.click();mode.value='current';mode.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('#mystery-part').value='R1';measure.click();mode.value='continuity';mode.dispatchEvent(new Event('change',{bubbles:true}));red.value='R1:a';black.value='R1:b';measure.click();const notebook=document.querySelectorAll('#mystery-notebook li').length;const choice=document.querySelector('#mystery-choice');choice.value="+JSON.stringify(mysteryChoices[i])+";choice.dispatchEvent(new Event('change',{bubbles:true}));const lockedBefore=document.querySelector('#mystery-lock').disabled;document.querySelector('#mystery-lock').click();const revealed=!!document.querySelector('#mystery-repair #wiring-canvas');"+mysteryRepairs[i]+";document.querySelector('#mystery-check').click();return {before,notebook,lockedBefore,revealed,feedback:document.querySelector('#mystery-feedback').textContent,score:document.querySelector('#mystery-score').textContent,cleared:document.querySelector('#mystery-cleared').textContent}})()");
+    assert.equal(r.before,true,'Case '+i+' leaked a schematic');
+    assert.equal(r.notebook,3,'Case '+i+' did not collect 3 measurements');
+    assert.equal(r.lockedBefore,false,'Case '+i+' cannot submit diagnosis');
+    assert.equal(r.revealed,true,'Case '+i+' not revealed after diagnosis');
+    assert.match(r.feedback,/CASE CLEARED/,'Case '+i+' failed: '+JSON.stringify(r));
+    assert.equal(r.score,(i+1)*100+' / 800','Case '+i+' score: '+JSON.stringify(r));
+    assert.equal(r.cleared,(i+1)+' / 8','Case '+i+' cleared: '+JSON.stringify(r));
+    console.log('PASS: mystery case '+(i+1)+' measured, diagnosed and repaired through real controls');
+  }
+  const mysteryPersistence=await evaluate("(()=>{const saved=JSON.parse(localStorage.getItem('phi-circuit-lab-mystery-v1'));document.querySelector('[data-view=builder]').click();const free=JSON.parse(localStorage.getItem('phi-circuit-lab-wiring-v1'));document.querySelector('[data-view=academy]').click();const academy=JSON.parse(localStorage.getItem('phi-circuit-lab-academy-v1'));document.querySelector('[data-view=mystery]').click();return {score:document.querySelector('#mystery-score').textContent,runBefore:saved,runAfter:JSON.parse(localStorage.getItem('phi-circuit-lab-mystery-v1')),free,academy}})()");
+  assert.equal(mysteryPersistence.score,'800 / 800');
+  assert.deepEqual(mysteryPersistence.free,mysteryStart.free);
+  assert.deepEqual(mysteryPersistence.academy,mysteryStart.academy);
+  assert.deepEqual(mysteryPersistence.runAfter,mysteryPersistence.runBefore);
+  console.log('PASS: mystery scores survive navigation and are isolated from both existing workspaces');
+  const mysterySeed=await evaluate("(()=>{window.confirm=()=>true;const seed=document.querySelector('#mystery-seed-input');seed.value='369';document.querySelector('#mystery-seed-load').click();return {seed:document.querySelector('#mystery-seed').textContent,score:document.querySelector('#mystery-score').textContent,hidden:document.querySelector('#mystery-repair').children.length===0}})()");
+  assert.deepEqual(mysterySeed,{seed:'369',score:'0 / 800',hidden:true});
+  console.log('PASS: mystery seed replay starts fresh and keeps all circuits sealed');
   assert.deepEqual(exceptions,[]);
   console.log('PASS: no uncaught browser JavaScript exceptions');
 } finally {

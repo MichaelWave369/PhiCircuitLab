@@ -110,3 +110,41 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-
 .academy-footnote{margin:1rem 0 1.4rem}
 @media(max-width:900px){.academy-missions{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.academy-missions{grid-template-columns:1fr}.academy-actions label{width:100%}.academy-actions input{flex:1}.academy-predict select{min-width:0;width:100%}.academy-controls .button{min-width:120px}}
+
+
+/* v0.8 sealed diagnostics: accessible test-point selection and evidence notebook */
+.mystery-header{margin-bottom:1rem}
+.mystery-header h1{margin:.2rem 0 .55rem}
+.mystery-header p{max-width:75ch}
+.mystery-cases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;margin:1rem 0 1.2rem}
+.mystery-case{text-align:left;display:grid;gap:.2rem;min-width:0;padding:.75rem .8rem;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text)}
+.mystery-case small{color:var(--cyan);font-weight:700}
+.mystery-case strong{font-size:.86rem;line-height:1.35}
+.mystery-case span{font-size:.77rem;color:var(--muted)}
+.mystery-case.active,.mystery-case:focus-visible{border-color:var(--cyan);box-shadow:inset 0 0 0 1px var(--cyan)}
+.mystery-workorder{border:1px solid #3b5d7f;background:linear-gradient(135deg,#172943,#102135)}
+.mystery-workorder h2{margin:.5rem 0}
+.mystery-meter{margin:1rem 0}
+.mystery-meter>label{display:grid;gap:.4rem;max-width:440px}
+.mystery-probe-row{display:flex;gap:.8rem;flex-wrap:wrap;margin:.75rem 0}
+.mystery-probe-row label{flex:1;min-width:220px;display:grid;gap:.35rem}
+#mystery-part-label{display:grid;gap:.35rem;max-width:440px;margin:.75rem 0}
+#mystery-part-label[hidden],.mystery-probe-row[hidden],.mystery-hint[hidden]{display:none!important}
+.mystery-controls{display:flex;gap:.65rem;flex-wrap:wrap;margin:.8rem 0}
+.mystery-raw{background:#091e27;border:1px solid #466f70;padding:.8rem 1rem;border-radius:11px;margin:.8rem 0}
+.mystery-raw span{display:block}
+.mystery-raw strong{display:block;color:#99f4cc;font:700 clamp(1.5rem,3.6vw,2.4rem)/1.35 ui-monospace,SFMono-Regular,Consolas,monospace}
+.mystery-notebook{display:grid;gap:.45rem;padding-left:1.7rem;max-height:360px;overflow-y:auto}
+.mystery-notebook li{padding:.45rem .6rem;border-bottom:1px solid var(--line)}
+.mystery-notebook li small{display:block;color:var(--muted)}
+.mystery-reading{display:inline-block;margin-left:.7rem;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#99f4cc;font-weight:700}
+.mystery-diagnosis{margin:1rem 0}
+.mystery-diagnosis .academy-predict{align-items:end}
+.mystery-hint{padding:.65rem .85rem;border-left:3px solid var(--amber);background:#31291e;color:#ffe6ac;margin:.6rem 0}
+.mystery-repair{margin-top:1.4rem}
+.mystery-repair .academy-hidden-control{display:none!important}
+.mystery-repair h1{font-size:clamp(1.35rem,2.5vw,2rem)}
+.mystery-repair>.eyebrow{display:none}
+.mystery-footnote{margin:1rem 0}
+@media(max-width:960px){.mystery-cases{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.mystery-cases{grid-template-columns:1fr}.mystery-probe-row{display:grid}.mystery-probe-row label{min-width:0}.mystery-controls .button{flex:1}}

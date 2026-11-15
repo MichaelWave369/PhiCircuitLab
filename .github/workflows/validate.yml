@@ -27,6 +27,8 @@ jobs:
           node --check wiring-meter.mjs
           node --check academy-engine.mjs
           node --check academy-ui.mjs
+          node --check mystery-engine.mjs
+          node --check mystery-ui.mjs
           node --check wiring-lab.mjs
       - name: Run dependency-free model tests
         run: npm test
