@@ -60,3 +60,14 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-
 #wiring-canvas .placed-led:active{cursor:grabbing}
 #wiring-canvas .placed-led:focus-visible circle{stroke:#fff;stroke-width:4}
 .wiring-state.wiring-unsolved{background:#3b2026;color:#ffabab;border-color:#a84d50}
+
+/* v0.6 virtual meter; high-contrast instrumentation stays readable on phones. */
+.meter-panel{margin:1rem 0;border:1px solid #3c6686;background:linear-gradient(120deg,#102437,#101c32)}
+.meter-header{display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap}
+.meter-header h2{margin-bottom:.15rem}
+.meter-header label{min-width:220px;max-width:340px;width:100%;font-size:.82rem;color:var(--muted)}
+.meter-results{display:grid;grid-template-columns:minmax(190px,.8fr) minmax(0,1.2fr);gap:1rem;align-items:center;margin:.75rem 0}
+.meter-digits{display:flex;align-items:center;min-height:76px;padding:.5rem .8rem;border-radius:10px;border:1px solid #50837c;background:#081b21;color:#9ef5cf;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:clamp(1.5rem,3.8vw,2.45rem);font-weight:700;letter-spacing:.025em;white-space:nowrap;overflow-x:auto}
+#meter-probes{display:block;overflow-wrap:anywhere;color:#d8eafa}
+.meter-shortcuts{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.4rem}
+@media(max-width:620px){.meter-results{grid-template-columns:1fr}.meter-header label{max-width:none}.meter-shortcuts .button{flex:1}}
