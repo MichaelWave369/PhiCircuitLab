@@ -97,7 +97,7 @@ try {
   await cdp('Runtime.enable',{},sessionId);
   async function evaluate(expression){
     const response=await cdp('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true},sessionId);
-    if(response.exceptionDetails)throw new Error('Browser exception: '+response.exceptionDetails.text);
+    if(response.exceptionDetails)throw new Error('Browser exception: '+(response.exceptionDetails.exception?.description||response.exceptionDetails.text)+'\nIn expression: '+expression.slice(0,1400));
     return response.result.value;
   }
   const initial=await evaluate("(async()=>{for(let n=0;n<60&&!document.querySelector('#app-content h1');n++)await new Promise(r=>setTimeout(r,50));return {title:document.querySelector('#app-content h1')?.textContent,hasBuilder:!!document.querySelector('[data-view=builder]')}})()");
