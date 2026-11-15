@@ -91,8 +91,15 @@ function sampler(cfg,edges){
 }
 export function scopeSampleAt(input,timeSeconds){
   const cfg=validateScopeConfig(input),duration=scopeTauSeconds(cfg)*cfg.windowTau;
-  finiteBetween(timeSeconds,0,duration,'Probe time');
-  return sampler(cfg,sourceEdges(cfg))(timeSeconds);
+  // Decimal times like 0.2 s may exceed a floating-point-computed
+  // 0.19999999999999998 s window by one rounding bit. Accept only an
+  // extremely small boundary tolerance; reject genuine out-of-range probes.
+  const tolerance=1e-12*Math.max(1,duration);
+  if(typeof timeSeconds!=='number'||!Number.isFinite(timeSeconds)||
+     timeSeconds < -tolerance||timeSeconds > duration+tolerance)
+    throw new RangeError('Probe time must fall within the scope window');
+  const bounded=Math.max(0,Math.min(duration,timeSeconds));
+  return sampler(cfg,sourceEdges(cfg))(bounded);
 }
 export function simulateScope(input){
   const config=validateScopeConfig(input);
