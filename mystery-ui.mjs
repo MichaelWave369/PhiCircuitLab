@@ -78,6 +78,11 @@ function terminalOptions(names){
   return names.map(name=>'<option value="'+h(name)+'">'+h(name)+'</option>').join('');
 }
 export function mountMysteryDiagnostics(root){
+  // The top-level app reuses the same root when changing routes. Tear down
+  // listeners from prior visits so returning cannot double-grade or reset.
+  root.__mysteryCleanup?.();
+  const controller=new AbortController();
+  root.__mysteryCleanup=()=>controller.abort();
   let run=readRun()||emptyRun(makeSeed());
   writeRun(run);
   let activeCircuit=null,caseData=null;
@@ -214,7 +219,7 @@ export function mountMysteryDiagnostics(root){
       rec.choice=DIAGNOSES.some(d=>d.id===e.target.value)?e.target.value:'';
       writeRun(run);
     }
-  });
+  },{signal:controller.signal});
   root.addEventListener('click',e=>{
     const caseBtn=e.target.closest('[data-mystery-index]');
     if(caseBtn){
@@ -290,6 +295,6 @@ export function mountMysteryDiagnostics(root){
       if(!window.confirm('Start a new Mystery run? This resets only Mystery cases and scores.'))return;
       run=emptyRun(next);writeRun(run);display();
     }
-  });
+  },{signal:controller.signal});
   display();
 }
