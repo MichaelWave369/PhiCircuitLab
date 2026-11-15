@@ -147,6 +147,14 @@ function svgBoard(doc,analysis,selected,pending,tool){
   return base+wires+comps+holes+jacks;
 }
 
+/** Static placement preview: uses the same component and contact geometry as
+ * the editable breadboard, but cannot change circuit data. */
+export function renderBreadboardPreview(layout){
+  const doc=validateBreadboard(layout);
+  return svgBoard(doc,analyzeBreadboard(doc),null,null,'select')
+    .replaceAll('role="button"','role="presentation"')
+    .replaceAll('tabindex="0"','tabindex="-1"');
+}
 export function mountBreadboardLab(root){
   root.innerHTML=panel();
   let doc,loaded=false;
