@@ -115,3 +115,7 @@ See [Wiring Lab](WIRING-LAB.md), [Virtual Multimeter](MULTIMETER.md), [Safety](S
 ## Follow-on milestone
 
 The next logical step is a **schematic-to-breadboard teaching bridge**, with explicit mapping of a safe, supported circuit to physical hole placements. This must have a verified placement/routing algorithm and should not guess that all circuits can be mapped onto a miniature training board.
+
+## v1.2: Build from a verified schematic
+
+The [Schematic-to-Breadboard Bridge](SCHEMATIC-BRIDGE.md) creates deterministic component and jumper placement instructions from supported saved Wiring Lab or active Workstation DC schematics. It displays a read-only preview and checks each named terminal's exact net relationships plus modeled electrical behavior. Only a confirmed transfer replaces the existing Breadboard save. Source circuits are not overwritten, and circuits containing ideal source shorts or more than 12 components are refused.
