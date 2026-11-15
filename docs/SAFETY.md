@@ -50,3 +50,7 @@ Mystery Circuit Diagnostics is a black-box exercise in reading simulated test po
 ## v0.9 oscilloscope safety and model boundaries
 
 The Virtual Oscilloscope plots a mathematical model of one ideal R-C low-pass circuit, not electrical measurements of physical hardware. Real oscilloscopes often use earth-ground-referenced probe clips; incorrect clipping can short dangerous voltages. Never connect a beginner scope probe to household mains, high-voltage circuits, unknown chargers or other high-energy systems. Real input loading, grounding, calibration, sampling and component tolerances are not modeled. Use appropriately current-limited low-voltage training setups with expert guidance if moving to physical electronics.
+
+## v1.0 project workstation safety and persistence
+
+The Workstation groups educational models into an offline project, without turning the DC Wiring Lab and RC Oscilloscope into one physical simulator. Neither tool replaces rated equipment, verified schematics or professional electrical safety practices. Never assume a simulated short or overcurrent reading predicts physical fault energy. Save work using Export projects JSON before clearing local browser data; notebook and circuit records are stored locally and are not encrypted at rest.
