@@ -11,7 +11,7 @@ export const WORKSTATION_STORAGE_KEY='phi-circuit-lab-workstation-v1';
 export const MAX_WORKSTATION_PROJECTS=12;
 export const MAX_WORKSTATION_NOTES=60;
 export const MAX_WORKSTATION_NOTE_CHARS=500;
-export const MAX_WORKSTATION_IMPORT_BYTES=150000;
+export const MAX_WORKSTATION_IMPORT_BYTES=750000;
 const MAX_PROJECT_NAME_CHARS=60;
 const OWN=(object,key)=>Object.prototype.hasOwnProperty.call(object,key);
 const copy=x=>JSON.parse(JSON.stringify(x));
@@ -175,6 +175,6 @@ export function exportWorkstationBundle(library){
 }
 export function importWorkstationBundle(text){
   if(typeof text!=='string'||text.length>MAX_WORKSTATION_IMPORT_BYTES)
-    throw new RangeError('Workstation bundle exceeds the import limit');
+    throw new RangeError('Workstation bundle exceeds the 750 KB import limit');
   return validateWorkstationLibrary(JSON.parse(text));
 }
