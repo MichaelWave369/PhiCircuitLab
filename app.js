@@ -3,6 +3,7 @@ import { isAdvancedLab, advancedBenchMarkup, updateAdvancedBench } from './advan
 import { mountWiringLab } from './wiring-lab.mjs';
 import { mountChallengeAcademy } from './academy-ui.mjs';
 import { mountMysteryDiagnostics } from './mystery-ui.mjs';
+import { mountScopeLab } from './scope-ui.mjs';
 
 // Curated original classroom content. A quiz unlocks completion only when all answers are correct.
 const lessons = [
@@ -198,7 +199,8 @@ function renderHome() {
     '</button><button class="button" data-view="workbench">Open the Workbench</button>' +
     '<button class="button" data-view="builder">Enter Wiring Lab</button>' +
     '<button class="button" data-view="academy">Play Challenge Academy</button>' +
-    '<button class="button" data-view="mystery">Solve Mystery Circuits</button></div></section>' +
+    '<button class="button" data-view="mystery">Solve Mystery Circuits</button>' +
+    '<button class="button" data-view="scope">Open Oscilloscope</button></div></section>' +
     '<div class="section-heading"><h2>Learning modules</h2><span class="muted">' + completed.size + ' of 9 complete</span></div>' +
     '<div class="grid">' + lessons.map((l,i) => '<button type="button" class="card clickable" data-lesson="' + i + '" style="text-align:left;color:inherit">' +
     '<span class="chip">MODULE ' + String(i+1).padStart(2,'0') + (completed.has(i) ? ' • COMPLETE' : '') +
@@ -362,6 +364,7 @@ function render() {
   else if (state.view === 'builder') mountWiringLab(root);
   else if (state.view === 'academy') mountChallengeAcademy(root);
   else if (state.view === 'mystery') mountMysteryDiagnostics(root);
+  else if (state.view === 'scope') mountScopeLab(root);
   else if (state.view === 'textbook') renderTextbook();
   else if (state.view === 'progress') renderProgress();
 }
