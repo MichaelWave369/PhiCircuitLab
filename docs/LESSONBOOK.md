@@ -331,3 +331,7 @@ Which assumptions remain unverified? What can be simulated? What needs a datashe
 - [Wokwi](https://wokwi.com/)
 
 Use the [safety guide](SAFETY.md) before any physical construction.
+
+## Bonus practice: Learn to measure before you build
+
+Use the integrated **Wiring Lab → Virtual Multimeter** to verify voltage drops, spot floating terminals, and trace open wires. The [multimeter field workbook](MULTIMETER.md) contains five no-hardware diagnostic exercises. Voltage probes are ideal non-loading calculations; wire continuity is not a real ohmmeter, and current inspection is not a physical series ammeter.
