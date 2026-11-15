@@ -379,6 +379,19 @@ try {
   assert.equal(wsPersistence.projects,2);
   assert.deepEqual(wsPersistence.external,wsStart.prior);
   console.log('PASS: workstation survives navigation without touching legacy projects or saved scores');
+  const wsImportGood=await evaluate("(async()=>{const incoming=JSON.parse(localStorage.getItem('phi-circuit-lab-workstation-v1'));incoming.projects[0].name='Restored from JSON';const file=new File([JSON.stringify(incoming)],'portfolio.json',{type:'application/json'});const input=document.querySelector('#ws-import');Object.defineProperty(input,'files',{configurable:true,value:[file]});window.confirm=()=>true;input.dispatchEvent(new Event('change',{bubbles:true}));for(let i=0;i<40&&document.querySelector('#ws-project-name')?.value!=='Restored from JSON';i++)await new Promise(resolve=>setTimeout(resolve,10));return {name:document.querySelector('#ws-project-name')?.value,count:document.querySelectorAll('#ws-project-select option').length,status:document.querySelector('#ws-status').textContent,version:JSON.parse(localStorage.getItem('phi-circuit-lab-workstation-v1')).version}})()");
+  assert.equal(wsImportGood.name,'Restored from JSON');
+  assert.equal(wsImportGood.count,2);
+  assert.equal(wsImportGood.version,1);
+  assert.match(wsImportGood.status,/Imported a validated/);
+  console.log('PASS: valid versioned project JSON imports through browser controls');
+  const wsImportBad=await evaluate("(async()=>{const saved=localStorage.getItem('phi-circuit-lab-workstation-v1');const incoming=JSON.parse(saved);incoming.version=99;const file=new File([JSON.stringify(incoming)],'wrong-version.json',{type:'application/json'});const input=document.querySelector('#ws-import');Object.defineProperty(input,'files',{configurable:true,value:[file]});input.dispatchEvent(new Event('change',{bubbles:true}));for(let i=0;i<40&&!document.querySelector('#ws-status').textContent.includes('Import rejected');i++)await new Promise(resolve=>setTimeout(resolve,10));return {unchanged:localStorage.getItem('phi-circuit-lab-workstation-v1')===saved,status:document.querySelector('#ws-status').textContent}})()");
+  assert.equal(wsImportBad.unchanged,true);
+  assert.match(wsImportBad.status,/Import rejected/);
+  const wsBackup=await evaluate("(()=>{document.querySelector('#ws-export').click();return {status:document.querySelector('#ws-status').textContent,free:JSON.parse(localStorage.getItem('phi-circuit-lab-wiring-v1')),academy:JSON.parse(localStorage.getItem('phi-circuit-lab-academy-v1')),mystery:JSON.parse(localStorage.getItem('phi-circuit-lab-mystery-v1')),scope:JSON.parse(localStorage.getItem('phi-circuit-lab-scope-v1'))}})()");
+  assert.match(wsBackup.status,/Downloaded a validated/);
+  assert.deepEqual({free:wsBackup.free,academy:wsBackup.academy,mystery:wsBackup.mystery,scope:wsBackup.scope},wsStart.prior);
+  console.log('PASS: export control, rejected malformed imports and legacy save isolation');
   assert.deepEqual(exceptions,[]);
   console.log('PASS: no uncaught browser JavaScript exceptions');
 } finally {
