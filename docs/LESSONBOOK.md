@@ -339,3 +339,7 @@ Use the integrated **Wiring Lab → Virtual Multimeter** to verify voltage drops
 ## Practice course: Circuit Challenge Academy
 
 The nine-mission [Circuit Challenge Academy](ACADEMY.md) provides seeded troubleshooting after the core labs. Predict a fault, use the embedded Wiring Lab and virtual meter to diagnose it, and submit a modeled repair. The final mission has two distinct faults. Progress and scores are locally stored separately from free-build circuits.
+
+## Advanced practice: Mystery Circuit Diagnostics
+
+Complete the [Mystery Diagnostics workbook](MYSTERY.md) for eight sealed service cases. The initial faulty wiring is withheld: gather two distinct virtual meter observations, lock a diagnosis, then reveal and repair the circuit. This combines voltage polarity, ideal-wire continuity, branch currents, open networks and short detection without physical equipment or paid services.
