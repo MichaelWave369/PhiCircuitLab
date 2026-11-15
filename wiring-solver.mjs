@@ -186,6 +186,7 @@ export function solveCircuit(document) {
   }));
   if(source===ground){
     return {status:'short',sourceCurrentA:null,equivalentOhms:null,parts:blank,
+      terminalVoltages:Object.fromEntries(terminals.map(t=>[t,null])),
       leds:[],switches:switchResults(),nodeVoltages:{},
       notices:['Ideal short: wires and/or closed switches join V+ directly to GND. Break that path before calculating current.']};
   }
@@ -264,7 +265,10 @@ export function solveCircuit(document) {
   if(parts.some(p=>p.state==='inactive')&&powered)notices.push('Some components draw no DC current. They may be in dangling branches.');
   if(parts.some(p=>p.powerW!==null&&p.powerW>.25))notices.push('One or more resistors exceed 0.25 W in this model. Real part ratings vary.');
   const nodeVoltages=Object.fromEntries([...voltages.entries()]);
+  // The original nodeVoltages map is keyed by union-find representatives.
+  // Publish named-terminal readings separately for non-invasive meter probes.
+  const terminalVoltages=Object.fromEntries(terminals.map(t=>[t,voltages.get(find(t))??null]));
   return {status:powered?'ok':'open',sourceCurrentA,equivalentOhms:
     powered&&sourceCurrentA>1e-12&&doc.supplyV>0?doc.supplyV/sourceCurrentA:null,
-    parts,leds:[],switches:switchResults(),nodeVoltages,notices};
+    parts,leds:[],switches:switchResults(),nodeVoltages,terminalVoltages,notices};
 }
