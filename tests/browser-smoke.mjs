@@ -395,10 +395,11 @@ try {
   // v1.1: prove the miniature solderless breadboard uses the actual
   // electrical solver, enforces copper-strip boundaries and never silently
   // overwrites the original free-build circuit.
-  const bbBegin=await evaluate("(()=>{const free=JSON.parse(localStorage.getItem('phi-circuit-lab-wiring-v1'));const workstation=JSON.parse(localStorage.getItem('phi-circuit-lab-workstation-v1'));const academy=JSON.parse(localStorage.getItem('phi-circuit-lab-academy-v1'));document.querySelector('[data-view=breadboard]').click();return {title:document.querySelector('#app-content h1')?.textContent,holes:document.querySelectorAll('#bb-canvas [data-bb-contact]').length,status:document.querySelector('#bb-status')?.textContent,current:document.querySelector('#bb-current')?.textContent,free,workstation,academy}})()");
+  const bbBegin=await evaluate("(()=>{const free=JSON.parse(localStorage.getItem('phi-circuit-lab-wiring-v1'));const workstation=JSON.parse(localStorage.getItem('phi-circuit-lab-workstation-v1'));const academy=JSON.parse(localStorage.getItem('phi-circuit-lab-academy-v1'));document.querySelector('[data-view=breadboard]').click();return {title:document.querySelector('#app-content h1')?.textContent,holes:document.querySelectorAll('#bb-canvas [data-bb-contact]').length,status:document.querySelector('#bb-status')?.textContent,current:document.querySelector('#bb-current')?.textContent,lit:document.querySelectorAll('[data-bb-part][data-bb-lit=yes]').length,free,workstation,academy}})()");
   assert.equal(bbBegin.title,'Virtual Breadboard & Component Library');
   assert.equal(bbBegin.holes,146);
   assert.equal(bbBegin.status,'Connected circuit');
+  assert.equal(bbBegin.lit,1);
   assert.match(bbBegin.current,/mA$/);
   console.log('PASS: physical breadboard route loads powered LED, 144 holes and two supply jacks');
   const bbCopper=await evaluate("(()=>{const select=document.querySelector('#bb-tool');select.value='continuity';select.dispatchEvent(new Event('change',{bubbles:true}));const tap=t=>document.querySelector('[data-bb-contact=\"'+t+'\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));tap('A3');tap('E3');const same=document.querySelector('#bb-meter-readout').textContent;tap('E3');tap('F3');const trench=document.querySelector('#bb-meter-readout').textContent;tap('P1');tap('P12');const rail=document.querySelector('#bb-meter-readout').textContent;tap('P1');tap('N1');const isolated=document.querySelector('#bb-meter-readout').textContent;return {same,trench,rail,isolated}})()");
@@ -411,8 +412,10 @@ try {
   assert.notEqual(bbResistor.before,bbResistor.after);
   assert.equal(bbResistor.ohms,1000);
   console.log('PASS: virtual contact voltage and physical resistor editing update modeled LED current');
-  const bbReverse=await evaluate("(()=>{window.confirm=()=>true;const e=document.querySelector('#bb-example');e.value='reverse-led';e.dispatchEvent(new Event('change',{bubbles:true}));const before=document.querySelector('#bb-current').textContent;document.querySelector('[data-bb-part=D1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#bb-flip').click();return {before,after:document.querySelector('#bb-current').textContent,led:JSON.parse(localStorage.getItem('phi-circuit-lab-breadboard-v1')).leds[0]}})()");
+  const bbReverse=await evaluate("(()=>{window.confirm=()=>true;const e=document.querySelector('#bb-example');e.value='reverse-led';e.dispatchEvent(new Event('change',{bubbles:true}));const before=document.querySelector('#bb-current').textContent;const beforeLit=document.querySelector('[data-bb-part=D1]').dataset.bbLit;document.querySelector('[data-bb-part=D1]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#bb-flip').click();return {before,beforeLit,afterLit:document.querySelector('[data-bb-part=D1]').dataset.bbLit,after:document.querySelector('#bb-current').textContent,led:JSON.parse(localStorage.getItem('phi-circuit-lab-breadboard-v1')).leds[0]}})()");
   assert.equal(bbReverse.before,'0.000 mA');
+  assert.equal(bbReverse.beforeLit,'no');
+  assert.equal(bbReverse.afterLit,'yes');
   assert.notEqual(bbReverse.after,'0.000 mA');
   assert.equal(bbReverse.led.a,'E5');
   console.log('PASS: physically reversing an LED changes real diode-solver conduction');
