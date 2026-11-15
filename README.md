@@ -4,13 +4,14 @@
 
 A free, open-source virtual electronics academy from PHI369 Labs. Begin with no physical components, no paid subscriptions, and no account.
 
-## What works in v0.7
+## What works in v0.8
 
 - **Nine guided modules** covering electricity, components, digital logic, embedded systems, communication, PCB design, and a Node-01 capstone.
 - **Six interactive learning benches**: Ohm's law, LEDs, series/parallel networks, voltage dividers (including loads), RC timing, and six Boolean logic gates.
 - **Wiring Sandbox**: drag and arrange up to eight resistors, four ideal switches and three direction-sensitive LEDs, click to connect terminals, and inspect calculated voltage/current/power. Includes shorts, floating parts, reverse LEDs and missing current-limiting warnings.
 - **Virtual multimeter and troubleshooting**: non-invasive DC voltage probes, ideal-wire continuity tracer, signed resistor/LED current inspection, and five fault-finding missions.
 - **Circuit Challenge Academy**: nine seeded hands-on fault missions with predicted diagnoses, verified repairs, replayable seeds, local scores, and a dedicated save separate from the free Wiring Lab.
+- **Mystery Circuit Diagnostics**: eight sealed black-box service calls where students measure hidden circuits, record evidence, commit a diagnosis and then repair the revealed circuit in an independent workspace.
 - **Short knowledge checks**: pass each two-question quiz to mark a module complete.
 - **Local progress tracking and a saved wiring design** with browser localStorage; no sign-in, tracking, or backend.
 - **JSON import/export for wiring designs**, with schema and bounds validation. No cloud required.
@@ -67,6 +68,7 @@ Once the feature branch has been merged to `main`, open repository **Settings â†
 - [LED Wiring Studio: polarity, current limiting and model assumptions](docs/LEDS.md)
 - [Virtual multimeter and fault-finding workbook](docs/MULTIMETER.md)
 - [Circuit Challenge Academy: nine scored fault-finding missions](docs/ACADEMY.md)
+- [Mystery Circuit Diagnostics: eight hidden-fault cases](docs/MYSTERY.md)
 
 ## Wiring Sandbox
 
@@ -79,6 +81,10 @@ See [the field manual](docs/WIRING-LAB.md) for four challenges and the model's l
 ## Circuit Challenge Academy
 
 Open **Challenge Academy** in the navigation or choose **Play Challenge Academy** on Home. Diagnose a seeded fault, repair the circuit with the actual Wiring Lab tools, then submit a solver-verified repair for points. Nine missions cover wire breaks, switch faults, incomplete parallel branches, reversed LEDs, overcurrent, undervoltage, shorts and multiple failures. The Academy never overwrites free-builder circuits or lesson completion. See the [complete Academy workbook](docs/ACADEMY.md).
+
+## Mystery Circuit Diagnostics
+
+Open **Mystery Diagnostics** from navigation or the Home shortcut. Before you can see the circuit, use the virtual meter's labeled test points to collect at least two distinct readings. Lock your prediction to reveal the faulted wiring, then repair the actual circuit for a modeled grade. Eight seeded cases support reproducible classroom practice and save progress separately from both free-build and Challenge Academy. See the [Mystery Workbook](docs/MYSTERY.md).
 
 ## Continue learning for free
 
