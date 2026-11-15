@@ -6,6 +6,7 @@ import { mountMysteryDiagnostics } from './mystery-ui.mjs';
 import { mountScopeLab } from './scope-ui.mjs';
 import { mountWorkstation } from './workstation-ui.mjs';
 import { mountBreadboardLab } from './breadboard-ui.mjs';
+import { mountSchematicBridge } from './breadboard-bridge-ui.mjs';
 
 // Curated original classroom content. A quiz unlocks completion only when all answers are correct.
 const lessons = [
@@ -204,7 +205,8 @@ function renderHome() {
     '<button class="button" data-view="mystery">Solve Mystery Circuits</button>' +
     '<button class="button" data-view="scope">Open Oscilloscope</button>' +
     '<button class="button primary" data-view="workstation">Open Project Workstation</button>' +
-    '<button class="button" data-view="breadboard">Build on Breadboard</button></div></section>' +
+    '<button class="button" data-view="breadboard">Build on Breadboard</button>' +
+    '<button class="button" data-view="bridge">Convert a Schematic to Breadboard</button></div></section>' +
     '<div class="section-heading"><h2>Learning modules</h2><span class="muted">' + completed.size + ' of 9 complete</span></div>' +
     '<div class="grid">' + lessons.map((l,i) => '<button type="button" class="card clickable" data-lesson="' + i + '" style="text-align:left;color:inherit">' +
     '<span class="chip">MODULE ' + String(i+1).padStart(2,'0') + (completed.has(i) ? ' • COMPLETE' : '') +
@@ -362,6 +364,7 @@ function updateBench() {
 }
 function render() {
   if(state.view!=='workstation')root.__wsCleanup?.();
+  if(state.view!=='bridge')root.__bridgeCleanup?.();
   progressUI();
   if (state.view === 'home') renderHome();
   else if (state.view === 'classroom') renderLesson();
@@ -372,6 +375,7 @@ function render() {
   else if (state.view === 'scope') mountScopeLab(root);
   else if (state.view === 'workstation') mountWorkstation(root);
   else if (state.view === 'breadboard') mountBreadboardLab(root);
+  else if (state.view === 'bridge') mountSchematicBridge(root);
   else if (state.view === 'textbook') renderTextbook();
   else if (state.view === 'progress') renderProgress();
 }
