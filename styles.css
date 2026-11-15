@@ -148,3 +148,38 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-
 .mystery-footnote{margin:1rem 0}
 @media(max-width:960px){.mystery-cases{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.mystery-cases{grid-template-columns:1fr}.mystery-probe-row{display:grid}.mystery-probe-row label{min-width:0}.mystery-controls .button{flex:1}}
+
+
+/* v0.9: standalone ideal RC signal laboratory and virtual oscilloscope */
+.scope-header{margin-bottom:1rem}
+.scope-header h1{margin:.3rem 0 .6rem}
+.scope-header p{max-width:78ch}
+.scope-toolbar{margin:1rem 0}
+.scope-top-row{display:flex;flex-wrap:wrap;gap:1rem}
+.scope-top-row label{flex:1;min-width:220px;display:grid;gap:.35rem}
+.scope-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.85rem;margin:1rem 0 .5rem}
+.scope-form-grid label{display:grid;gap:.32rem;color:var(--muted);font-size:.87rem}
+.scope-form-grid input,.scope-top-row select{width:100%;min-width:0;border-radius:8px;padding:.55rem .7rem;border:1px solid var(--line);background:var(--surface2);color:var(--text)}
+#scope-control-error:not(:empty){border-left:3px solid var(--amber);padding:.45rem .7rem;color:#ffdda1}
+.scope-display-section{margin:1rem 0}
+.scope-headerbar{display:flex;justify-content:space-between;gap:.75rem;flex-wrap:wrap;align-items:center}
+.scope-headerbar h2{margin:.2rem 0}
+.scope-toggles{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.scope-toggles label{color:var(--muted);font-size:.9rem}
+.scope-legend{display:flex;flex-wrap:wrap;gap:1.1rem;margin:.8rem 0;color:var(--text);font-weight:700;font-size:.83rem}
+.scope-legend span{display:flex;align-items:center;gap:.45rem}
+.scope-legend span::before{content:'';display:block;width:24px;height:4px;border-radius:10px}
+.scope-source::before{background:#ffcc76}.scope-capacitor::before{background:#55e2df}.scope-resistor::before{background:#a28cff}
+.scope-svg-wrap{overflow-x:auto;border:1px solid #39526c;border-radius:12px;background:#091929}
+#scope-screen{display:block;width:100%;height:auto;min-width:470px}
+.scope-cursor-controls{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:.9rem 0}
+.scope-cursor-controls label{display:grid;gap:.35rem;color:var(--muted)}
+.scope-cursor-controls input{accent-color:var(--cyan);width:100%}
+.scope-readouts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.65rem}
+.scope-readouts>div{background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:.6rem .7rem;min-width:0}
+.scope-readouts small{display:block;line-height:1.3;color:var(--muted);font-size:.72rem}
+.scope-readouts strong{display:block;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--text);font-size:.95rem;margin-top:.25rem;overflow-wrap:anywhere}
+#scope-notices{margin-top:1rem;font-size:.85rem}
+.scope-explain p{max-width:90ch}
+@media(max-width:900px){.scope-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.scope-readouts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.scope-form-grid{grid-template-columns:1fr}.scope-cursor-controls{grid-template-columns:1fr}.scope-readouts{grid-template-columns:1fr 1fr}}

@@ -287,6 +287,48 @@ try {
   const mysterySeed=await evaluate("(()=>{window.confirm=()=>true;const seed=document.querySelector('#mystery-seed-input');seed.value='369';document.querySelector('#mystery-seed-load').click();return {seed:document.querySelector('#mystery-seed').textContent,score:document.querySelector('#mystery-score').textContent,hidden:document.querySelector('#mystery-repair').children.length===0}})()");
   assert.deepEqual(mysterySeed,{seed:'369',score:'0 / 800',hidden:true});
   console.log('PASS: mystery seed replay starts fresh and keeps all circuits sealed');
+  // v0.9: scope traces are generated from the actual time-dependent RC
+  // equations. Exercise controls, numerical cursor readings and persistence.
+  const scopeStart=await evaluate("(()=>{const free=localStorage.getItem('phi-circuit-lab-wiring-v1');const academy=localStorage.getItem('phi-circuit-lab-academy-v1');const mystery=localStorage.getItem('phi-circuit-lab-mystery-v1');document.querySelector('[data-view=scope]').click();return {title:document.querySelector('#app-content h1')?.textContent,tau:document.querySelector('#scope-tau').textContent,source:!!document.querySelector('[data-scope-trace=source]'),cap:!!document.querySelector('[data-scope-trace=capacitor]'),r:!!document.querySelector('[data-scope-trace=resistor]'),free,academy,mystery}})()");
+  assert.equal(scopeStart.title,'RC Signal Laboratory');
+  assert.equal(scopeStart.tau,'100.000 ms');
+  assert.equal(scopeStart.source,true);
+  assert.equal(scopeStart.cap,true);
+  assert.equal(scopeStart.r,true);
+  console.log('PASS: oscilloscope route plots three simulated signals and correct time constant');
+  const scopeOneTau=await evaluate("(()=>{const a=document.querySelector('#scope-cursor-a');a.value='125';a.dispatchEvent(new Event('input',{bubbles:true}));return {reading:document.querySelector('#scope-read-a').textContent,current:document.querySelector('#scope-current').textContent,tau:document.querySelector('#scope-tau').textContent}})()");
+  assert.equal(scopeOneTau.reading,'5.000 V / 3.161 V');
+  assert.equal(scopeOneTau.current,'1.839 mA');
+  console.log('PASS: browser cursor at one RC tau measures analytic 63.2% charging');
+  const scopePulse=await evaluate("(()=>{const select=document.querySelector('#scope-example');select.value='pulse';select.dispatchEvent(new Event('change',{bubbles:true}));return {waveform:document.querySelector('#scope-waveform').value,edge:document.querySelector('[data-scope-trace=source]').getAttribute('d').includes('L'),tau:document.querySelector('#scope-tau').textContent}})()");
+  assert.equal(scopePulse.waveform,'pulse');
+  assert.equal(scopePulse.edge,true);
+  console.log('PASS: pulse preset generates exact input transition and plotted trace');
+  const scopeDischarge=await evaluate("(()=>{const select=document.querySelector('#scope-example');select.value='discharge';select.dispatchEvent(new Event('change',{bubbles:true}));const a=document.querySelector('#scope-cursor-a');a.value='0';a.dispatchEvent(new Event('input',{bubbles:true}));return {initial:document.querySelector('#scope-read-a').textContent,current:document.querySelector('#scope-current').textContent}})()");
+  assert.equal(scopeDischarge.initial,'0.000 V / 5.000 V');
+  assert.equal(scopeDischarge.current,'-5.000 mA');
+  console.log('PASS: real discharge model produces negative resistor current');
+  const scopeSquare=await evaluate("(()=>{const select=document.querySelector('#scope-example');select.value='square';select.dispatchEvent(new Event('change',{bubbles:true}));const duty=document.querySelector('[data-scope=dutyPercent]');duty.value='25';duty.dispatchEvent(new Event('change',{bubbles:true}));const resist=document.querySelector('[data-scope=resistanceOhms]');resist.value='2000';resist.dispatchEvent(new Event('change',{bubbles:true}));return {waveform:document.querySelector('#scope-waveform').value,duty:document.querySelector('[data-scope=dutyPercent]').value,tau:document.querySelector('#scope-tau').textContent,sourcePath:document.querySelector('[data-scope-trace=source]').getAttribute('d').length,stored:JSON.parse(localStorage.getItem('phi-circuit-lab-scope-v1'))}})()");
+  assert.equal(scopeSquare.waveform,'square');
+  assert.equal(scopeSquare.duty,'25');
+  assert.equal(scopeSquare.tau,'200.000 ms');
+  assert.ok(scopeSquare.sourcePath>100);
+  assert.equal(scopeSquare.stored.resistanceOhms,2000);
+  console.log('PASS: square duty and resistor changes update physics and local scope settings');
+  const scopeToggles=await evaluate("(()=>{const checkbox=document.querySelector('#scope-show-resistor');checkbox.checked=false;checkbox.dispatchEvent(new Event('change',{bubbles:true}));const hidden=!document.querySelector('[data-scope-trace=resistor]');checkbox.checked=true;checkbox.dispatchEvent(new Event('change',{bubbles:true}));return {hidden,visible:!!document.querySelector('[data-scope-trace=resistor]')}})()");
+  assert.deepEqual(scopeToggles,{hidden:true,visible:true});
+  const scopeReject=await evaluate("(()=>{const field=document.querySelector('[data-scope=resistanceOhms]');field.value='-10';field.dispatchEvent(new Event('change',{bubbles:true}));return {field:field.value,error:document.querySelector('#scope-control-error').textContent,tau:document.querySelector('#scope-tau').textContent}})()");
+  assert.equal(scopeReject.field,'2000');
+  assert.match(scopeReject.error,/Resistance/);
+  assert.equal(scopeReject.tau,'200.000 ms');
+  console.log('PASS: scope rejects invalid inputs and preserves the last good model');
+  const scopeIsolation=await evaluate("(()=>{const before=JSON.parse(localStorage.getItem('phi-circuit-lab-scope-v1'));document.querySelector('[data-view=home]').click();document.querySelector('[data-view=scope]').click();return {before,after:JSON.parse(localStorage.getItem('phi-circuit-lab-scope-v1')),tau:document.querySelector('#scope-tau').textContent,free:localStorage.getItem('phi-circuit-lab-wiring-v1'),academy:localStorage.getItem('phi-circuit-lab-academy-v1'),mystery:localStorage.getItem('phi-circuit-lab-mystery-v1')}})()");
+  assert.deepEqual(scopeIsolation.before,scopeIsolation.after);
+  assert.equal(scopeIsolation.tau,'200.000 ms');
+  assert.deepEqual(JSON.parse(scopeIsolation.free),JSON.parse(scopeStart.free));
+  assert.deepEqual(JSON.parse(scopeIsolation.academy),JSON.parse(scopeStart.academy));
+  assert.deepEqual(JSON.parse(scopeIsolation.mystery),JSON.parse(scopeStart.mystery));
+  console.log('PASS: scope settings persist and cannot overwrite free circuits or game progress');
   assert.deepEqual(exceptions,[]);
   console.log('PASS: no uncaught browser JavaScript exceptions');
 } finally {

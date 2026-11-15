@@ -343,3 +343,7 @@ The nine-mission [Circuit Challenge Academy](ACADEMY.md) provides seeded trouble
 ## Advanced practice: Mystery Circuit Diagnostics
 
 Complete the [Mystery Diagnostics workbook](MYSTERY.md) for eight sealed service cases. The initial faulty wiring is withheld: gather two distinct virtual meter observations, lock a diagnosis, then reveal and repair the circuit. This combines voltage polarity, ideal-wire continuity, branch currents, open networks and short detection without physical equipment or paid services.
+
+## Bonus lab: Time-domain oscilloscope and RC signals
+
+The [Virtual Oscilloscope workbook](OSCILLOSCOPE.md) provides a specialized first-order circuit with R, C and a step, pulse or square-wave source. Compare the existing standalone RC charge/discharge bench to exact time-dependent plots. Measure τ, verify 63.2% charging at t=τ, and explore capacitor voltage continuity through source transitions. This does not add general capacitors to the Wiring Lab solver.
