@@ -170,6 +170,8 @@ export function solveLedNetwork(doc) {
       leds:doc.leds.map(p=>({id:p.id,color:p.color,forwardV:LED_FORWARD_V[p.color],
         currentA:null,voltageV:null,powerW:null,state:'unresolved'})),
       switches:switchResults,nodeVoltages:{},
+    terminalVoltages:Object.fromEntries(terminals.map(t=>[t,null])),
+      terminalVoltages:Object.fromEntries(terminals.map(t=>[t,null])),
       notices:['Ideal short: a wire or closed switch joins V+ to GND without a limiting component.']
     };
   }
@@ -216,6 +218,8 @@ export function solveLedNetwork(doc) {
     }
     if(visited.has(ground))notices.unshift('No resistor limits at least one LED-only path. A real LED can be damaged by excessive current.');
     const nodeVoltages=Object.fromEntries(solved.voltages);
+    const terminalVoltages=Object.fromEntries(terminals.map(t=>
+      [t,solved.voltages.get(find(t))??null]));
     return {
       status:solved.powered?'ok':'open',
       sourceCurrentA:solved.sourceCurrentA,
@@ -223,7 +227,7 @@ export function solveLedNetwork(doc) {
       // ohmic, supply-independent network equivalent resistance.
       equivalentOhms:solved.powered&&solved.sourceCurrentA>1e-12&&doc.supplyV>0
         ?doc.supplyV/solved.sourceCurrentA:null,
-      parts,leds,switches:switchResults,nodeVoltages,notices
+      parts,leds,switches:switchResults,nodeVoltages,terminalVoltages,notices
     };
   }
   return {
