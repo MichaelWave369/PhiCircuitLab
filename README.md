@@ -10,6 +10,7 @@ A free, open-source virtual electronics academy from PHI369 Labs. Begin with no 
 - **Virtual Breadboard and Component Library**: 12-column solderless training board with real A–E/F–J contact-strip isolation, unpowered independent P/N rails, placeable components/jumpers, DC solver results, contact probing, and validated JSON import/export.
 - **Verified Schematic-to-Breadboard Bridge**: deterministically maps supported DC Wiring Lab and Workstation circuits to hole-by-hole 12-column breadboard plans, audits every direct terminal-net connection and electrical result, and transfers only with explicit approval.
 - **Nine guided modules** covering electricity, components, digital logic, embedded systems, communication, PCB design, and a Node-01 capstone.
+- **Ancient Architecture → Circuit Lab**: source-labeled Solomon's Temple, Ezekiel's Temple, and Teotihuacan geometry with a separately invented low-voltage LED circuit, current calculation, SVG/JSON concept exports and explicit archaeological evidence boundaries.
 - **Six interactive learning benches**: Ohm's law, LEDs, series/parallel networks, voltage dividers (including loads), RC timing, and six Boolean logic gates.
 - **Wiring Sandbox**: drag and arrange up to eight resistors, four ideal switches and three direction-sensitive LEDs, click to connect terminals, and inspect calculated voltage/current/power. Includes shorts, floating parts, reverse LEDs and missing current-limiting warnings.
 - **Virtual multimeter and troubleshooting**: non-invasive DC voltage probes, ideal-wire continuity tracer, signed resistor/LED current inspection, and five fault-finding missions.
@@ -24,6 +25,10 @@ A free, open-source virtual electronics academy from PHI369 Labs. Begin with no 
 - **Dependency-free calculation tests** with Node.js.
 
 > The benches intentionally use simplified mathematical models. They do not replace SPICE, hardware measurements, component datasheets, or engineering review.
+
+## Ancient Architecture → Circuit Lab
+
+Open [Ancient Architecture Circuit Lab](ancient-layouts.html) to compare three source-grounded conceptual plans and switch to a modern, purely illustrative PCB wiring overlay. The electrical result depends on the invented netlist, **not** the ancient building geometry. See the [experiment manual](docs/ANCIENT-ARCHITECTURE.md) for sources, limitations, and suggested KiCad follow-up.
 
 ## Run locally
 
