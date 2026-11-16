@@ -27,7 +27,7 @@ export const LAYOUTS = {
       { x: 60, y: 173, label: 'PORCH' },
       { x: 215, y: 260, label: 'MAIN HALL' },
       { x: 428, y: 260, label: 'MOST HOLY' },
-      { x: 586, y: 145, label: 'EAST ← / → WEST (view flipped)' }
+      { x: 586, y: 145, label: 'EAST (LEFT) · WEST (RIGHT)' }
     ],
     circuit: {
       battery: [92, 265], switch: [184, 265], resistor: [318, 265], led: [477, 265], ground: [614, 265],
