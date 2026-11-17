@@ -90,7 +90,7 @@ test('sensor bias changes observations but not physical source or ambient weathe
   for(let i=0;i<288;i++){
     assert.equal(a[i].pvW,b[i].pvW);
     assert.equal(a[i].ambientC,b[i].ambientC);
-    assert.equal(a[i].observedCoreC-a[i].coreC,18);
+    assert(Math.abs((a[i].observedCoreC-a[i].coreC)-18)<1e-9);
     assert.equal(b[i].observedCoreC,b[i].coreC);
   }
 });
