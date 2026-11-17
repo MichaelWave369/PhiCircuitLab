@@ -19,6 +19,8 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check app.js
+          node --check adaptive-reactor-engine.mjs
+          node --check adaptive-reactor-ui.mjs
           node --check circuits.mjs
           node --check advanced-circuits.mjs
           node --check advanced-workbench.mjs

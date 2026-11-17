@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080e19">
+  <meta name="description" content="A free, open-source solar, battery, heat and adaptive-control digital twin. Compare fixed, rule-based and learned control without inventing energy.">
+  <title>Adaptive Reactor Lab | Φ Circuit Lab</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./adaptive-reactor.css">
+  <script type="module" src="./adaptive-reactor-ui.mjs"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to simulator</a>
+  <header class="site-header">
+    <a href="./" class="brand"><span class="brand-icon" aria-hidden="true">Φ</span><span><strong>CIRCUIT LAB</strong><small>PHI369 LABS • OPEN HARDWARE EDUCATION</small></span></a>
+    <nav aria-label="Lab navigation"><a class="button" href="./">Back to classroom</a></nav>
+  </header>
+  <main class="reactor-page" id="main">
+    <section class="reactor-hero">
+      <div><span class="pill">PROJECT: COSMIC ADAPTATION • REALITY CHECK</span><h1>Adaptive Reactor <em>Digital Twin</em></h1>
+        <p>Explore the useful engineering ideas behind a speculative tardigrade-inspired blueprint. The source is <strong>solar PV</strong>, not a biological reactor: measured-style power flows through a converter, battery buffer and demand load.</p>
+        <p class="reactor-caution">Educational first-order model. No claimed biological energy production, extraordinary efficiency, radiation tolerance, material-density modulation or validated real-world reactor.</p>
+      </div>
+      <div class="reactor-diagram" aria-label="Solar PV to converter to load, with battery storage and sensor feedback">
+        <div class="reactor-flow"><div class="flow-node solar">SOLAR PV<small>Photovoltaic source</small></div><span aria-hidden="true">→</span><div class="flow-node core">ADAPTIVE CORE<small>Converter + controller</small></div><span aria-hidden="true">→</span><div class="flow-node load">LOAD<small>Delivered energy</small></div></div>
+        <div class="reactor-feedback"><span>↕</span><div class="flow-node battery">BATTERY BUFFER<small>Finite energy storage</small></div><span>↑ Sensor feedback: temp / load / SoC</span></div>
+        <div class="bio-tag"><strong>Biology-inspired idea</strong> • possible protective materials only. Zero extra watts modeled.</div>
+      </div>
+    </section>
+
+    <div class="reactor-layout">
+      <section class="panel reactor-inputs" aria-labelledby="config-heading">
+        <h2 id="config-heading">01 / Test conditions</h2><p class="micro">All three controllers face identical simulated weather, load and starting battery charge. Run a scenario to compare.</p>
+        <form id="reactor-form">
+          <label>Environment scenario<select name="scenario" id="reactor-scenario">
+            <option value="normal">Normal solar day</option><option value="heatwave">Extreme heat</option>
+            <option value="storm">Low-sun storm</option><option value="surge">Evening demand surge</option>
+          </select></label>
+          <label>Solar array <output for="reactor-pv" id="reactor-pv-value">500 W</output>
+            <input name="pvW" id="reactor-pv" type="range" min="100" max="1500" step="50" value="500"></label>
+          <label>Battery capacity <output for="reactor-battery" id="reactor-battery-value">950 Wh</output>
+            <input name="batteryWh" id="reactor-battery" type="range" min="100" max="3000" step="50" value="950"></label>
+          <label>Base electrical demand <output for="reactor-load" id="reactor-load-value">170 W</output>
+            <input name="loadW" id="reactor-load" type="range" min="50" max="600" step="10" value="170"></label>
+          <label>Environmental stress <output for="reactor-stress" id="reactor-stress-value">25%</output>
+            <input name="stress" id="reactor-stress" type="range" min="0" max="100" step="5" value="25"></label>
+          <label>Repeatable weather seed<input name="seed" type="number" min="1" max="1000000" step="1" value="369"></label>
+          <button class="button primary" type="submit">Run 24-hour experiment</button>
+        </form>
+      </section>
+      <section class="panel reactor-readings" aria-labelledby="readings-heading">
+        <div class="reactor-section-title"><div><h2 id="readings-heading">02 / Controller comparison</h2><p class="micro">One held-out 24-hour evaluation. The learned policy trains first on eight separate synthetic days.</p></div><span class="pill" id="reactor-status">INITIALIZING</span></div>
+        <div class="reactor-summary" id="reactor-summary" role="status" aria-live="polite"></div>
+        <p class="reactor-insight" id="reactor-insight"></p>
+        <div class="reactor-legend"><span><i class="legend-fixed"></i> Fixed balanced</span><span><i class="legend-rules"></i> Rule-based</span><span><i class="legend-learned"></i> Learned</span><span><i class="legend-demand"></i> Demand / environmental signal</span></div>
+      </section>
+    </div>
+
+    <section class="panel reactor-charts" aria-labelledby="chart-heading">
+      <div class="reactor-section-title"><div><h2 id="chart-heading">03 / Instrument panel</h2><p>Power delivery, battery storage, and converter core temperature across the same day.</p></div>
+        <div class="reactor-export"><button class="button" id="reactor-export-csv" type="button">Export CSV</button><button class="button" id="reactor-export-json" type="button">Export JSON</button></div>
+      </div>
+      <div class="reactor-plots">
+        <figure><figcaption><strong>Delivered power</strong><span>W • compare to requested load</span></figcaption><svg id="reactor-power-chart" viewBox="0 0 840 235" role="img" aria-label="Time-series power comparison" preserveAspectRatio="xMidYMid meet"></svg></figure>
+        <figure><figcaption><strong>Battery state of charge</strong><span>% • bounded to 0–100</span></figcaption><svg id="reactor-soc-chart" viewBox="0 0 840 235" role="img" aria-label="Time-series battery charge" preserveAspectRatio="xMidYMid meet"></svg></figure>
+        <figure><figcaption><strong>Converter core temperature</strong><span>°C • illustrative thermal model</span></figcaption><svg id="reactor-heat-chart" viewBox="0 0 840 235" role="img" aria-label="Time-series core temperature" preserveAspectRatio="xMidYMid meet"></svg></figure>
+      </div>
+    </section>
+    <section class="reactor-layout reactor-bottom">
+      <div class="panel"><h2>04 / Energy ledger</h2><p>Energy cannot be created by controller software. The photovoltaic input and change in battery storage must equal load served, spilled energy and modeled losses.</p>
+        <div class="reactor-table-scroll"><table class="reactor-table"><thead><tr><th>24-hour quantity</th><th>Fixed</th><th>Rules</th><th>Learned</th></tr></thead><tbody id="reactor-ledger"></tbody></table></div>
+        <p class="micro">Balance residual should be approximately 0 Wh. Battery charge/discharge conversion losses and electronics overhead appear in losses, not as free power.</p>
+      </div>
+      <div class="panel"><h2>05 / Research boundary</h2>
+        <dl class="reactor-boundaries">
+          <dt>Established engineering</dt><dd>Photovoltaic generation, finite battery storage, temperature derating, converter losses, closed-loop sensing and control.</dd>
+          <dt>Testable software analogy</dt><dd>State A (steady), State B (high load), State C (protective/adaptive) represented by power-converter modes and alternative control strategies.</dd>
+          <dt>Unverified materials hypothesis</dt><dd>Tardigrade-inspired molecular protection may inspire protective coatings, but no biological layer is assumed to generate energy or impart radiation tolerance.</dd>
+          <dt>What this simulator cannot establish</dt><dd>No physical component validation, no hardware-safe setpoints, no learned generalization guarantees, and no proof of any performance numbers in the original blueprint.</dd>
+        </dl>
+        <a href="./docs/ADAPTIVE-REACTOR.md">Read the equations, assumptions and reproducibility guide</a>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">Φ Circuit Lab • MIT licensed • Free, offline after load • <a href="./">Classroom</a> • <a href="https://github.com/MichaelWave369/PhiCircuitLab">GitHub</a></footer>
+</body>
+</html>

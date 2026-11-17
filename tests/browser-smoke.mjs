@@ -522,6 +522,28 @@ try {
   assert.deepEqual(bridgeFinal.academy,bridgeStart.prior.academy);
   assert.deepEqual(bridgeFinal.mystery,bridgeStart.prior.mystery);
   console.log('PASS: completed bridge workflow respects all older laboratory and course progress');
+  // The independent reactor page must work in Chrome, not only in Node model tests.
+  const reactorLink=await evaluate("document.querySelector('a[href=\"./adaptive-reactor.html\"]')?.getAttribute('href')");
+  assert.equal(reactorLink,'./adaptive-reactor.html');
+  await cdp('Page.navigate',{url:url+'adaptive-reactor.html'},sessionId);
+  let reactor=null;
+  for(let attempt=0;attempt<35;attempt++){
+    await new Promise(resolve=>setTimeout(resolve,120));
+    try{
+      reactor=await evaluate("({status:document.querySelector('#reactor-status')?.textContent,cards:document.querySelectorAll('.reactor-result').length,ledger:document.querySelectorAll('#reactor-ledger tr').length,paths:document.querySelectorAll('#reactor-power-chart path').length,link:document.querySelector('a[href=\"./docs/ADAPTIVE-REACTOR.md\"]')?.getAttribute('href')})");
+      if(reactor?.status?.includes('SIMULATED'))break;
+    }catch(_){/* Navigation may briefly destroy the old execution context. */}
+  }
+  assert.match(reactor?.status||'',/SIMULATED/);
+  assert.equal(reactor.cards,3);
+  assert.equal(reactor.ledger,9);
+  assert.equal(reactor.paths,4);
+  assert.equal(reactor.link,'./docs/ADAPTIVE-REACTOR.md');
+  const changedReactor=await evaluate("(()=>{document.querySelector('#reactor-scenario').value='storm';document.querySelector('#reactor-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return {status:document.querySelector('#reactor-status').textContent,summary:document.querySelectorAll('.reactor-result').length,paths:document.querySelectorAll('#reactor-soc-chart path').length}})()");
+  assert.match(changedReactor.status,/STORM.*SIMULATED/);
+  assert.equal(changedReactor.summary,3);
+  assert.equal(changedReactor.paths,3);
+  console.log('PASS: Adaptive Reactor Lab loads, graphs results and recalculates storm scenario in Chrome');
   assert.deepEqual(exceptions,[]);
   console.log('PASS: no uncaught browser JavaScript exceptions');
 } finally {
