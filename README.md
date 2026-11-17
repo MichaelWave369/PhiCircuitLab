@@ -6,6 +6,7 @@ A free, open-source virtual electronics academy from PHI369 Labs. Begin with no 
 
 ## What works now
 
+- **Adaptive Systems Arena (Phase 2)**: [open the stress chamber](adaptive-arena.html) to simulate eight synthetic disruptions, compare four controllers, inspect voltage/current/power/thermal traces, evaluate three-seed tournaments, vary hypothetical coating heat transfer, save a local experiment notebook, and export CSV/JSON. See [methods and limitations](docs/ADAPTIVE-ARENA.md).
 - **Adaptive Reactor Digital Twin**: 24-hour solar + battery + heat experiment with fixed, rule-based and small trained controller comparisons, independent 5-minute energy accounting, three time-series charts, reproducible seeds, and local JSON/CSV exports. Clearly separates established PV engineering from speculative tardigrade-inspired materials. Open [Adaptive Reactor Lab](adaptive-reactor.html) and see [assumptions](docs/ADAPTIVE-REACTOR.md).
 - **Virtual Electronics Workstation**: twelve named offline projects, each with its own DC circuit, independent RC oscilloscope settings and measurement notebook, plus import/export of versioned JSON backups.
 - **Virtual Breadboard and Component Library**: 12-column solderless training board with real A–E/F–J contact-strip isolation, unpowered independent P/N rails, placeable components/jumpers, DC solver results, contact probing, and validated JSON import/export.
