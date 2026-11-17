@@ -544,6 +544,32 @@ try {
   assert.equal(changedReactor.summary,3);
   assert.equal(changedReactor.paths,3);
   console.log('PASS: Adaptive Reactor Lab loads, graphs results and recalculates storm scenario in Chrome');
+  // Phase 2 headless browser checks: own page, comparative curves, controls and local saves.
+  await cdp('Page.navigate',{url:url+'adaptive-arena.html'},sessionId);
+  let arena=null;
+  for(let attempt=0;attempt<65;attempt++){
+    await new Promise(resolve=>setTimeout(resolve,120));
+    try{
+      arena=await evaluate("({status:document.querySelector('#arena-status')?.textContent,cards:document.querySelectorAll('#arena-podium article').length,ledger:document.querySelectorAll('#arena-energy-rows tr').length,plots:document.querySelectorAll('.arena-scopes svg path').length,documentation:document.querySelector('a[href=\"./docs/ADAPTIVE-ARENA.md\"]')?.href})");
+      if(arena?.status?.includes('COMPLETE'))break;
+    }catch(_){/* A previous execution context may be disappearing during navigation. */}
+  }
+  assert.match(arena?.status||'',/COMPLETE/);
+  assert.equal(arena.cards,4);
+  assert.equal(arena.ledger,9);
+  assert.equal(arena.plots,6);
+  assert.match(arena.documentation||'',/ADAPTIVE-ARENA.md$/);
+  const arenaStorm=await evaluate("(()=>{document.querySelector('#arena-chamber').value='pvOutage';document.querySelector('#arena-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));document.querySelector('#arena-controller').value='learned';document.querySelector('#arena-controller').dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('#arena-time').value='135';document.querySelector('#arena-time').dispatchEvent(new Event('input',{bubbles:true}));return {status:document.querySelector('#arena-status').textContent,time:document.querySelector('#probe-time').textContent,cards:document.querySelectorAll('#arena-podium article').length,probe:document.querySelector('#probe-volts').textContent}})()");
+  assert.match(arenaStorm.status,/PVOUTAGE.*COMPLETE/);
+  assert.equal(arenaStorm.cards,4);
+  assert.ok(arenaStorm.time.includes(':'));
+  assert.match(arenaStorm.probe,/V$/);
+  const arenaSaved=await evaluate("(()=>{document.querySelector('#arena-note').value='Reproducibility and outage test';document.querySelector('#arena-save').click();const note=JSON.parse(localStorage.getItem('phi-circuit-lab-arena-notebook-v1'));return {rows:document.querySelectorAll('#arena-notebook-rows tr').length,count:note.length,note:note[0].note,hasOtherSaved:!!localStorage.getItem('phi-circuit-lab-wiring-v1')}})()");
+  assert.equal(arenaSaved.count,1);
+  assert.equal(arenaSaved.rows,1);
+  assert.equal(arenaSaved.note,'Reproducibility and outage test');
+  assert.equal(arenaSaved.hasOtherSaved,true);
+  console.log('PASS: Adaptive Systems Arena loads, plots, updates probes, changes chambers and preserves the local notebook');
   assert.deepEqual(exceptions,[]);
   console.log('PASS: no uncaught browser JavaScript exceptions');
 } finally {
