@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080e19">
+  <meta name="description" content="PhiCircuitLab's open-source adaptive control systems arena: compare algorithms in a modeled solar-battery stress chamber, inspect waveforms and save reproducible experiments.">
+  <title>Adaptive Systems Arena | Φ Circuit Lab</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./adaptive-reactor.css">
+  <link rel="stylesheet" href="./adaptive-arena.css">
+  <script type="module" src="./adaptive-arena-ui.mjs"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to experiments</a>
+  <header class="site-header">
+    <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">Φ</span><span><strong>CIRCUIT LAB</strong><small>PHI369 LABS • OPEN HARDWARE EDUCATION</small></span></a>
+    <nav aria-label="Arena navigation" class="arena-header-nav">
+      <a class="button" href="./adaptive-reactor.html">Phase 1 Lab</a>
+      <a class="button" href="./">Classroom</a>
+    </nav>
+  </header>
+  <main class="reactor-page arena-page" id="main">
+    <section class="arena-hero">
+      <span class="pill">PHASE 2 • REPRODUCIBLE ENGINEERING EXPERIMENTS</span>
+      <h1>Adaptive Systems <em>Arena</em></h1>
+      <p>Put four energy-management controllers through identical, seeded solar-power experiments. Inject heat, cloud cover, power outages, sensor bias and battery aging. Inspect the instrument traces and keep a local experiment ledger.</p>
+      <p class="arena-warning"><strong>Model, not hardware.</strong> The 48 V output is an assumed ideal regulated bus, not a hardware measurement. Coating options are hypothetical thermal parameters, not proven tardigrade-derived products. No free energy or bio-reactor claims.</p>
+    </section>
+    <div class="arena-workspace">
+      <section class="panel arena-controls" aria-labelledby="arena-controls-title">
+        <h2 id="arena-controls-title">01 / Environmental chamber</h2>
+        <p class="micro">These settings are shared across every competitor. No controller gets privileged physical information.</p>
+        <form id="arena-form">
+          <label>Stress experiment
+            <select name="chamber" id="arena-chamber">
+              <option value="baseline">Baseline environment</option>
+              <option value="heatPulse">Thermal stress pulse</option>
+              <option value="coldSnap">Cold ambient snap</option>
+              <option value="clouds">Heavy cloud cover</option>
+              <option value="pvOutage">Midday solar outage</option>
+              <option value="demandSurge">Evening demand surge</option>
+              <option value="batteryFade">Degraded battery capacity</option>
+              <option value="sensorDrift">Temperature sensor drift</option>
+            </select>
+          </label>
+          <label>Biomimicry thermal hypothesis
+            <select name="coating" id="arena-coating">
+              <option value="none">Baseline: no coating effect</option>
+              <option value="spreader">Hypothetical heat-spreader: 1.65× heat transfer</option>
+              <option value="insulator">Hypothetical insulator: 0.58× heat transfer</option>
+            </select>
+          </label>
+          <label>Solar array <output id="arena-pv-value">500 W</output>
+            <input type="range" min="100" max="1500" step="50" name="pvW" id="arena-pv" value="500"></label>
+          <label>Battery capacity <output id="arena-battery-value">950 Wh</output>
+            <input type="range" min="100" max="3000" step="50" name="batteryWh" id="arena-battery" value="950"></label>
+          <label>Base demand <output id="arena-load-value">170 W</output>
+            <input type="range" min="50" max="600" step="10" name="loadW" id="arena-load" value="170"></label>
+          <label>Ambient system stress <output id="arena-stress-value">25%</output>
+            <input type="range" min="0" max="100" step="5" name="stressPct" id="arena-stress" value="25"></label>
+          <label>Repeatable model seed
+            <input type="number" name="seed" id="arena-seed" min="1" max="1000000" value="369"></label>
+          <label>Evaluation trial seed
+            <input type="number" name="trialSeed" id="arena-trial-seed" min="1" max="1000000" value="369"></label>
+          <button class="button primary" type="submit" id="arena-run">Run head-to-head experiment</button>
+          <button class="button" type="button" id="arena-all">Run 8-chamber / 3-seed tournament</button>
+        </form>
+      </section>
+      <div class="arena-output">
+        <section class="panel" aria-labelledby="arena-results-title">
+          <div class="reactor-section-title">
+            <div><h2 id="arena-results-title">02 / Controller tournament</h2>
+              <p class="micro">Ranking: demand delivered, then thermal alarms, then losses. Scores are comparisons of this model, not claimed device efficiencies.</p></div>
+            <span class="pill" id="arena-status">READY</span>
+          </div>
+          <div class="arena-podium" id="arena-podium" aria-live="polite"></div>
+          <p class="arena-message" id="arena-notes"></p>
+          <div class="arena-tournament" id="arena-tournament" hidden>
+            <h3>Full stress-chamber standings</h3>
+            <div class="reactor-table-scroll"><table class="reactor-table"><thead><tr><th>Chamber</th><th>Best controller</th><th>Fixed %</th><th>Rules %</th><th>Learned %</th><th>Reserve %</th></tr></thead><tbody id="arena-tournament-rows"></tbody></table></div>
+            <p id="arena-tournament-summary" class="micro"></p>
+          </div>
+        </section>
+        <section class="panel" aria-labelledby="scope-title">
+          <div class="reactor-section-title"><div><h2 id="scope-title">03 / Virtual oscilloscope</h2>
+            <p class="micro">5-minute sampled traces. Drag the time cursor to inspect electrical and thermal quantities.</p></div>
+            <label class="arena-chooser">Inspect controller<select id="arena-controller"><option value="fixed">Fixed balanced</option><option value="rules" selected>Threshold rules</option><option value="learned">Tabular trained policy</option><option value="reserve">Reserve-first heuristic</option></select></label>
+          </div>
+          <div class="arena-probes">
+            <div><span>Time</span><strong id="probe-time">--:--</strong></div>
+            <div><span>Bus voltage*</span><strong id="probe-volts">-- V</strong></div>
+            <div><span>Load current*</span><strong id="probe-amps">-- A</strong></div>
+            <div><span>Delivered power</span><strong id="probe-power">-- W</strong></div>
+            <div><span>Core temperature</span><strong id="probe-core">-- °C</strong></div>
+            <div><span>Battery state</span><strong id="probe-soc">-- %</strong></div>
+          </div>
+          <label class="arena-cursor-label">Sample time <input type="range" id="arena-time" min="0" max="287" step="1" value="144"></label>
+          <div class="arena-scopes">
+            <figure><figcaption>Regulated output voltage (V)*</figcaption><svg id="scope-volts" viewBox="0 0 720 155" role="img" aria-label="Modeled output voltage by time"></svg></figure>
+            <figure><figcaption>Output current (A)*</figcaption><svg id="scope-current" viewBox="0 0 720 155" role="img" aria-label="Modeled output current by time"></svg></figure>
+            <figure><figcaption>Delivered versus requested power (W)</figcaption><svg id="scope-power" viewBox="0 0 720 155" role="img" aria-label="Delivered and requested electrical power by time"></svg></figure>
+            <figure><figcaption>True versus sensor core temperature (°C)</figcaption><svg id="scope-temperature" viewBox="0 0 720 155" role="img" aria-label="Core and observed temperature by time"></svg></figure>
+          </div>
+          <p class="micro">*48 V bus is an assumed ideal regulated output when energy is delivered; modeled current = delivered power / 48 V. These are synthetic probe signals, not transient waveforms or measurements. Abrupt transitions are sampled only every five minutes.</p>
+        </section>
+      </div>
+    </div>
+    <section class="panel arena-energy" aria-labelledby="energy-heading">
+      <div class="reactor-section-title"><div><h2 id="energy-heading">04 / Conservation ledger</h2><p class="micro">PV input + starting battery energy = delivered + curtailed + losses + ending battery energy.</p></div>
+        <button type="button" class="button" id="arena-export-trace">Export current traces CSV</button>
+      </div>
+      <div class="reactor-table-scroll"><table class="reactor-table"><thead><tr><th>24-hour quantity</th><th>Fixed</th><th>Rules</th><th>Learned</th><th>Reserve</th></tr></thead><tbody id="arena-energy-rows"></tbody></table></div>
+    </section>
+    <section class="panel arena-ledger" aria-labelledby="arena-ledger-title">
+      <div class="reactor-section-title"><div><h2 id="arena-ledger-title">05 / Experiment notebook</h2><p class="micro">Save runs only on demand. Notes and results stay in this browser. Up to 36 records; export a backup whenever you like.</p></div>
+        <div class="reactor-export"><button type="button" class="button primary" id="arena-save">Save this run</button><button type="button" class="button" id="arena-export-book">Export notebook JSON</button><button type="button" class="button" id="arena-clear">Clear notebook</button></div>
+      </div>
+      <label class="arena-note-label">Experiment notes <input type="text" id="arena-note" maxlength="160" placeholder="What hypothesis are you testing?"></label>
+      <p id="arena-book-message" class="micro" role="status"></p>
+      <div class="reactor-table-scroll"><table class="reactor-table"><thead><tr><th>Recorded (local)</th><th>Scenario</th><th>Coating</th><th>Winner</th><th>Delivered</th><th>Notes</th></tr></thead><tbody id="arena-notebook-rows"></tbody></table></div>
+      <p class="micro">See <a href="./docs/ADAPTIVE-ARENA.md">Phase 2 methods, assumptions and limitations</a>. All output is synthetic educational data. The model never creates biological energy.</p>
+    </section>
+  </main>
+  <footer class="site-footer">Φ Circuit Lab • Open-source engineering education • <a href="./adaptive-reactor.html">Phase 1 simulator</a> • <a href="./">Classroom</a></footer>
+</body>
+</html>
