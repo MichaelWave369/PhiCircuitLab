@@ -43,7 +43,7 @@ export function initialPlant(config) {
   const cfg = normalizeConfig(config);
   return { batteryWh: cfg.batteryWh * 0.55, coreC: 27 };
 }
-export function stepPlant(plant, modeName, env, config, dtHours = STEP_HOURS) {
+export function stepPlant(plant, modeName, env, config, dtHours = STEP_HOURS, options = {}) {
   const cfg = normalizeConfig(config);
   const mode = MODES[modeName];
   if (!mode) throw new RangeError('Unknown converter mode');
@@ -72,7 +72,11 @@ export function stepPlant(plant, modeName, env, config, dtHours = STEP_HOURS) {
   const batteryWh = clamp(startBatteryWh + (chargeW * chargeEfficiency - dischargeW / dischargeEfficiency) * dtHours, 0, cfg.batteryWh);
   const lossW = (dcForServiceW - outputW) + dischargeW * (1 / dischargeEfficiency - 1)
     + chargeW * (1 - chargeEfficiency);
-  const temperatureDelta = (lossW - (startCoreC - ambientC) * mode.coolingWPerC)
+  // Hypothesis knob: thermal transfer to ambient, never an energy source.
+  // A value of 1 reproduces the original Phase 1 model exactly.
+  const coolingMultiplier = Number.isFinite(options.thermalTransferFactor)
+    ? clamp(options.thermalTransferFactor, 0.2, 3) : 1;
+  const temperatureDelta = (lossW - (startCoreC - ambientC) * mode.coolingWPerC * coolingMultiplier)
     * dtHours * 3600 / 30000;
   const coreC = clamp(startCoreC + temperatureDelta, -40, 160);
   const balanceResidualWh = (pvW - outputW - curtailW - lossW) * dtHours
