@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="ΦREL-369: a reproducible browser experiment in pairwise and higher-order relational computation.">
+  <title>ΦREL-369 | The Third Relationship</title>
+  <style>
+    :root { color-scheme:dark; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:#080f19; color:#eaf1f5; line-height:1.5 }
+    * { box-sizing:border-box }
+    body { margin:0; }
+    a { color:#77daca }
+    header,main,footer { max-width:1040px; margin:auto; padding:24px }
+    header { padding-top:42px }
+    h1 { font-size:clamp(2rem,4vw,3.5rem); line-height:1.07; margin:.3em 0 }
+    h2 { font-size:1.4rem; margin-top:0 }
+    .eyebrow { color:#77daca; font-size:.8rem; font-weight:750; letter-spacing:.13em }
+    .muted { color:#a6b5c2 }
+    .panel { background:#111e2e; border:1px solid #344a5b; border-radius:16px; padding:24px; margin:20px 0 }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(175px,1fr)); gap:12px; margin:18px 0 }
+    .card { padding:16px; background:#192c3c; border-radius:12px }
+    .value { font-size:1.65rem; font-variant-numeric:tabular-nums; font-weight:750; color:#9aeee0 }
+    .label { font-size:.8rem; color:#bdd0d8 }
+    label { display:block; font-weight:650; margin:12px 0 }
+    input[type=range] { width:100%; accent-color:#74d7c7; min-height:32px }
+    .cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:18px }
+    button { border:1px solid #72d9c8; background:#17463e; color:white; font-weight:650;
+      border-radius:8px; padding:10px 18px; cursor:pointer; margin:5px 6px 5px 0 }
+    button:hover,button:focus-visible { background:#22675b; outline:2px solid #85ddc9; outline-offset:2px }
+    table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums }
+    th,td { border-bottom:1px solid #344a5b; text-align:left; padding:8px 5px; font-size:.86rem }
+    th { color:#bad5df }
+    .table-scroll { overflow-x:auto }
+    .bar { height:9px; background:#70d5c3; min-width:1px; border-radius:8px; max-width:100% }
+    .track { background:#27394c; height:13px; border-radius:9px; overflow:hidden; margin-top:5px }
+    .fill { height:100%; background:linear-gradient(90deg,#47a3a1,#98ede0) }
+    .state-row { margin:10px 0 }
+    .state-row span { font-size:.88rem; color:#d5ecf0 }
+    code { font-family:ui-monospace,monospace; color:#c5f0e2 }
+    .notice { border-left:3px solid #d6aa65; padding:8px 14px; background:#202a35 }
+    @media (max-width:500px) { header,main,footer { padding:17px } .panel { padding:15px } }
+  </style>
+  <script type="module" src="./relational369-ui.mjs"></script>
+</head>
+<body>
+  <header>
+    <a href="./">← PhiCircuitLab</a>
+    <div class="eyebrow">PHI369 LABS / REPRODUCIBLE COMPUTING EXPERIMENT 001</div>
+    <h1>The Third Relationship</h1>
+    <p class="muted">ΦREL-369: three domains, six directed interactions, nine matrix channels, and an optional higher-order rule. Explore the difference between what pairs can tell us and what a joint interaction reveals.</p>
+    <p class="notice"><strong>Research status:</strong> Mathematical demonstration and toy dynamical model, not new physics, quantum advantage, consciousness, or a proven superiority of 3-6-9.</p>
+  </header>
+  <main>
+    <section class="panel" aria-labelledby="info">
+      <h2 id="info">Experiment A. Information hidden in a three-way constraint</h2>
+      <p>Let A and B be independent fair bits. Let C follow A XOR B with configurable strength. Even when XOR always holds, all three <em>pairs</em> are statistically independent. The full triple is not.</p>
+      <label for="strength">Strength of XOR constraint: <output id="strength-value">1.00</output></label>
+      <input id="strength" type="range" min="0" max="100" step="1" value="100">
+      <div class="cards" aria-live="polite">
+        <div class="card"><div class="label">Largest pairwise mutual information</div><div class="value" id="metric-pair">0.000 bits</div></div>
+        <div class="card"><div class="label">Joint (A,B) information about C</div><div class="value" id="metric-joint">1.000 bits</div></div>
+        <div class="card"><div class="label">XOR synergy witness</div><div class="value" id="metric-synergy">1.000 bits</div></div>
+        <div class="card"><div class="label">Probability XOR holds</div><div class="value" id="metric-parity">100.0%</div></div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <caption class="muted" style="text-align:left;padding:7px 0">Exact probability distribution over eight outcomes</caption>
+          <thead><tr><th scope="col">A B C</th><th scope="col">Probability</th><th scope="col">Share</th><th scope="col">Rule</th></tr></thead>
+          <tbody id="probability-rows"></tbody>
+        </table>
+      </div>
+      <p class="muted">The synergy witness here is I((A,B);C) − I(A;C) − I(B;C). It cleanly detects XOR in this controlled example but is not a general decomposition of all synergistic information.</p>
+    </section>
+    <section class="panel" aria-labelledby="dynamics">
+      <h2 id="dynamics">Experiment B. Executable relationships</h2>
+      <p>Two deterministic simulations start with identical domain states and the same six directed pairwise transfer operators. Only one gets the three-way fuzzy-XOR update. Step both forward to measure the effect of that additional rule.</p>
+      <label for="triad-gain">Higher-order rule gain: <output id="triad-value">0.65</output></label>
+      <input id="triad-gain" type="range" min="0" max="100" step="5" value="65">
+      <div>
+        <button type="button" id="step">Step once</button>
+        <button type="button" id="step20">Advance 20</button>
+        <button type="button" id="reset">Reset both</button>
+      </div>
+      <p>Tick: <strong id="tick">0</strong></p>
+      <div class="cols">
+        <section class="card"><h3>Six pairwise flows only</h3><div id="pairwise-state"></div></section>
+        <section class="card"><h3>Flows plus higher-order rule</h3><div id="triadic-state"></div></section>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="label">Difference in exterior state (C)</div><div class="value" id="delta-c">0.00000</div></div>
+        <div class="card"><div class="label">Accumulated higher-order event memory</div><div class="value" id="hyper-memory">0.00000</div></div>
+      </div>
+      <h3>Nine directed/self channels</h3>
+      <p class="muted">Each cell shows current coupling K / accumulated event memory M. Rows are sources; columns are destinations. The diagonal expresses self-retention. Adaptation of K is available in the engine API but disabled in this controlled browser comparison.</p>
+      <div class="table-scroll"><table><thead><tr><th>Source ↓ / Target →</th><th>Interior</th><th>Boundary</th><th>Exterior</th></tr></thead><tbody id="matrix-body"></tbody></table></div>
+      <p id="receipt" class="muted" aria-live="polite">No events yet.</p>
+    </section>
+    <section class="panel">
+      <h2>Interpretation and controls</h2>
+      <p>The first experiment uses an exact 8-state probability distribution, not sampling. The second uses a simple dimensionless update law, not an electric circuit or physical energy model. The higher-order rule injects or removes modeled state, so only the pairwise-only model is expected to conserve the state sum.</p>
+      <p>For the source code, test cases, assumptions, and instructions on comparing this with other architectures, read the <a href="./docs/RELATIONAL369.md">research notes</a>. The whole implementation is dependency-free and inspectable.</p>
+    </section>
+  </main>
+  <footer class="muted">Φ Circuit Lab • Open research prototype • Evidence above numerology • <a href="https://github.com/MichaelWave369/PhiCircuitLab">Source and tests</a></footer>
+</body>
+</html>
