@@ -6,6 +6,8 @@ A free, open-source virtual electronics academy from PHI369 Labs. Begin with no 
 
 ## What works now
 
+- **ΦREL-369 / The Third Relationship**: [open the relational computation experiment](relational369.html) to compare exact pairwise statistics with a three-way XOR constraint, then explore six directed flows, nine stateful channels, and an optional higher-order update in deterministic side-by-side simulations. [Methods and limitations](docs/RELATIONAL369.md).
+
 - **Adaptive Systems Arena (Phase 2)**: [open the stress chamber](adaptive-arena.html) to simulate eight synthetic disruptions, compare four controllers, inspect voltage/current/power/thermal traces, evaluate three-seed tournaments, vary hypothetical coating heat transfer, save a local experiment notebook, and export CSV/JSON. See [methods and limitations](docs/ADAPTIVE-ARENA.md).
 - **Adaptive Reactor Digital Twin**: 24-hour solar + battery + heat experiment with fixed, rule-based and small trained controller comparisons, independent 5-minute energy accounting, three time-series charts, reproducible seeds, and local JSON/CSV exports. Clearly separates established PV engineering from speculative tardigrade-inspired materials. Open [Adaptive Reactor Lab](adaptive-reactor.html) and see [assumptions](docs/ADAPTIVE-REACTOR.md).
 - **Virtual Electronics Workstation**: twelve named offline projects, each with its own DC circuit, independent RC oscilloscope settings and measurement notebook, plus import/export of versioned JSON backups.
