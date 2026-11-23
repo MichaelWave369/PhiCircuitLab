@@ -90,3 +90,71 @@ benchmarks against established graph/interaction-net systems.
 Relevant foundations: Shannon information theory; XOR synergistic-information
 examples; interaction nets (Yves Lafont); hypergraphs and higher-order networks;
 NES-369 as a proposed architecture rather than empirical evidence.
+
+
+## Experiment C: ΦREL-369 minimal programming language (v0.2)
+
+Source is parsed by [relational369-language.mjs](../relational369-language.mjs), not passed to
+eval, a JS interpreter, a remote AI service, or dynamically generated JavaScript.
+The supported grammar is deliberately small:
+
+    STATE A 0.8
+    STATE B 0.2
+    STATE C 0.5
+    RELATE A -> C EXCITE 0.5
+    RELATE B -> C INHIBIT 0.2
+    RELATE A <-> B SYNC 0.3
+    RELATE C -> C REMEMBER 0.1
+    RELATE C -> C RECALL 0.7
+    TRIAD A B -> C XOR 1
+
+The domain names A,B,C correspond to Interior, Boundary and Exterior.
+All three STATE declarations are required once. At most 24 relationship rules,
+48 lines, and 4096 source characters are allowed. Parameters are in [0,1].
+The parser validates known operations and domains, rejects invalid syntax,
+and reports line numbers.
+
+* EXCITE: positive change in destination, proportional to source and remaining headroom.
+* INHIBIT: negative change in destination, proportional to source and destination.
+* SYNC: equal and opposite cross-domain changes toward agreement.
+* REMEMBER: exponential moving average of a domain's prior state.
+* RECALL: drives a domain toward its remembered state.
+* TRIAD: one rule jointly reads two different domains to update the third;
+  built-ins are fuzzy XOR, AND, OR and arithmetic MEAN.
+
+All state updates observe the same **pre-tick snapshot**, are added simultaneously,
+then clipped to [0,1]. Memory updates also read pre-tick state. Execution receipts
+record operator-level deltas and net state-sum change. For the memory demonstration,
+the browser offers a separately labeled **external perturbation** of C.
+
+These are *toy dimensionless equations*. Most operators do not conserve a physical
+energy quantity. Clipping can additionally alter the sum; we must not interpret this
+as a physically realizable computer until a substrate and accounting rules exist.
+
+## Experiment D: constrained program synthesis
+
+[relational369-discovery.mjs](../relational369-discovery.mjs) enumerates:
+
+- 16 one-gain TRIAD programs, formed by 4 known joint functions x 4 gains.
+- 64 two-gain pairwise programs, formed by A→C and B→C, each using one of
+  EXCITE/INHIBIT and one of 4 gains.
+
+Programs begin at C=0.5, run 16 ticks, and are scored against a user-chosen
+target function. Selection uses MSE on 4 Boolean pairs (00, 01, 10, 11);
+after selection, scores are reported on 16 **held-out fractional pairs**
+(0.2, 0.4, 0.6, 0.8 in each input dimension). Holdout cases do not influence
+selection. All scores are exact deterministic simulations, not sampled data.
+
+This is **bounded enumeration, not AI or open-ended discovery**. Some targets are
+already supplied as candidate operators, making success a sanity check only.
+The two pools have different operator semantics and parameter counts, so the
+comparison does not prove a universal superiority of triadic over pairwise
+models. Future versions must add stronger, matched-budget nonlinear baselines,
+unseen tasks, ablations, and compiler/interpreter correctness checks.
+
+Reproducible tests:
+
+    node --test tests/relational369-language.test.mjs
+    node tests/relational369-browser-smoke.mjs
+
+Browser smoke requires Chrome/Chromium and serves the site on localhost only.

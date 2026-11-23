@@ -39,9 +39,19 @@
     .state-row span { font-size:.88rem; color:#d5ecf0 }
     code { font-family:ui-monospace,monospace; color:#c5f0e2 }
     .notice { border-left:3px solid #d6aa65; padding:8px 14px; background:#202a35 }
+    textarea, select { display:block; width:100%; background:#0b1724; color:#eaf1f5;
+      border:1px solid #5b7385; border-radius:9px; padding:12px; font-size:.93rem }
+    textarea, pre { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
+    textarea { min-height:260px; line-height:1.55; resize:vertical }
+    pre { white-space:pre-wrap; overflow-wrap:anywhere; background:#0b1724;
+      border-radius:9px; padding:15px; line-height:1.6; overflow-x:auto; }
+    .helper { font-size:.84rem; color:#bdd0d8 }
+    .toolbar { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px }
+    .toolbar button { flex:0 0 auto }
     @media (max-width:500px) { header,main,footer { padding:17px } .panel { padding:15px } }
   </style>
   <script type="module" src="./relational369-ui.mjs"></script>
+  <script type="module" src="./relational369-language-ui.mjs"></script>
 </head>
 <body>
   <header>
@@ -96,6 +106,45 @@
       <div class="table-scroll"><table><thead><tr><th>Source ↓ / Target →</th><th>Interior</th><th>Boundary</th><th>Exterior</th></tr></thead><tbody id="matrix-body"></tbody></table></div>
       <p id="receipt" class="muted" aria-live="polite">No events yet.</p>
     </section>
+    <section class="panel" aria-labelledby="language-title">
+      <h2 id="language-title">Experiment C. Write executable relationships</h2>
+      <p>ΦREL-369 now has a real <strong>interpreted</strong> language. Every line defines either a domain state, a directed or self-relation, or a three-way interaction. No JavaScript is evaluated from this editor.</p>
+      <label for="rel-preset">Explore a complete working program</label>
+      <select id="rel-preset">
+        <option value="xor">Triadic XOR</option>
+        <option value="synchronize">Synchronizing network</option>
+        <option value="memory">Relationship memory and recovery</option>
+      </select>
+      <label for="rel-editor">Program source</label>
+      <textarea id="rel-editor" spellcheck="false" aria-describedby="rel-syntax-help"></textarea>
+      <p id="rel-syntax-help" class="helper">Grammar: <code>STATE A 0.2</code>, <code>RELATE A -> B EXCITE 0.8</code>, <code>RELATE A <-> B SYNC 0.6</code>, <code>RELATE C -> C REMEMBER 0.3</code>, <code>RELATE C -> C RECALL 1</code>, <code>TRIAD A B -> C XOR 1</code>. All gains and states are bounded to [0,1]; at most 24 relationship rules.</p>
+      <div class="toolbar">
+        <button id="rel-compile" type="button">Compile / reset</button>
+        <button id="rel-step" type="button">Execute one tick</button>
+        <button id="rel-step20" type="button">Execute 20 ticks</button>
+        <button id="rel-shock" type="button">Perturb C to 0.05</button>
+      </div>
+      <p id="rel-status" aria-live="polite" class="muted">Loading interpreter…</p>
+      <p>Program tick: <strong id="rel-runtime-tick">—</strong></p>
+      <div class="cols">
+        <section class="card" aria-label="Current domain states"><h3>Domain states</h3><pre id="rel-state-lines"></pre></section>
+        <section class="card" aria-label="Relationship history"><h3>Stored memory</h3><pre id="rel-memory-lines"></pre></section>
+      </div>
+      <h3>Last execution receipt</h3>
+      <pre id="rel-runtime-receipt" aria-live="polite">Initial state.</pre>
+    </section>
+
+    <section class="panel" aria-labelledby="discovery-title">
+      <h2 id="discovery-title">Experiment D. Search for relational programs</h2>
+      <p>A bounded, exhaustive synthesizer searches <strong>80 candidate programs</strong> (16 higher-order and 64 pairwise). It selects each family's winner using only the four Boolean training cases, then evaluates that winner on 16 held-out interior input pairs. This is a deliberately small, transparent search, <strong>not an autonomous AI agent</strong>.</p>
+      <label for="rel-target">Desired relationship / computational target</label>
+      <select id="rel-target"></select>
+      <div class="toolbar"><button id="rel-discover" type="button">Search and compare programs</button></div>
+      <p id="rel-discovery-status" class="muted" aria-live="polite">Choose a target to run the search.</p>
+      <pre id="rel-discovery-report" aria-label="Program search results">No search results yet.</pre>
+      <p class="helper">The library already contains XOR/AND/OR/MEAN primitives. Recovering a known primitive from this candidate pool is a controlled sanity check, not the invention of a new algorithm. The pairwise baseline uses two gains and the higher-order candidate one; comparisons only apply to these fixed families.</p>
+    </section>
+
     <section class="panel">
       <h2>Interpretation and controls</h2>
       <p>The first experiment uses an exact 8-state probability distribution, not sampling. The second uses a simple dimensionless update law, not an electric circuit or physical energy model. The higher-order rule injects or removes modeled state, so only the pairwise-only model is expected to conserve the state sum.</p>
