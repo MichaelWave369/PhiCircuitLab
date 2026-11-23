@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "test:browser": "node tests/browser-smoke.mjs"
+    "test:browser": "node tests/browser-smoke.mjs && node tests/relational369-browser-smoke.mjs"
   },
   "description": "Free browser-based electronics academy; no runtime dependencies."
 }

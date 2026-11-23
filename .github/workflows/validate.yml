@@ -44,6 +44,9 @@ jobs:
           node --check wiring-lab.mjs
           node --check relational369-engine.mjs
           node --check relational369-ui.mjs
+          node --check relational369-language.mjs
+          node --check relational369-discovery.mjs
+          node --check relational369-language-ui.mjs
       - name: Run dependency-free model tests
         run: npm test
       - name: Exercise interactive wiring lab in headless Chrome
